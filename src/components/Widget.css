@@ -1,0 +1,15 @@
+.getwell-widget-drawer {
+  z-index: 10000;
+}
+
+.getwell-widget-content {
+  padding: 16px 0;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .getwell-widget-drawer .ant-drawer-content-wrapper {
+    width: 100% !important;
+  }
+}
+

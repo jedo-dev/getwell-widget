@@ -10,23 +10,10 @@ const packageJson = require('./package.json');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-export default {
+// Базовая конфигурация для CJS и ESM
+const baseConfig = {
   input: 'src/index.ts',
-  output: [
-    {
-      file: packageJson.main,
-      format: 'cjs',
-      sourcemap: true,
-      exports: 'named',
-    },
-    {
-      file: packageJson.module,
-      format: 'esm',
-      sourcemap: true,
-      exports: 'named',
-    },
-  ],
-  external: ['react', 'react-dom', 'antd'],
+  external: ['react', 'react-dom', 'antd', 'react/jsx-runtime'],
   plugins: [
     peerDepsExternal(),
     resolve({
@@ -51,4 +38,77 @@ export default {
     isProduction && terser(),
   ].filter(Boolean),
 };
+
+// Конфигурация для UMD с классическим JSX transform
+const umdConfig = {
+  input: 'src/index.ts',
+  external: ['react', 'react-dom', 'antd', 'dayjs'],
+  plugins: [
+    peerDepsExternal(),
+    resolve({
+      browser: true,
+    }),
+    commonjs(),
+    typescript({
+      tsconfig: './tsconfig.json',
+      jsx: 'react',
+      declaration: false,
+      declarationMap: false,
+    }),
+    babel({
+      babelHelpers: 'bundled',
+      exclude: 'node_modules/**',
+      extensions: ['.ts', '.tsx'],
+      presets: [
+        ['@babel/preset-env', {
+          targets: {
+            browsers: ['> 1%', 'last 2 versions'],
+          },
+        }],
+        ['@babel/preset-react', {
+          runtime: 'classic',
+        }],
+        '@babel/preset-typescript',
+      ],
+    }),
+    postcss({
+      extract: true,
+      minimize: isProduction,
+    }),
+    isProduction && terser(),
+  ].filter(Boolean),
+  output: {
+    file: 'dist/index.umd.js',
+    format: 'umd',
+    name: 'GetWellWidget',
+    sourcemap: true,
+    globals: {
+      'react': 'React',
+      'react-dom': 'ReactDOM',
+      'antd': 'antd',
+      'dayjs': 'dayjs',
+    },
+  },
+};
+
+export default [
+  {
+    ...baseConfig,
+    output: [
+      {
+        file: packageJson.main,
+        format: 'cjs',
+        sourcemap: true,
+        exports: 'named',
+      },
+      {
+        file: packageJson.module,
+        format: 'esm',
+        sourcemap: true,
+        exports: 'named',
+      },
+    ],
+  },
+  umdConfig,
+];
 

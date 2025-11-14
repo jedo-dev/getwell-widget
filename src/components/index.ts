@@ -1,2 +1,4 @@
 // Export all components from here
-// Example: export { default as BookingWidget } from './BookingWidget';
+export { default as Widget } from './Widget';
+export type { WidgetProps } from './Widget';
+export { default as WidgetProvider } from './WidgetProvider';
