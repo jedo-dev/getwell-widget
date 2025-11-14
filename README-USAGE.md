@@ -37,10 +37,7 @@ your-project/
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Website</title>
 
-    <!-- Ant Design CSS (обязательно для виджета) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.28.1/dist/reset.css" />
-
-    <!-- CSS виджета -->
+    <!-- CSS виджета (включает все необходимые стили) -->
     <link rel="stylesheet" href="./getwell-widget/index.umd.css" />
   </head>
   <body>
@@ -50,20 +47,7 @@ your-project/
     <!-- Контейнер для виджета -->
     <div id="widget-root"></div>
 
-    <!-- React и ReactDOM (обязательно для виджета - ПЕРЕД виджетом!) -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-    ></script>
-
-    <!-- Day.js (обязательно для Ant Design!) -->
-    <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
-
-    <!-- Ant Design JS через CDN -->
-    <script src="https://unpkg.com/antd@5.28.1/dist/antd.min.js"></script>
-
-    <!-- Библиотека GetWell Widget (UMD версия для браузера) -->
+    <!-- Библиотека GetWell Widget (UMD версия - все зависимости включены!) -->
     <script src="./getwell-widget/index.umd.js"></script>
 
     <script>
@@ -108,12 +92,15 @@ your-project/
 
 ## Быстрый старт:
 
-1. Скопируйте файлы из `dist` в папку вашего проекта
+1. Скопируйте файлы из `dist` в папку вашего проекта:
+   - `index.umd.js` - JavaScript библиотека (включает React, ReactDOM, Ant Design и Day.js)
+   - `index.umd.css` - CSS стили (включает стили Ant Design)
 2. Подключите CSS и JS файлы в ваш HTML
-3. Подключите React и ReactDOM через CDN (или локально)
-4. Инициализируйте виджет при загрузке страницы
-5. Отрендерите `WidgetProvider` в нужном месте
-6. Используйте `window.GetWellWidget.open()` для открытия виджета
+3. Инициализируйте виджет при загрузке страницы
+4. Отрендерите `WidgetProvider` в нужном месте
+5. Используйте `window.GetWellWidget.open()` для открытия виджета
+
+**Всё работает из одного скрипта!** Не нужно подключать React, ReactDOM, Day.js или Ant Design отдельно.
 
 ## Готовый пример:
 

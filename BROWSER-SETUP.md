@@ -1,13 +1,13 @@
-# Исправление: Использование в браузере
+# Использование в браузере
 
-## Проблема
-Ошибка `exports is not defined` возникала потому, что `index.cjs.js` использует CommonJS формат, который не работает напрямую в браузере.
-
-## Решение
-Теперь библиотека собирается в трех форматах:
-- **`index.cjs.js`** - для Node.js (CommonJS)
-- **`index.esm.js`** - для ES модулей
+## Форматы сборки
+Библиотека собирается в трех форматах:
+- **`index.cjs.js`** - для Node.js (CommonJS) - зависимости внешние
+- **`index.esm.js`** - для ES модулей - зависимости внешние
 - **`index.umd.js`** - для браузера (UMD) ← **Используйте этот для HTML**
+  - ✅ **Все зависимости включены в один файл!**
+  - ✅ React, ReactDOM, Ant Design и Day.js включены в бандл
+  - ✅ Не нужно подключать зависимости отдельно
 
 ## Что нужно изменить в вашем HTML:
 
@@ -29,21 +29,13 @@
 <link rel="stylesheet" href="./dist/index.umd.css">
 ```
 
-### 3. Важен порядок подключения скриптов:
+### 3. Подключение скрипта (всё в одном!):
 ```html
-<!-- 1. React и ReactDOM ПЕРВЫМИ -->
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-<!-- 2. Day.js (обязательно для Ant Design!) -->
-<script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
-
-<!-- 3. Ant Design JS -->
-<script src="https://unpkg.com/antd@5.28.1/dist/antd.min.js"></script>
-
-<!-- 4. Виджет ПОСЛЕДНИМ -->
+<!-- Просто подключите один скрипт - все зависимости уже внутри! -->
 <script src="./dist/index.umd.js"></script>
 ```
+
+**Ничего больше не нужно!** React, ReactDOM, Day.js и Ant Design уже включены в бандл.
 
 ## Полный пример правильного подключения:
 
@@ -55,19 +47,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Site</title>
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.28.1/dist/reset.css">
+    <!-- CSS виджета (включает все необходимые стили) -->
     <link rel="stylesheet" href="./dist/index.umd.css">
 </head>
 <body>
     <button onclick="window.GetWellWidget.open()">Записаться</button>
     <div id="widget-root"></div>
 
-    <!-- JS в правильном порядке -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
-    <script src="https://unpkg.com/antd@5.28.1/dist/antd.min.js"></script>
+    <!-- Один скрипт - всё включено! -->
     <script src="./dist/index.umd.js"></script>
     
     <script>
@@ -93,7 +80,6 @@
 
 ## Важно:
 - ✅ Используйте **`index.umd.js`** и **`index.umd.css`** для браузера
-- ✅ Порядок скриптов критичен: React → ReactDOM → Day.js → Ant Design → Виджет
-- ✅ Не забудьте подключить Day.js (обязательно для Ant Design!)
-- ✅ Не забудьте подключить Ant Design JS через CDN
+- ✅ **Все зависимости включены в один бандл!** Не нужно подключать React, ReactDOM, Day.js или Ant Design отдельно
+- ✅ Просто подключите один скрипт и один CSS файл - всё готово к работе!
 

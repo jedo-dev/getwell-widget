@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GetWell Widget Example</title>
 
-    <!-- Ant Design CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.28.1/dist/reset.css" />
-
-    <!-- CSS библиотеки виджета -->
+    <!-- CSS библиотеки виджета (включает все необходимые стили) -->
     <link rel="stylesheet" href="./dist/index.umd.css" />
 
     <style>
@@ -97,20 +94,7 @@
       <div id="widget-root"></div>
     </div>
 
-    <!-- React и ReactDOM через CDN (обязательно перед виджетом!) -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script
-      crossorigin
-      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-    ></script>
-
-    <!-- Day.js через CDN (обязательно для Ant Design!) -->
-    <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
-
-    <!-- Ant Design JS через CDN (обязательно перед виджетом!) -->
-    <script src="https://unpkg.com/antd@5.28.1/dist/antd.min.js"></script>
-
-    <!-- Библиотека GetWell Widget (UMD версия для браузера) -->
+    <!-- Библиотека GetWell Widget (UMD версия - все зависимости включены!) -->
     <script src="./dist/index.umd.js"></script>
 
     <script>
@@ -161,24 +145,36 @@
       // Рендеринг WidgetProvider после загрузки страницы
       window.addEventListener('DOMContentLoaded', function () {
         // Проверяем, что библиотека загружена
-        if (
-          typeof window.GetWellWidget !== 'undefined' &&
-          window.GetWellWidget.WidgetProvider &&
-          window.React &&
-          window.ReactDOM
-        ) {
+        if (typeof window.GetWellWidget !== 'undefined' && window.GetWellWidget.WidgetProvider) {
           // Получаем корневой элемент для рендеринга
           const rootElement = document.getElementById('widget-root');
 
           if (rootElement) {
-            // Создаём React root
-            const root = window.ReactDOM.createRoot(rootElement);
+            // React и ReactDOM теперь доступны через глобальные переменные из бандла
+            // Проверяем наличие React и ReactDOM
+            if (window.React && window.ReactDOM) {
+              // Проверяем, есть ли createRoot (React 18+) или используем render (React < 18)
+              const WidgetProvider = window.GetWellWidget.WidgetProvider;
+              const element = window.React.createElement(WidgetProvider);
 
-            // Рендерим WidgetProvider
-            const WidgetProvider = window.GetWellWidget.WidgetProvider;
-            root.render(window.React.createElement(WidgetProvider));
+              if (typeof window.ReactDOM.createRoot === 'function') {
+                // React 18+
+                const root = window.ReactDOM.createRoot(rootElement);
+                root.render(element);
+              } else if (typeof window.ReactDOM.render === 'function') {
+                // React < 18
+                window.ReactDOM.render(element, rootElement);
+              } else {
+                console.error('ReactDOM.render или ReactDOM.createRoot не найдены');
+                return;
+              }
 
-            console.log('GetWell Widget Provider успешно инициализирован');
+              console.log('GetWell Widget Provider успешно инициализирован');
+            } else {
+              console.warn('React не найден. Возможно, библиотека не загружена полностью.');
+              console.log('window.React:', window.React);
+              console.log('window.ReactDOM:', window.ReactDOM);
+            }
           }
         } else {
           console.warn('GetWell Widget не загружен правильно. Проверьте подключение скриптов.');

@@ -1,6 +1,7 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
@@ -39,16 +40,35 @@ const baseConfig = {
   ].filter(Boolean),
 };
 
-// Конфигурация для UMD с классическим JSX transform
+// Конфигурация для UMD с классическим JSX transform и всеми зависимостями в бандле
 const umdConfig = {
   input: 'src/index.ts',
-  external: ['react', 'react-dom', 'antd', 'dayjs'],
+  // Не делаем зависимости external - они будут включены в бандл
+  external: [],
   plugins: [
-    peerDepsExternal(),
+    // Заменяем process.env на статические значения для браузера
+    replace({
+      'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
+      'process.env': JSON.stringify({}),
+      // Заменяем process на пустой объект для браузера
+      'process.browser': JSON.stringify(true),
+      // Добавляем полифилл для process
+      'typeof process': JSON.stringify('undefined'),
+      preventAssignment: true,
+    }),
+    // Не используем peerDepsExternal для UMD - включаем все в бандл
     resolve({
       browser: true,
+      preferBuiltins: false,
+      // Игнорируем встроенные модули Node.js
+      exportConditions: ['browser', 'default'],
     }),
-    commonjs(),
+    commonjs({
+      include: /node_modules/,
+      transformMixedEsModules: true,
+      // Заменяем process на пустой объект для браузера
+      ignoreGlobal: false,
+    }),
     typescript({
       tsconfig: './tsconfig.json',
       jsx: 'react',
@@ -57,13 +77,14 @@ const umdConfig = {
     }),
     babel({
       babelHelpers: 'bundled',
-      exclude: 'node_modules/**',
+      exclude: /node_modules\/(?!(react|react-dom|antd|dayjs|@ant-design|rc-|@babel\/runtime))/,
       extensions: ['.ts', '.tsx'],
       presets: [
         ['@babel/preset-env', {
           targets: {
             browsers: ['> 1%', 'last 2 versions'],
           },
+          modules: false,
         }],
         ['@babel/preset-react', {
           runtime: 'classic',
@@ -74,6 +95,8 @@ const umdConfig = {
     postcss({
       extract: true,
       minimize: isProduction,
+      // Включаем CSS из Ant Design
+      inject: false,
     }),
     isProduction && terser(),
   ].filter(Boolean),
@@ -82,12 +105,7 @@ const umdConfig = {
     format: 'umd',
     name: 'GetWellWidget',
     sourcemap: true,
-    globals: {
-      'react': 'React',
-      'react-dom': 'ReactDOM',
-      'antd': 'antd',
-      'dayjs': 'dayjs',
-    },
+    // Globals не нужны, так как все включено в бандл
   },
 };
 
