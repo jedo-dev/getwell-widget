@@ -89,7 +89,7 @@ export interface WidgetConfig {
 }
 
 // Widget Step (Шаг виджета)
-export type WidgetStep = 'branch-selection' | 'next-steps' | 'specialist-selection' | 'date-time-selection' | 'phone-input' | 'appointment-details' | 'appointment-confirmation';
+export type WidgetStep = 'branch-selection' | 'next-steps' | 'specialist-selection' | 'department-specialists-selection' | 'doctor-info' | 'date-time-selection' | 'phone-input' | 'appointment-details' | 'appointment-confirmation';
 
 // Widget State
 export interface WidgetState {
@@ -99,8 +99,17 @@ export interface WidgetState {
   currentStep: WidgetStep;
   selectedBranchId: number | null;
   selectedEmployeeId: number | null;
+  selectedDepartmentId: number | null;
+  selectionMode?: 'employee' | 'department'; // режим выбора: специалист или отделение
   selectedTimeSlot: string | null;
   phone: string | null;
   selectedPetId: number | null;
+  isNewUser?: boolean; // новый пользователь
+  clientData?: {
+    firstName?: string;
+    lastName?: string;
+    patronymic?: string;
+    gender?: 'male' | 'female';
+  };
 }
 

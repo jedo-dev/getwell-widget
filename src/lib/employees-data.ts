@@ -64,3 +64,28 @@ export function getEmployeesSync(branchId: number): Employee[] {
   return MOCK_EMPLOYEES;
 }
 
+/**
+ * Получение списка специалистов по отделению
+ * TODO: В будущем здесь будет запрос к API
+ * @param branchId - ID филиала
+ * @param departmentId - ID отделения
+ * @returns Promise<Employee[]> - список специалистов отделения
+ */
+export async function getEmployeesByDepartment(branchId: number, departmentId: number): Promise<Employee[]> {
+  // Временная реализация - возвращаем всех врачей
+  // В будущем здесь будет запрос к API:
+  // const response = await fetch(`${apiUrl}/branches/${branchId}/departments/${departmentId}/employees`);
+  // return await response.json();
+  
+  return Promise.resolve(MOCK_EMPLOYEES);
+}
+
+/**
+ * Синхронное получение списка специалистов по отделению (для совместимости)
+ * TODO: В будущем убрать, использовать только getEmployeesByDepartment()
+ */
+export function getEmployeesByDepartmentSync(branchId: number, departmentId: number): Employee[] {
+  // Временная реализация - возвращаем всех врачей
+  return MOCK_EMPLOYEES;
+}
+

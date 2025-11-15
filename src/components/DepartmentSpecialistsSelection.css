@@ -1,10 +1,10 @@
-.specialist-selection {
+.department-specialists-selection {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.specialist-selection-header {
+.department-specialists-selection-header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -12,7 +12,7 @@
   position: relative;
 }
 
-.specialist-selection-back {
+.department-specialists-selection-back {
   font-size: 18px;
   color: rgba(0, 0, 0, 0.85);
   cursor: pointer;
@@ -20,11 +20,11 @@
   transition: color 0.2s;
 }
 
-.specialist-selection-back:hover {
+.department-specialists-selection-back:hover {
   color: #1890ff;
 }
 
-.specialist-selection-title {
+.department-specialists-selection-title {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
@@ -32,53 +32,43 @@
   flex: 1;
 }
 
-.specialist-selection-tabs {
-  flex: 1;
+.department-specialists-selection-content {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  flex: 1;
   overflow: hidden;
 }
 
-.specialist-selection-tabs .ant-tabs-content-holder {
+.department-specialists-selection-search {
+  margin-bottom: 8px;
+}
+
+.department-specialists-selection-list {
   flex: 1;
   overflow: auto;
 }
 
-.specialist-selection-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 200px;
-}
-
-.specialist-selection-search {
-  margin-bottom: 8px;
-}
-
-.specialist-selection-list {
-  flex: 1;
-}
-
-.specialist-selection-item {
+.department-specialists-selection-item {
   padding: 16px 0 !important;
   cursor: pointer;
   transition: background-color 0.2s;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.specialist-selection-item:hover {
+.department-specialists-selection-item:hover {
   background-color: #fafafa;
 }
 
-.specialist-selection-item.selected {
+.department-specialists-selection-item.selected {
   background-color: #f0f7ff;
 }
 
-.specialist-selection-item:last-child {
+.department-specialists-selection-item:last-child {
   border-bottom: none;
 }
 
-.specialist-selection-item-content {
+.department-specialists-selection-item-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -86,7 +76,7 @@
   gap: 16px;
 }
 
-.specialist-selection-item-left {
+.department-specialists-selection-item-left {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -94,7 +84,7 @@
   min-width: 0;
 }
 
-.specialist-selection-avatar {
+.department-specialists-selection-avatar {
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -106,23 +96,23 @@
   overflow: hidden;
 }
 
-.specialist-selection-avatar img {
+.department-specialists-selection-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.specialist-selection-avatar .anticon {
+.department-specialists-selection-avatar .anticon {
   font-size: 24px;
   color: rgba(0, 0, 0, 0.45);
 }
 
-.specialist-selection-item-info {
+.department-specialists-selection-item-info {
   flex: 1;
   min-width: 0;
 }
 
-.specialist-selection-item-name {
+.department-specialists-selection-item-name {
   font-size: 16px;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.85);
@@ -132,24 +122,18 @@
   white-space: nowrap;
 }
 
-.specialist-selection-item-specialization {
+.department-specialists-selection-item-specialization {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.65);
   margin-bottom: 4px;
 }
 
-.specialist-selection-item-appointment {
+.department-specialists-selection-item-appointment {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.45);
 }
 
-.specialist-selection-item-arrow {
-  font-size: 16px;
-  color: rgba(0, 0, 0, 0.45);
-  flex-shrink: 0;
-}
-
-.specialist-selection-footer {
+.department-specialists-selection-footer {
   display: flex;
   gap: 12px;
   padding: 16px 0;
@@ -157,17 +141,17 @@
   margin-top: auto;
 }
 
-.specialist-selection-footer-btn {
+.department-specialists-selection-footer-btn {
   flex: 1;
 }
 
-.specialist-selection-footer-btn.secondary {
+.department-specialists-selection-footer-btn.secondary {
   background-color: #f5f5f5;
   border-color: #d9d9d9;
   color: rgba(0, 0, 0, 0.85);
 }
 
-.specialist-selection-footer-btn.secondary:hover {
+.department-specialists-selection-footer-btn.secondary:hover {
   background-color: #e6e6e6;
   border-color: #bfbfbf;
 }

@@ -278,3 +278,66 @@
   color: rgba(0, 0, 0, 0.25);
 }
 
+.appointment-details-field {
+  margin-bottom: 16px;
+}
+
+.appointment-details-field .ant-input,
+.appointment-details-field .ant-select-selector,
+.appointment-details-field .ant-picker {
+  height: 48px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.appointment-details-field .ant-input::placeholder,
+.appointment-details-field .ant-select-selection-placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.appointment-details-gender-section {
+  margin-bottom: 16px;
+}
+
+.appointment-details-gender-group {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+}
+
+.appointment-details-gender-group .ant-radio-button-wrapper {
+  flex: 1;
+  text-align: center;
+  height: 48px;
+  line-height: 46px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.appointment-details-gender-group .ant-radio-button-wrapper:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.appointment-details-gender-group .ant-radio-button-wrapper:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.appointment-details-gender-group .ant-radio-button-wrapper-checked {
+  background-color: #595959;
+  border-color: #595959;
+  color: #fff;
+}
+
+.appointment-details-gender-group .ant-radio-button-wrapper-checked:hover {
+  background-color: #434343;
+  border-color: #434343;
+  color: #fff;
+}
+
+.appointment-details-pet-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  margin-bottom: 16px;
+}
+

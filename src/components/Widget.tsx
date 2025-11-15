@@ -1,12 +1,15 @@
 import { Drawer } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getBranchesSync } from '../lib/branches-data';
-import { getEmployeesSync } from '../lib/employees-data';
-import { Branch, Employee, WidgetState } from '../types';
+import { getDepartmentsSync } from '../lib/departments-data';
+import { getEmployeesByDepartmentSync, getEmployeesSync } from '../lib/employees-data';
+import { Branch, Department, Employee, WidgetState } from '../types';
 import AppointmentConfirmation from './AppointmentConfirmation';
 import AppointmentDetails from './AppointmentDetails';
 import BranchSelection from './BranchSelection';
 import DateTimeSelection from './DateTimeSelection';
+import DepartmentSpecialistsSelection from './DepartmentSpecialistsSelection';
+import DoctorInfo from './DoctorInfo';
 import NextSteps from './NextSteps';
 import PhoneInput from './PhoneInput';
 import SpecialistSelection from './SpecialistSelection';
@@ -22,6 +25,7 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
   const [drawerWidth, setDrawerWidth] = useState<number | string>(400);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -54,7 +58,11 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
 
   useEffect(() => {
     // Загружаем специалистов при переходе к выбору специалиста
-    if (open && widgetState.currentStep === 'specialist-selection' && widgetState.selectedBranchId) {
+    if (
+      open &&
+      widgetState.currentStep === 'specialist-selection' &&
+      widgetState.selectedBranchId
+    ) {
       // TODO: В будущем здесь будет асинхронный запрос
       // const loadEmployees = async () => {
       //   const data = await getEmployees(widgetState.selectedBranchId!);
@@ -68,18 +76,75 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
     }
   }, [open, widgetState.currentStep, widgetState.selectedBranchId]);
 
+  useEffect(() => {
+    // Загружаем специалистов отделения при переходе к списку врачей отделения
+    if (
+      open &&
+      widgetState.currentStep === 'department-specialists-selection' &&
+      widgetState.selectedBranchId &&
+      widgetState.selectedDepartmentId
+    ) {
+      // TODO: В будущем здесь будет асинхронный запрос
+      // const loadEmployees = async () => {
+      //   const data = await getEmployeesByDepartment(widgetState.selectedBranchId!, widgetState.selectedDepartmentId!);
+      //   setEmployees(data);
+      // };
+      // loadEmployees();
+
+      // Временная реализация - синхронное получение
+      const employeesData = getEmployeesByDepartmentSync(
+        widgetState.selectedBranchId,
+        widgetState.selectedDepartmentId,
+      );
+      setEmployees(employeesData);
+    }
+  }, [
+    open,
+    widgetState.currentStep,
+    widgetState.selectedBranchId,
+    widgetState.selectedDepartmentId,
+  ]);
+
+  useEffect(() => {
+    // Загружаем отделения при переходе к выбору специалиста/отделения
+    if (
+      open &&
+      (widgetState.currentStep === 'specialist-selection' ||
+        widgetState.currentStep === 'department-specialists-selection') &&
+      widgetState.selectedBranchId
+    ) {
+      // TODO: В будущем здесь будет асинхронный запрос
+      // const loadDepartments = async () => {
+      //   const data = await getDepartments(widgetState.selectedBranchId!);
+      //   setDepartments(data);
+      // };
+      // loadDepartments();
+
+      // Временная реализация - синхронное получение
+      const departmentsData = getDepartmentsSync(widgetState.selectedBranchId);
+      setDepartments(departmentsData);
+    }
+  }, [open, widgetState.currentStep, widgetState.selectedBranchId]);
+
   const getSelectedBranch = (): Branch | null => {
     if (!widgetState.selectedBranchId) {
       return null;
     }
-    return branches.find(b => b.id === widgetState.selectedBranchId) || null;
+    return branches.find((b) => b.id === widgetState.selectedBranchId) || null;
   };
 
   const getSelectedEmployee = (): Employee | null => {
     if (!widgetState.selectedEmployeeId) {
       return null;
     }
-    return employees.find(emp => emp.id === widgetState.selectedEmployeeId) || null;
+    return employees.find((emp) => emp.id === widgetState.selectedEmployeeId) || null;
+  };
+
+  const getSelectedDepartment = (): Department | null => {
+    if (!widgetState.selectedDepartmentId) {
+      return null;
+    }
+    return departments.find((dept) => dept.id === widgetState.selectedDepartmentId) || null;
   };
 
   const renderContent = () => {
@@ -98,9 +163,28 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
       return (
         <SpecialistSelection
           employees={employees}
+          departments={departments}
+          selectedEmployeeId={widgetState.selectedEmployeeId}
+          selectedDepartmentId={widgetState.selectedDepartmentId}
+          selectionMode={widgetState.selectionMode}
+        />
+      );
+    }
+
+    if (currentStep === 'department-specialists-selection') {
+      const selectedDepartment = getSelectedDepartment();
+      return (
+        <DepartmentSpecialistsSelection
+          employees={employees}
+          selectedDepartment={selectedDepartment}
           selectedEmployeeId={widgetState.selectedEmployeeId}
         />
       );
+    }
+
+    if (currentStep === 'doctor-info') {
+      const selectedEmployee = getSelectedEmployee();
+      return <DoctorInfo employee={selectedEmployee} />;
     }
 
     if (currentStep === 'date-time-selection') {
@@ -121,6 +205,7 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
           selectedEmployee={selectedEmployee}
           selectedDateTime={widgetState.selectedTimeSlot}
           phone={widgetState.phone}
+          isNewUser={widgetState.isNewUser}
         />
       );
     }
@@ -148,7 +233,7 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
         <span className='getwell-widget-footer-text'>Работает на</span>
         <img
           src="data:image/svg+xml,%3Csvg width='80' height='18' viewBox='0 0 80 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15.3359 0.181152C16.683 0.181264 17.7754 1.27353 17.7754 2.62061V15.4263C17.7753 16.7733 16.6829 17.8656 15.3359 17.8657H2.53027C1.1832 17.8657 0.0909305 16.7733 0.0908203 15.4263V2.62061C0.0908203 1.27346 1.18313 0.181152 2.53027 0.181152H15.3359ZM4.98535 5.78564C4.82461 5.30236 4.29387 5.05007 3.81738 5.22998C3.35376 5.40509 3.12037 5.92277 3.2959 6.38623L3.74609 7.57568C3.76375 7.64687 3.78714 7.72113 3.81641 7.79834V7.79932L5.47656 12.2417C5.59197 12.5391 5.74138 12.7489 5.91797 12.8823C6.09549 13.0074 6.30685 13.0718 6.55762 13.0718C6.81587 13.0717 7.02478 13.0034 7.19238 12.8726C7.36241 12.7309 7.50508 12.5113 7.61328 12.2036L8.57324 9.4165L9.58984 12.228C9.70581 12.5269 9.85192 12.7373 10.0215 12.8706C10.1983 13.0032 10.4126 13.0718 10.6709 13.0718C10.9207 13.0717 11.1318 13.0033 11.3096 12.8696C11.486 12.7368 11.6316 12.5278 11.7393 12.23L11.7402 12.2271L12.29 10.9116C12.3899 10.656 12.4444 10.3348 12.4229 10.1284V10.1265L12.4219 10.1245C12.4076 9.91852 12.3382 9.76151 12.2188 9.64404C12.1055 9.53271 11.9324 9.46729 11.6787 9.46729C11.5056 9.46737 11.3414 9.52025 11.1836 9.63135L11.1816 9.6333L11.1797 9.63428C11.0639 9.71005 11.0126 9.824 10.9678 9.92236C10.9602 9.9391 10.9518 9.9556 10.9443 9.97119L10.6699 10.7876L9.55273 7.06494C9.47667 6.8472 9.3783 6.69626 9.26465 6.6001C9.22089 6.5631 9.13209 6.52548 9.01074 6.49756C8.89406 6.47071 8.7652 6.45658 8.65723 6.45654C8.55795 6.45654 8.43349 6.46966 8.31836 6.49658C8.1996 6.52436 8.10701 6.56258 8.05762 6.60205V6.60303H8.05664C7.9473 6.68842 7.84992 6.83638 7.77344 7.06396L6.67383 10.728L5.50098 7.32373C5.48368 7.27351 5.46675 7.22589 5.44922 7.18115L4.98535 5.78564ZM12.7598 3.68799C12.3831 3.68799 12.0771 3.99397 12.0771 4.37061V5.5083H11.0176C10.678 5.50831 10.4024 5.78395 10.4023 6.12354C10.4023 6.46318 10.6779 6.73876 11.0176 6.73877H12.0771V7.87744C12.0774 8.2539 12.3833 8.55908 12.7598 8.55908C13.1361 8.55888 13.4412 8.25377 13.4414 7.87744V6.73877H14.501C14.8406 6.73877 15.1162 6.46318 15.1162 6.12354C15.1161 5.78394 14.8406 5.5083 14.501 5.5083H13.4414V4.37061C13.4414 3.99409 13.1362 3.68819 12.7598 3.68799Z' fill='%23C9C9C9'/%3E%3Cpath d='M32.0588 13.5822C31.5373 13.9734 30.9819 14.2576 30.3927 14.4349C29.8034 14.607 29.1776 14.693 28.5153 14.693C27.6757 14.693 26.9143 14.5626 26.2312 14.3019C25.5532 14.0359 24.9718 13.6683 24.4868 13.1989C24.0018 12.7244 23.6263 12.1638 23.3604 11.5171C23.0996 10.8653 22.9692 10.1534 22.9692 9.38164C22.9692 8.60462 23.0944 7.89278 23.3447 7.24613C23.595 6.59427 23.9522 6.03367 24.4164 5.56432C24.8857 5.09498 25.4489 4.72994 26.106 4.46919C26.7683 4.20845 27.5062 4.07808 28.3197 4.07808C28.7421 4.07808 29.1359 4.11197 29.5009 4.17977C29.866 4.24756 30.2049 4.34143 30.5178 4.46137C30.8307 4.58131 31.1149 4.72472 31.3705 4.8916C31.6312 5.05848 31.8659 5.24361 32.0745 5.44699L31.4878 6.37003C31.3991 6.51605 31.2792 6.60731 31.128 6.64381C30.9819 6.6751 30.8229 6.6386 30.6508 6.5343C30.4891 6.43521 30.3275 6.34395 30.1658 6.26051C30.0041 6.17186 29.8294 6.09624 29.6417 6.03367C29.4592 5.96587 29.2558 5.91372 29.0316 5.87722C28.8073 5.84071 28.5492 5.82246 28.2572 5.82246C27.767 5.82246 27.3263 5.90851 26.9352 6.0806C26.5441 6.24748 26.2103 6.48476 25.9339 6.79244C25.6575 7.10012 25.4437 7.47559 25.2925 7.91886C25.1465 8.35691 25.0735 8.8445 25.0735 9.38164C25.0735 9.96571 25.1543 10.4872 25.3159 10.9461C25.4776 11.405 25.7045 11.7935 25.9965 12.1116C26.2937 12.4245 26.651 12.6644 27.0682 12.8313C27.4853 12.993 27.9495 13.0738 28.4605 13.0738C28.8047 13.0738 29.1124 13.0399 29.3836 12.9721C29.66 12.8991 29.9311 12.8 30.1971 12.6749V10.8601H29.0003C28.8751 10.8601 28.7734 10.8236 28.6952 10.7506C28.6222 10.6775 28.5857 10.5889 28.5857 10.4846V9.32688H32.0588V13.5822Z' fill='%23C9C9C9'/%3E%3Cpath d='M36.5786 6.69074C37.0688 6.69074 37.5199 6.77158 37.9319 6.93324C38.3438 7.08968 38.6984 7.31914 38.9957 7.62161C39.2929 7.91886 39.525 8.28651 39.6919 8.72456C39.8588 9.16261 39.9422 9.66324 39.9422 10.2265C39.9422 10.3777 39.9344 10.5028 39.9187 10.6019C39.9031 10.6958 39.877 10.7714 39.8405 10.8288C39.8092 10.8861 39.7623 10.9279 39.6997 10.9539C39.6423 10.9748 39.5693 10.9852 39.4807 10.9852H34.8342C34.8655 11.3607 34.9333 11.6866 35.0376 11.963C35.1419 12.2394 35.2801 12.4663 35.4522 12.6436C35.6243 12.8209 35.8276 12.9538 36.0623 13.0425C36.297 13.1259 36.5577 13.1677 36.8445 13.1677C37.1314 13.1677 37.3791 13.1338 37.5877 13.066C37.8015 12.993 37.9866 12.9173 38.1431 12.8391C38.3047 12.7557 38.4481 12.6801 38.5733 12.6123C38.6984 12.5393 38.821 12.5028 38.9409 12.5028C39.087 12.5028 39.2069 12.5627 39.3008 12.6827L39.8718 13.418C39.658 13.6683 39.4207 13.8769 39.16 14.0438C38.8992 14.2054 38.628 14.3358 38.3464 14.4349C38.07 14.5288 37.7884 14.5965 37.5016 14.6383C37.2148 14.68 36.9384 14.7008 36.6725 14.7008C36.1353 14.7008 35.6347 14.6122 35.1706 14.4349C34.7064 14.2576 34.3023 13.9942 33.9581 13.6448C33.6139 13.2902 33.3427 12.8548 33.1446 12.3385C32.9516 11.817 32.8551 11.2147 32.8551 10.5315C32.8551 10.0048 32.9412 9.5094 33.1133 9.04528C33.2854 8.57593 33.5305 8.16917 33.8486 7.82499C34.1719 7.47559 34.563 7.1992 35.0219 6.99582C35.4808 6.79244 35.9997 6.69074 36.5786 6.69074ZM36.6177 8.10659C36.1118 8.10659 35.7155 8.25522 35.4287 8.55247C35.1419 8.8445 34.9567 9.25909 34.8733 9.79622H38.1587C38.1587 9.57198 38.1274 9.35817 38.0648 9.15479C38.0075 8.95141 37.9136 8.77149 37.7832 8.61505C37.6581 8.4586 37.499 8.33605 37.3061 8.24739C37.1131 8.15353 36.8837 8.10659 36.6177 8.10659Z' fill='%23C9C9C9'/%3E%3Cpath d='M43.2417 14.7008C42.5689 14.7008 42.0527 14.5079 41.6928 14.122C41.333 13.7309 41.1531 13.1963 41.1531 12.5184V8.27868H40.4491C40.3448 8.27868 40.2561 8.24479 40.1831 8.17699C40.1101 8.10398 40.0736 7.99969 40.0736 7.8641V7.07404L41.2548 6.84719L41.6694 4.79773C41.7163 4.58392 41.8623 4.47702 42.1074 4.47702H43.14V6.87066H45.0565V8.27868H43.14V12.3854C43.14 12.6149 43.1895 12.7948 43.2886 12.9252C43.3877 13.0503 43.5285 13.1129 43.711 13.1129C43.8101 13.1129 43.8909 13.1025 43.9535 13.0816C44.0213 13.0555 44.0787 13.0269 44.1256 12.9956C44.1725 12.9643 44.2143 12.9382 44.2508 12.9173C44.2925 12.8913 44.3368 12.8782 44.3837 12.8782C44.4411 12.8782 44.488 12.8939 44.5245 12.9252C44.561 12.9512 44.6002 12.9956 44.6419 13.0581L45.2442 14.0203C44.973 14.2445 44.6627 14.414 44.3133 14.5288C43.9692 14.6435 43.6119 14.7008 43.2417 14.7008Z' fill='%23C9C9C9'/%3E%3Cpath d='M48.5238 7.33541C48.4436 7.07761 48.6363 6.8159 48.9063 6.8159H49.9423C50.0883 6.8159 50.2109 6.85241 50.31 6.92542C50.4143 6.99321 50.4794 7.07926 50.5055 7.18355L51.4911 11.1417C51.5485 11.3763 51.6006 11.6084 51.6476 11.8379C51.6997 12.0621 51.7441 12.2837 51.7806 12.5028C51.8379 12.2837 51.8979 12.0621 51.9605 11.8379C52.0283 11.6084 52.0987 11.3763 52.1717 11.1417L53.345 7.16791C53.3763 7.06361 53.4389 6.97756 53.5328 6.90977C53.6266 6.84198 53.7414 6.80808 53.877 6.80808H54.7531C54.8939 6.80808 55.0138 6.84198 55.1129 6.90977C55.212 6.97756 55.2772 7.06361 55.3084 7.16791L56.4349 11.1417C56.5809 11.6214 56.706 12.0777 56.8103 12.5106C56.8521 12.2863 56.8964 12.0621 56.9433 11.8379C56.9903 11.6136 57.0476 11.3789 57.1154 11.1338L58.148 7.17573C58.174 7.07143 58.234 6.98539 58.3279 6.91759C58.427 6.8498 58.5443 6.8159 58.6799 6.8159H59.6455C59.9155 6.8159 60.1082 7.07761 60.0279 7.33541L57.7725 14.5835H56.1689C55.9864 14.5835 55.8612 14.4688 55.7934 14.2393L54.5106 9.92138C54.4063 9.60327 54.328 9.29298 54.2759 8.99052C54.2133 9.30341 54.1351 9.61631 54.0412 9.9292L52.7349 14.2393C52.6619 14.4688 52.5185 14.5835 52.3047 14.5835H50.7793L48.5238 7.33541Z' fill='%23C9C9C9'/%3E%3Cpath d='M63.9349 6.69074C64.4251 6.69074 64.8762 6.77158 65.2882 6.93324C65.7002 7.08968 66.0548 7.31914 66.3521 7.62161C66.6493 7.91886 66.8814 8.28651 67.0482 8.72456C67.2151 9.16261 67.2986 9.66324 67.2986 10.2265C67.2986 10.3777 67.2907 10.5028 67.2751 10.6019C67.2594 10.6958 67.2334 10.7714 67.1969 10.8288C67.1656 10.8861 67.1186 10.9279 67.0561 10.9539C66.9987 10.9748 66.9257 10.9852 66.837 10.9852H62.1906C62.2218 11.3607 62.2896 11.6866 62.3939 11.963C62.4982 12.2394 62.6364 12.4663 62.8085 12.6436C62.9806 12.8209 63.184 12.9538 63.4187 13.0425C63.6533 13.1259 63.9141 13.1677 64.2009 13.1677C64.4877 13.1677 64.7354 13.1338 64.944 13.066C65.1578 12.993 65.343 12.9173 65.4994 12.8391C65.6611 12.7557 65.8045 12.6801 65.9296 12.6123C66.0548 12.5393 66.1774 12.5028 66.2973 12.5028C66.4433 12.5028 66.5633 12.5627 66.6571 12.6827L67.2282 13.418C67.0144 13.6683 66.7771 13.8769 66.5163 14.0438C66.2556 14.2054 65.9844 14.3358 65.7028 14.4349C65.4264 14.5288 65.1448 14.5965 64.858 14.6383C64.5712 14.68 64.2948 14.7008 64.0288 14.7008C63.4917 14.7008 62.991 14.6122 62.5269 14.4349C62.0628 14.2576 61.6586 13.9942 61.3145 13.6448C60.9703 13.2902 60.6991 12.8548 60.5009 12.3385C60.308 11.817 60.2115 11.2147 60.2115 10.5315C60.2115 10.0048 60.2976 9.5094 60.4696 9.04528C60.6417 8.57593 60.8868 8.16917 61.2049 7.82499C61.5283 7.47559 61.9194 7.1992 62.3783 6.99582C62.8372 6.79244 63.3561 6.69074 63.9349 6.69074ZM63.9741 8.10659C63.4682 8.10659 63.0719 8.25522 62.7851 8.55247C62.4982 8.8445 62.3131 9.25909 62.2297 9.79622H65.5151C65.5151 9.57198 65.4838 9.35817 65.4212 9.15479C65.3638 8.95141 65.27 8.77149 65.1396 8.61505C65.0144 8.4586 64.8554 8.33605 64.6624 8.24739C64.4695 8.15353 64.24 8.10659 63.9741 8.10659Z' fill='%23C9C9C9'/%3E%3Cpath d='M70.3555 3.34277V14.5835H68.3687V3.34277H70.3555Z' fill='%23C9C9C9'/%3E%3Cpath d='M73.8975 3.34277V14.5835H71.9106V3.34277H73.8975Z' fill='%23C9C9C9'/%3E%3C/svg%3E"
-          alt="Get well"
+          alt='Get well'
           className='getwell-widget-footer-logo'
         />
       </div>
@@ -164,9 +249,7 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
       width={drawerWidth}
       className='getwell-widget-drawer'
       footer={renderFooter()}>
-      <div className='getwell-widget-content'>
-        {renderContent()}
-      </div>
+      <div className='getwell-widget-content'>{renderContent()}</div>
     </Drawer>
   );
 };

@@ -1,7 +1,7 @@
 import { AppstoreOutlined, HomeOutlined, RightOutlined, UserOutlined } from '@ant-design/icons';
 import { List } from 'antd';
 import React from 'react';
-import { goToSpecialistSelection } from '../lib/widget-manager';
+import { goToSpecialistSelection, goToDepartmentSelection } from '../lib/widget-manager';
 import { Branch } from '../types';
 import './NextSteps.css';
 
@@ -24,8 +24,7 @@ const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
       icon: <AppstoreOutlined className="next-steps-item-icon" />,
       title: 'Выбрать отделение',
       onClick: () => {
-        // TODO: Переход к выбору отделения
-        console.log('Выбор отделения');
+        goToDepartmentSelection();
       },
     },
   ];

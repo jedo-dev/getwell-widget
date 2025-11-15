@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { LeftOutlined } from '@ant-design/icons';
-import { Input, Button, message } from 'antd';
+import { Input, Button, Checkbox, message } from 'antd';
 import { goBack, savePhoneAndGoToDetails } from '../lib/widget-manager';
 import './PhoneInput.css';
 
 const PhoneInput: React.FC = () => {
   const [phone, setPhone] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
+  const [isNewUser, setIsNewUser] = useState<boolean>(false);
 
   const handleBack = () => {
     goBack();
@@ -87,7 +88,7 @@ const PhoneInput: React.FC = () => {
       return;
     }
 
-    savePhoneAndGoToDetails(phone);
+    savePhoneAndGoToDetails(phone, isNewUser);
   };
 
   return (
@@ -111,6 +112,15 @@ const PhoneInput: React.FC = () => {
           {phoneError && (
             <div className="phone-input-error">{phoneError}</div>
           )}
+        </div>
+
+        <div className="phone-input-checkbox">
+          <Checkbox
+            checked={isNewUser}
+            onChange={(e) => setIsNewUser(e.target.checked)}
+          >
+            Новый пользователь
+          </Checkbox>
         </div>
       </div>
 

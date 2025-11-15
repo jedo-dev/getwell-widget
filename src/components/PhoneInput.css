@@ -80,3 +80,13 @@
   font-weight: 500;
 }
 
+.phone-input-checkbox {
+  margin-top: 16px;
+  width: 100%;
+}
+
+.phone-input-checkbox .ant-checkbox-wrapper {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+

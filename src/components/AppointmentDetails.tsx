@@ -1,11 +1,13 @@
 import { CalendarOutlined, CheckCircleOutlined, DownOutlined, HomeOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Input, message, Select } from 'antd';
+import { Button, Checkbox, DatePicker, Input, message, Radio, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getPetsSync } from '../lib/pets-data';
 import { goBack, goToAppointmentConfirmation, selectPet } from '../lib/widget-manager';
 import { Branch, Employee, Pet } from '../types';
 import AddPetModal from './AddPetModal';
 import './AppointmentDetails.css';
+import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 
 const { TextArea } = Input;
 
@@ -14,6 +16,7 @@ export interface AppointmentDetailsProps {
   selectedEmployee: Employee | null;
   selectedDateTime: string | null;
   phone: string | null;
+  isNewUser?: boolean;
 }
 
 const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
@@ -21,6 +24,7 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   selectedEmployee,
   selectedDateTime,
   phone: initialPhone,
+  isNewUser = false,
 }) => {
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
@@ -32,9 +36,22 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [consentMarketing, setConsentMarketing] = useState<boolean>(false);
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState<boolean>(false);
 
+  // Поля для нового пользователя
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [patronymic, setPatronymic] = useState<string>('');
+  const [gender, setGender] = useState<'male' | 'female' | undefined>(undefined);
+
+  // Поля для питомца (для нового пользователя)
+  const [petName, setPetName] = useState<string>('');
+  const [petSpecies, setPetSpecies] = useState<string>('');
+  const [petBreed, setPetBreed] = useState<string>('');
+  const [petGender, setPetGender] = useState<'male' | 'female' | undefined>(undefined);
+  const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
+
   useEffect(() => {
-    // Загружаем питомцев при наличии телефона
-    if (phone && phone.replace(/[^\d]/g, '').length === 11) {
+    // Загружаем питомцев при наличии телефона (только для существующих пользователей)
+    if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
       const petsData = getPetsSync(phone);
       setPets(petsData);
       if (petsData.length > 0 && !selectedPetId) {
@@ -46,7 +63,7 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone]);
+  }, [phone, isNewUser]);
 
   useEffect(() => {
     // Обновляем телефон при изменении из пропсов
@@ -144,9 +161,50 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       return;
     }
 
-    if (!selectedPetId) {
-      message.error('Пожалуйста, выберите питомца');
-      return;
+    if (isNewUser) {
+      // Валидация для нового пользователя
+      if (!firstName.trim()) {
+        message.error('Пожалуйста, введите имя');
+        return;
+      }
+      if (!lastName.trim()) {
+        message.error('Пожалуйста, введите фамилию');
+        return;
+      }
+      if (!patronymic.trim()) {
+        message.error('Пожалуйста, введите отчество');
+        return;
+      }
+      if (!gender) {
+        message.error('Пожалуйста, выберите пол');
+        return;
+      }
+      if (!petName.trim()) {
+        message.error('Пожалуйста, введите кличку питомца');
+        return;
+      }
+      if (!petSpecies) {
+        message.error('Пожалуйста, выберите вид питомца');
+        return;
+      }
+      if (!petBreed) {
+        message.error('Пожалуйста, выберите породу питомца');
+        return;
+      }
+      if (!petGender) {
+        message.error('Пожалуйста, выберите пол питомца');
+        return;
+      }
+      if (!petBirthDate) {
+        message.error('Пожалуйста, выберите дату рождения питомца');
+        return;
+      }
+    } else {
+      // Валидация для существующего пользователя
+      if (!selectedPetId) {
+        message.error('Пожалуйста, выберите питомца');
+        return;
+      }
     }
 
     if (!consentPersonalData) {
@@ -160,7 +218,21 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       employee: selectedEmployee,
       dateTime: selectedDateTime,
       phone: phone.replace(/[^\d]/g, ''),
+      isNewUser,
+      clientData: isNewUser ? {
+        firstName,
+        lastName,
+        patronymic,
+        gender,
+      } : undefined,
       petId: selectedPetId,
+      petData: isNewUser ? {
+        name: petName,
+        species: petSpecies,
+        breed: petBreed,
+        gender: petGender,
+        birthDate: petBirthDate?.format('YYYY-MM-DD'),
+      } : undefined,
       symptoms,
       consentPersonalData,
       consentMarketing,
@@ -292,31 +364,144 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             )}
           </div>
 
-          <div className="appointment-details-pet-section">
-            <Select
-              className="appointment-details-pet-select"
-              placeholder="Выберите питомца"
-              value={selectedPetId}
-              onChange={(value) => {
-                setSelectedPetId(value);
-                if (value) {
-                  selectPet(value);
-                }
-              }}
-              suffixIcon={<DownOutlined />}
-              options={pets.map(pet => ({
-                value: pet.id,
-                label: pet.name,
-              }))}
-            />
-            <Button
-              className="appointment-details-pet-add-btn"
-              onClick={handleAddNewPet}
-            >
-              Внести нового питомца
-            </Button>
-          </div>
+          {isNewUser ? (
+            <>
+              <div className="appointment-details-field">
+                <Input
+                  placeholder="Имя *"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="appointment-details-field">
+                <Input
+                  placeholder="Фамилия *"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="appointment-details-field">
+                <Input
+                  placeholder="Отчество *"
+                  value={patronymic}
+                  onChange={(e) => setPatronymic(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="appointment-details-gender-section">
+                <Radio.Group
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="appointment-details-gender-group"
+                >
+                  <Radio.Button value="male">Мужчина</Radio.Button>
+                  <Radio.Button value="female">Женщина</Radio.Button>
+                </Radio.Group>
+              </div>
+            </>
+          ) : (
+            <div className="appointment-details-pet-section">
+              <Select
+                className="appointment-details-pet-select"
+                placeholder="Выберите питомца"
+                value={selectedPetId}
+                onChange={(value) => {
+                  setSelectedPetId(value);
+                  if (value) {
+                    selectPet(value);
+                  }
+                }}
+                suffixIcon={<DownOutlined />}
+                options={pets.map(pet => ({
+                  value: pet.id,
+                  label: pet.name,
+                }))}
+              />
+              <Button
+                className="appointment-details-pet-add-btn"
+                onClick={handleAddNewPet}
+              >
+                Внести нового питомца
+              </Button>
+            </div>
+          )}
 
+        </div>
+
+        {isNewUser && (
+          <div className="appointment-details-pet-section">
+            <div className="appointment-details-pet-title">Питомец</div>
+            <div className="appointment-details-field">
+              <Input
+                placeholder="Кличка *"
+                value={petName}
+                onChange={(e) => setPetName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="appointment-details-field">
+              <Select
+                placeholder="Вид *"
+                value={petSpecies}
+                onChange={setPetSpecies}
+                suffixIcon={<DownOutlined />}
+                options={[
+                  { value: 'dog', label: 'Собака' },
+                  { value: 'cat', label: 'Кошка' },
+                  { value: 'bird', label: 'Птица' },
+                  { value: 'other', label: 'Другое' },
+                ]}
+              />
+            </div>
+            <div className="appointment-details-field">
+              <Select
+                placeholder="Порода *"
+                value={petBreed}
+                onChange={setPetBreed}
+                suffixIcon={<DownOutlined />}
+                options={[
+                  { value: 'breed1', label: 'Порода 1' },
+                  { value: 'breed2', label: 'Порода 2' },
+                  { value: 'breed3', label: 'Порода 3' },
+                ]}
+              />
+            </div>
+            <div className="appointment-details-gender-section">
+              <Radio.Group
+                value={petGender}
+                onChange={(e) => setPetGender(e.target.value)}
+                className="appointment-details-gender-group"
+              >
+                <Radio.Button value="male">Самец</Radio.Button>
+                <Radio.Button value="female">Самка</Radio.Button>
+              </Radio.Group>
+            </div>
+            <div className="appointment-details-field">
+              <DatePicker
+                placeholder="Дата рождения *"
+                value={petBirthDate}
+                onChange={setPetBirthDate}
+                format="DD.MM.YYYY"
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div className="appointment-details-symptoms">
+              <TextArea
+                className="appointment-details-symptoms-input"
+                placeholder="Расскажите о ваших симптомах"
+                value={symptoms}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSymptoms(e.target.value)}
+                rows={4}
+                maxLength={500}
+                showCount
+              />
+            </div>
+          </div>
+        )}
+
+        {!isNewUser && (
           <div className="appointment-details-symptoms">
             <TextArea
               className="appointment-details-symptoms-input"
@@ -328,7 +513,7 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               showCount
             />
           </div>
-        </div>
+        )}
 
         <div className="appointment-details-consents">
           <Checkbox
@@ -358,7 +543,12 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           className="appointment-details-submit-btn"
           block
           onClick={handleSubmit}
-          disabled={!phone || phoneError !== '' || !selectedPetId || !consentPersonalData}
+          disabled={
+            !phone || 
+            phoneError !== '' || 
+            !consentPersonalData || 
+            (isNewUser ? (!firstName || !lastName || !patronymic || !gender || !petName || !petSpecies || !petBreed || !petGender || !petBirthDate) : !selectedPetId)
+          }
         >
           Записаться
         </Button>

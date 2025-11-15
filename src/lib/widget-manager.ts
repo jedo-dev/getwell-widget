@@ -8,6 +8,7 @@ let widgetState: WidgetState = {
   currentStep: 'branch-selection',
   selectedBranchId: null,
   selectedEmployeeId: null,
+  selectedDepartmentId: null,
   selectedTimeSlot: null,
   phone: null,
   selectedPetId: null,
@@ -71,6 +72,8 @@ export function openGetWellWidget(): void {
     currentStep: 'branch-selection',
     selectedBranchId: null,
     selectedEmployeeId: null,
+    selectedDepartmentId: null,
+    selectionMode: undefined,
     selectedTimeSlot: null,
     phone: null,
     selectedPetId: null,
@@ -102,6 +105,8 @@ export function resetGetWellWidget(): void {
     currentStep: 'branch-selection',
     selectedBranchId: null,
     selectedEmployeeId: null,
+    selectedDepartmentId: null,
+    selectionMode: undefined,
     selectedTimeSlot: null,
     phone: null,
     selectedPetId: null,
@@ -130,6 +135,20 @@ export function goToSpecialistSelection(): void {
   widgetState = {
     ...widgetState,
     currentStep: 'specialist-selection',
+    selectionMode: 'employee',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к выбору отделения
+ */
+export function goToDepartmentSelection(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'specialist-selection',
+    selectionMode: 'department',
   };
 
   notifyStateChange();
@@ -142,6 +161,31 @@ export function selectEmployee(employeeId: number): void {
   widgetState = {
     ...widgetState,
     selectedEmployeeId: employeeId,
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Выбор отделения и переход к списку врачей отделения
+ */
+export function selectDepartment(departmentId: number): void {
+  widgetState = {
+    ...widgetState,
+    selectedDepartmentId: departmentId,
+    currentStep: 'department-specialists-selection',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к списку врачей отделения
+ */
+export function goToDepartmentSpecialistsSelection(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'department-specialists-selection',
   };
 
   notifyStateChange();
@@ -186,10 +230,11 @@ export function goToPhoneInput(): void {
 /**
  * Сохранение телефона и переход к деталям записи
  */
-export function savePhoneAndGoToDetails(phone: string): void {
+export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = false): void {
   widgetState = {
     ...widgetState,
     phone,
+    isNewUser,
     currentStep: 'appointment-details',
   };
 
@@ -233,6 +278,18 @@ export function goToAppointmentConfirmation(): void {
 }
 
 /**
+ * Переход к экрану информации о враче
+ */
+export function goToDoctorInfo(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'doctor-info',
+  };
+
+  notifyStateChange();
+}
+
+/**
  * Возврат к предыдущему шагу
  */
 export function goBack(): void {
@@ -248,10 +305,24 @@ export function goBack(): void {
       ...widgetState,
       currentStep: 'date-time-selection',
     };
+  } else if (currentStep === 'doctor-info') {
+    // Определяем, откуда мы пришли - из specialist-selection или department-specialists-selection
+    const previousStep = widgetState.selectedDepartmentId ? 'department-specialists-selection' : 'specialist-selection';
+    widgetState = {
+      ...widgetState,
+      currentStep: previousStep,
+    };
+  } else if (currentStep === 'department-specialists-selection') {
+    widgetState = {
+      ...widgetState,
+      currentStep: 'specialist-selection',
+      selectedDepartmentId: null,
+    };
   } else if (currentStep === 'specialist-selection' || currentStep === 'date-time-selection') {
     widgetState = {
       ...widgetState,
       currentStep: 'next-steps',
+      selectionMode: undefined,
     };
   } else if (currentStep === 'next-steps') {
     widgetState = {
