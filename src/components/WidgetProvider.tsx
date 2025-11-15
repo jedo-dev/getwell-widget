@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Widget from './Widget';
+import StickyButton from './StickyButton';
 import { 
   subscribeToStateChange, 
   getWidgetState,
@@ -29,12 +30,17 @@ const WidgetProvider: React.FC = () => {
     closeGetWellWidget();
   };
 
+  const stickyBtnEnabled = widgetState.config?.stickyBtnEnable ?? false;
+
   return (
-    <Widget 
-      open={widgetState.isOpen} 
-      onClose={handleClose}
-      widgetState={widgetState}
-    />
+    <>
+      <StickyButton enabled={stickyBtnEnabled} />
+      <Widget 
+        open={widgetState.isOpen} 
+        onClose={handleClose}
+        widgetState={widgetState}
+      />
+    </>
   );
 };
 
