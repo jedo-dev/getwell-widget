@@ -86,6 +86,7 @@ export interface WidgetConfig {
   showBranches?: boolean;
   showEmployees?: boolean;
   showDepartments?: boolean;
+  stickyBtnEnable?: boolean; // включить плавающую кнопку
 }
 
 // Widget Step (Шаг виджета)
