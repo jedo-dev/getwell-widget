@@ -4,6 +4,9 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "http://192.168.50.167:8081/repository/getwell-widget/"
+  },
   "scripts": {
     "build": "cross-env NODE_ENV=production rollup -c",
     "dev": "rollup -c -w",
