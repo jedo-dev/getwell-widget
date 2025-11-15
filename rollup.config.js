@@ -6,6 +6,7 @@ import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
+import copy from 'rollup-plugin-copy';
 
 const packageJson = require('./package.json');
 
@@ -35,6 +36,15 @@ const baseConfig = {
     postcss({
       extract: true,
       minimize: isProduction,
+    }),
+    // Копируем файлы шрифтов в dist
+    copy({
+      targets: [
+        { src: 'src/font/**/*', dest: 'dist/font' },
+        { src: 'src/img/**/*', dest: 'dist/img' },
+      ],
+      copyOnce: false, // Копировать при каждом изменении в watch режиме
+      hook: 'buildStart', // Копировать в начале сборки
     }),
     isProduction && terser(),
   ].filter(Boolean),
@@ -97,6 +107,15 @@ const umdConfig = {
       minimize: isProduction,
       // Включаем CSS из Ant Design
       inject: false,
+    }),
+    // Копируем файлы шрифтов в dist для UMD версии
+    copy({
+      targets: [
+        { src: 'src/font/**/*', dest: 'dist/font' },
+        { src: 'src/img/**/*', dest: 'dist/img' },
+      ],
+      copyOnce: false, // Копировать при каждом изменении в watch режиме
+      hook: 'buildStart', // Копировать в начале сборки
     }),
     isProduction && terser(),
   ].filter(Boolean),
