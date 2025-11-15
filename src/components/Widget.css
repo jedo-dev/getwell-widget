@@ -1,5 +1,9 @@
+/* Импорт шрифтов */
+@import '../styles/fonts.css';
+
 .getwell-widget-drawer {
   z-index: 10000;
+  font-family: 'Onest-regular';
 }
 
 .getwell-widget-content {
@@ -35,4 +39,3 @@
     width: 100% !important;
   }
 }
-

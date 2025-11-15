@@ -146,7 +146,15 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
     }
     return departments.find((dept) => dept.id === widgetState.selectedDepartmentId) || null;
   };
-
+  const renderStepTitle = () => {
+    const { currentStep } = widgetState;
+    switch (currentStep) {
+      case 'branch-selection':
+        return 'Выберите филиал';
+      case 'next-steps':
+        return 'Выберите специалиста';
+    }
+  };
   const renderContent = () => {
     const { currentStep } = widgetState;
 
@@ -242,7 +250,7 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
 
   return (
     <Drawer
-      title='Запись на приём'
+      title={renderStepTitle()}
       placement='right'
       onClose={onClose}
       open={open}
