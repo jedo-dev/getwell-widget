@@ -18,9 +18,7 @@ const BranchSelection: React.FC<BranchSelectionProps> = ({ branches }) => {
 
   return (
     <div className="branch-selection">
-      <div className="branch-selection-header">
-        <h2 className="branch-selection-title">Выберите филиал</h2>
-      </div>
+    
       
       <Tabs
         activeKey={activeTab}

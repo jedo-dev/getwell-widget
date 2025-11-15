@@ -22,14 +22,14 @@ export interface WidgetProps {
 }
 
 const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
-  const [drawerWidth, setDrawerWidth] = useState<number | string>(400);
+  const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
 
   useEffect(() => {
     const updateWidth = () => {
-      setDrawerWidth(window.innerWidth <= 768 ? '100%' : 400);
+      setDrawerWidth(window.innerWidth <= 768 ? '100%' : 600);
     };
 
     updateWidth();
