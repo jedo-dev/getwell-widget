@@ -1,0 +1,128 @@
+.add-pet-modal-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.add-pet-modal {
+  position: relative;
+  margin: 0;
+  max-width: 100%;
+  padding-bottom: 0;
+  top: auto !important;
+}
+
+.add-pet-modal .ant-modal-content {
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  margin: 0;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-pet-modal .ant-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 16px 16px 0 0;
+}
+
+.add-pet-modal .ant-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.add-pet-modal-close {
+  font-size: 24px;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.add-pet-modal-close:hover {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.add-pet-modal-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.add-pet-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-pet-modal-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.add-pet-modal-required {
+  color: #ff4d4f;
+}
+
+.add-pet-modal-field .ant-input,
+.add-pet-modal-field .ant-select-selector {
+  height: 48px;
+  border-radius: 8px;
+}
+
+.add-pet-modal-field .ant-input.error,
+.add-pet-modal-field .ant-select.error .ant-select-selector {
+  border-color: #ff4d4f;
+}
+
+.add-pet-modal-gender {
+  width: 100%;
+}
+
+.add-pet-modal-gender .ant-radio-button-wrapper {
+  flex: 1;
+  text-align: center;
+  height: 48px;
+  line-height: 48px;
+  border-radius: 8px;
+}
+
+.add-pet-modal-gender .ant-radio-button-wrapper:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.add-pet-modal-gender .ant-radio-button-wrapper:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.add-pet-modal-datepicker {
+  width: 100%;
+  height: 48px;
+}
+
+.add-pet-modal-datepicker.error {
+  border-color: #ff4d4f;
+}
+
+.add-pet-modal-error {
+  font-size: 12px;
+  color: #ff4d4f;
+  margin-top: -4px;
+}
+
+.add-pet-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.add-pet-modal-save-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+}
+

@@ -33,6 +33,7 @@ const WidgetProvider: React.FC = () => {
     <Widget 
       open={widgetState.isOpen} 
       onClose={handleClose}
+      widgetState={widgetState}
     />
   );
 };

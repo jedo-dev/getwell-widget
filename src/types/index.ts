@@ -88,10 +88,19 @@ export interface WidgetConfig {
   showDepartments?: boolean;
 }
 
+// Widget Step (Шаг виджета)
+export type WidgetStep = 'branch-selection' | 'next-steps' | 'specialist-selection' | 'date-time-selection' | 'phone-input' | 'appointment-details' | 'appointment-confirmation';
+
 // Widget State
 export interface WidgetState {
   isOpen: boolean;
   config: WidgetConfig | null;
   initialized: boolean;
+  currentStep: WidgetStep;
+  selectedBranchId: number | null;
+  selectedEmployeeId: number | null;
+  selectedTimeSlot: string | null;
+  phone: string | null;
+  selectedPetId: number | null;
 }
 

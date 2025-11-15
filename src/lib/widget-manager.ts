@@ -5,6 +5,12 @@ let widgetState: WidgetState = {
   isOpen: false,
   config: null,
   initialized: false,
+  currentStep: 'branch-selection',
+  selectedBranchId: null,
+  selectedEmployeeId: null,
+  selectedTimeSlot: null,
+  phone: null,
+  selectedPetId: null,
 };
 
 // Callbacks для уведомления компонентов об изменении состояния
@@ -13,16 +19,16 @@ let stateChangeCallbacks: Array<(state: WidgetState) => void> = [];
 // Функция для подписки на изменения состояния
 export function subscribeToStateChange(callback: (state: WidgetState) => void): () => void {
   stateChangeCallbacks.push(callback);
-  
+
   // Возвращаем функцию отписки
   return () => {
-    stateChangeCallbacks = stateChangeCallbacks.filter(cb => cb !== callback);
+    stateChangeCallbacks = stateChangeCallbacks.filter((cb) => cb !== callback);
   };
 }
 
 // Функция для уведомления всех подписчиков об изменении состояния
 function notifyStateChange() {
-  stateChangeCallbacks.forEach(callback => callback(widgetState));
+  stateChangeCallbacks.forEach((callback) => callback(widgetState));
 }
 
 // Функция для получения текущего состояния
@@ -46,7 +52,7 @@ export function initGetWellWidget(config: WidgetConfig): void {
     },
     initialized: true,
   };
-  
+
   notifyStateChange();
 }
 
@@ -58,12 +64,18 @@ export function openGetWellWidget(): void {
     console.warn('GetWell Widget: Widget is not initialized. Call initGetWellWidget() first.');
     return;
   }
-  
+
   widgetState = {
     ...widgetState,
     isOpen: true,
+    currentStep: 'branch-selection',
+    selectedBranchId: null,
+    selectedEmployeeId: null,
+    selectedTimeSlot: null,
+    phone: null,
+    selectedPetId: null,
   };
-  
+
   notifyStateChange();
 }
 
@@ -75,7 +87,7 @@ export function closeGetWellWidget(): void {
     ...widgetState,
     isOpen: false,
   };
-  
+
   notifyStateChange();
 }
 
@@ -87,8 +99,167 @@ export function resetGetWellWidget(): void {
     isOpen: false,
     config: null,
     initialized: false,
+    currentStep: 'branch-selection',
+    selectedBranchId: null,
+    selectedEmployeeId: null,
+    selectedTimeSlot: null,
+    phone: null,
+    selectedPetId: null,
   };
-  
+
   notifyStateChange();
 }
 
+/**
+ * Установка выбранного филиала и переход к следующему шагу
+ */
+export function selectBranch(branchId: number): void {
+  widgetState = {
+    ...widgetState,
+    selectedBranchId: branchId,
+    currentStep: 'next-steps',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к выбору специалиста
+ */
+export function goToSpecialistSelection(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'specialist-selection',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Выбор специалиста
+ */
+export function selectEmployee(employeeId: number): void {
+  widgetState = {
+    ...widgetState,
+    selectedEmployeeId: employeeId,
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к выбору даты и времени
+ */
+export function goToDateTimeSelection(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'date-time-selection',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Выбор даты и времени
+ */
+export function selectDateTime(dateTime: string): void {
+  widgetState = {
+    ...widgetState,
+    selectedTimeSlot: dateTime,
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к вводу телефона
+ */
+export function goToPhoneInput(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'phone-input',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Сохранение телефона и переход к деталям записи
+ */
+export function savePhoneAndGoToDetails(phone: string): void {
+  widgetState = {
+    ...widgetState,
+    phone,
+    currentStep: 'appointment-details',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к деталям записи
+ */
+export function goToAppointmentDetails(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'appointment-details',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Сохранение выбранного питомца
+ */
+export function selectPet(petId: number): void {
+  widgetState = {
+    ...widgetState,
+    selectedPetId: petId,
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Переход к подтверждению записи
+ */
+export function goToAppointmentConfirmation(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: 'appointment-confirmation',
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Возврат к предыдущему шагу
+ */
+export function goBack(): void {
+  const { currentStep } = widgetState;
+
+  if (currentStep === 'appointment-details') {
+    widgetState = {
+      ...widgetState,
+      currentStep: 'phone-input',
+    };
+  } else if (currentStep === 'phone-input') {
+    widgetState = {
+      ...widgetState,
+      currentStep: 'date-time-selection',
+    };
+  } else if (currentStep === 'specialist-selection' || currentStep === 'date-time-selection') {
+    widgetState = {
+      ...widgetState,
+      currentStep: 'next-steps',
+    };
+  } else if (currentStep === 'next-steps') {
+    widgetState = {
+      ...widgetState,
+      currentStep: 'branch-selection',
+      selectedBranchId: null,
+    };
+  }
+
+  notifyStateChange();
+}

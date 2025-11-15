@@ -1,0 +1,125 @@
+.appointment-confirmation {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 24px;
+}
+
+.appointment-confirmation-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.appointment-confirmation-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0 0 8px 0;
+}
+
+.appointment-confirmation-subtitle {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.appointment-confirmation-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.appointment-confirmation-item {
+  padding: 16px 0 !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.appointment-confirmation-item:last-child {
+  border-bottom: none;
+}
+
+.appointment-confirmation-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.appointment-confirmation-item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.appointment-confirmation-item-icon-wrapper {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appointment-confirmation-item-icon {
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.appointment-confirmation-paw-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.appointment-confirmation-item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.appointment-confirmation-item-title {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.85);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.appointment-confirmation-item-description {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.appointment-confirmation-item-action {
+  background: none;
+  border: none;
+  color: #1890ff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.appointment-confirmation-item-action:hover {
+  color: #40a9ff;
+}
+
+.appointment-confirmation-footer {
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.appointment-confirmation-book-again-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+.appointment-confirmation-book-again-btn:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
