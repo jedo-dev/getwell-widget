@@ -97,3 +97,13 @@
   margin: 0;
   font-size: 14px;
 }
+.branch-selection-tabs-segmented {
+ 
+  .ant-segmented-group {
+    height: 100% !important;
+  }
+  .ant-segmented-item {
+    flex: 1 1 0 !important;
+  }
+
+}

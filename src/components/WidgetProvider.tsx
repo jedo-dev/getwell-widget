@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Widget from './Widget';
-import StickyButton from './StickyButton';
-import { 
-  subscribeToStateChange, 
+import { ConfigProvider } from 'antd';
+import React, { useEffect, useState } from 'react';
+import {
+  closeGetWellWidget,
   getWidgetState,
-  closeGetWellWidget 
+  subscribeToStateChange
 } from '../lib/widget-manager';
 import { WidgetState } from '../types';
+import StickyButton from './StickyButton';
+import Widget from './Widget';
 
 const WidgetProvider: React.FC = () => {
   const [widgetState, setWidgetState] = useState<WidgetState>(getWidgetState());
@@ -33,14 +34,29 @@ const WidgetProvider: React.FC = () => {
   const stickyBtnEnabled = widgetState.config?.stickyBtnEnable ?? false;
 
   return (
-    <>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#344054',
+          colorInfo: '#344054',
+        },
+        components: {
+          "Segmented": {
+            "itemSelectedBg": "rgb(52,64,84)",
+            "itemSelectedColor": "rgb(255,255,255)",
+            "trackBg": "rgb(255,255,255)",
+            "controlHeight": 60,
+            "borderRadiusSM": 16
+          }
+        }
+      }}>
       <StickyButton enabled={stickyBtnEnabled} />
-      <Widget 
-        open={widgetState.isOpen} 
+      <Widget
+        open={widgetState.isOpen}
         onClose={handleClose}
         widgetState={widgetState}
       />
-    </>
+    </ConfigProvider>
   );
 };
 

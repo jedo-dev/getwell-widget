@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Tabs, List, Empty } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
-import { Branch } from '../types';
+import { Empty, List, Radio, Segmented, Tabs } from 'antd';
+import React, { useState } from 'react';
 import { selectBranch } from '../lib/widget-manager';
+import { Branch } from '../types';
 import './BranchSelection.css';
 
 export interface BranchSelectionProps {
@@ -15,14 +15,24 @@ const BranchSelection: React.FC<BranchSelectionProps> = ({ branches }) => {
   const handleBranchSelect = (branchId: number) => {
     selectBranch(branchId);
   };
+  const options = [
+    { label: 'Список', value: 'list' },
+    { label: 'На карте', value: 'map' },
+  ];
 
   return (
     <div className="branch-selection">
-    
-      
+
+
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
+
+        renderTabBar={()=><Segmented options={options} defaultValue="list" className="branch-selection-tabs-segmented"  onChange={(value) => {
+          console.log(value);
+          setActiveTab(value);
+        }} />} defaultValue="list"
+         
         className="branch-selection-tabs"
         items={[
           {
