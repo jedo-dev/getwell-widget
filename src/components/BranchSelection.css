@@ -21,9 +21,13 @@
   flex-direction: column;
 }
 
+
 .branch-selection-tabs .ant-tabs-content-holder {
   flex: 1;
   overflow: auto;
+  margin-top: 2px;
+  border-radius: 16px 16px 0 0;
+  background-color: white !important;
 }
 
 .branch-selection-content {
@@ -98,7 +102,8 @@
   font-size: 14px;
 }
 .branch-selection-tabs-segmented {
- 
+  margin-top: 2px;
+  border-radius: 16px;
   .ant-segmented-group {
     height: 100% !important;
   }

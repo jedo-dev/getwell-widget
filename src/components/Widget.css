@@ -3,15 +3,33 @@
 
 .getwell-widget-drawer {
   z-index: 10000;
+  padding-right: 10px;
   font-family: 'Onest-regular';
+  background: #ffffff00!important;
+  .ant-drawer-content{
+    background: #ffffff00!important;
+  }
 }
 
+.ant-drawer-header{
+  background: white!important;
+  border-radius: 16px;
+    margin-top: 10px;
+}
+.ant-drawer-body{
+  padding:unset!important;
+}
 .getwell-widget-content {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
+.ant-drawer-footer{
+  background: white!important;
+  border-radius: 0 0 16px 16px;
+  margin-bottom: 10px;
+}
 .getwell-widget-footer {
   display: flex;
   align-items: center;
