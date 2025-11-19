@@ -35,13 +35,19 @@
 .department-specialists-selection-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 2px;
   flex: 1;
   overflow: hidden;
+
+  .ant-list-items {
+    border-radius: 16px 16px 0 0;
+    background: white;
+  }
 }
 
 .department-specialists-selection-search {
-  margin-bottom: 8px;
+  padding: 20px;
+  border-radius: 16px;
 }
 
 .department-specialists-selection-list {
@@ -50,7 +56,7 @@
 }
 
 .department-specialists-selection-item {
-  padding: 16px 0 !important;
+  padding: 20px !important;
   cursor: pointer;
   transition: background-color 0.2s;
   border-bottom: 1px solid #f0f0f0;
@@ -70,7 +76,7 @@
 
 .department-specialists-selection-item-content {
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: space-between;
   width: 100%;
   gap: 16px;
@@ -85,8 +91,8 @@
 }
 
 .department-specialists-selection-avatar {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background-color: #f5f5f5;
   display: flex;
@@ -113,27 +119,44 @@
 }
 
 .department-specialists-selection-item-name {
-  font-size: 16px;
+  font-family: Onest;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.85);
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-style: Medium;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: #101828;
 }
 
 .department-specialists-selection-item-specialization {
+  font-family: Onest;
+  font-weight: 400;
+  font-style: Regular;
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.65);
-  margin-bottom: 4px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  color: #777777;
 }
 
 .department-specialists-selection-item-appointment {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  font-family: Onest;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  color: #777777;
+}
+
+.department-specialists-selection-item-content-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
 }
 
 .department-specialists-selection-footer {
+  background: white;
   display: flex;
   gap: 12px;
   padding: 16px 0;
@@ -156,3 +179,35 @@
   border-color: #bfbfbf;
 }
 
+.department-specialists-selection-time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.department-specialists-selection-time-slot {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: Onest;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #101828;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.department-specialists-selection-time-slot:hover {
+  background-color: #e6e6e6;
+  border-color: #d0d0d0;
+}
+
+.department-specialists-selection-time-slot:active {
+  background-color: #d9d9d9;
+}

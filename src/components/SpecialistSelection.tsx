@@ -1,5 +1,5 @@
 import { RightOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Empty, Input, List, Radio, Segmented, Tabs } from 'antd';
+import { Button, Empty, Input, List, Radio, Segmented, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   goToDateTimeSelection,
@@ -92,6 +92,25 @@ const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     return 'сегодня';
   };
 
+  // Временные данные для слотов времени (заглушка)
+  const getTimeSlots = (employeeId: number): string[] => {
+    // TODO: В будущем здесь будет запрос к API
+    // Возвращаем примерные слоты как на макете
+    return [
+      '12:00',
+      '12:30',
+      '13:00',
+      '13:00',
+      '13:30',
+      '15:00',
+      '15:30',
+      '16:00',
+      '16:30',
+      '17:30',
+      '17:30',
+    ];
+  };
+
   const options = [
     { label: 'По ФИО', value: 'name' },
     { label: 'По отделению', value: 'department' },
@@ -124,7 +143,7 @@ const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
             key: 'name',
             label: 'По ФИО',
             children: (
-              <div className='specialist-selection-content'>
+              <>
                 <Input
                   placeholder='Поиск'
                   prefix={<SearchOutlined />}
@@ -132,50 +151,72 @@ const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className='specialist-selection-search'
                 />
+                <div className='specialist-selection-content'>
+                  {filteredEmployees.length > 0 ? (
+                    <List
+                      className='specialist-selection-list'
+                      dataSource={filteredEmployees}
+                      renderItem={(employee) => {
+                        const isSelected = selectedEmployeeId === employee.id;
+                        const fullName = `${employee.lastName} ${employee.firstName} ${
+                          employee.patronymic || ''
+                        }`.trim();
 
-                {filteredEmployees.length > 0 ? (
-                  <List
-                    className='specialist-selection-list'
-                    dataSource={filteredEmployees}
-                    renderItem={(employee) => {
-                      const isSelected = selectedEmployeeId === employee.id;
-                      const fullName = `${employee.lastName} ${employee.firstName} ${
-                        employee.patronymic || ''
-                      }`.trim();
+                        const timeSlots = isSelected ? getTimeSlots(employee.id) : [];
 
-                      return (
-                        <List.Item
-                          className={`specialist-selection-item ${isSelected ? 'selected' : ''}`}
-                          onClick={() => handleEmployeeSelect(employee.id)}>
-                          <div className='specialist-selection-item-content'>
-                            <div className='specialist-selection-item-left'>
-                              <div className='specialist-selection-avatar'>
-                                {employee.photo ? (
-                                  <img src={employee.photo} alt={fullName} />
-                                ) : (
-                                  <UserOutlined />
-                                )}
-                              </div>
-                              <div className='specialist-selection-item-info'>
-                                <div className='specialist-selection-item-name'>{fullName}</div>
-                                <div className='specialist-selection-item-specialization'>
-                                  {employee.specialization}
+                        return (
+                          <List.Item
+                            className={`specialist-selection-item ${isSelected ? 'selected' : ''}`}
+                            onClick={() => handleEmployeeSelect(employee.id)}>
+                            <div className='specialist-selection-item-content'>
+                              <div className='specialist-selection-item-content-left'>
+                                <div className='specialist-selection-item-left'>
+                                  <div className='specialist-selection-avatar'>
+                                    {employee.photo ? (
+                                      <img src={employee.photo} alt={fullName} />
+                                    ) : (
+                                      <UserOutlined />
+                                    )}
+                                  </div>
+                                  <div className='specialist-selection-item-info'>
+                                    <div className='specialist-selection-item-name'>{fullName}</div>
+                                    <div className='specialist-selection-item-specialization'>
+                                      {employee.specialization}
+                                    </div>
+                                  </div>
                                 </div>
                                 <div className='specialist-selection-item-appointment'>
-                                  Ближайшее время приёма: {getNearestAppointment(employee.id)}
+                                  Ближайшее время приёма:{' '}
+                                  <Tag>{getNearestAppointment(employee.id)}</Tag>
                                 </div>
+                                {isSelected && timeSlots.length > 0 && (
+                                  <div className='specialist-selection-time-slots'>
+                                    {timeSlots.map((slot, index) => (
+                                      <button
+                                        key={`${slot}-${index}`}
+                                        className='specialist-selection-time-slot'
+                                        type='button'
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          // TODO: Обработка выбора слота времени
+                                        }}>
+                                        {slot}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
+                              <Radio checked={isSelected} />
                             </div>
-                            <Radio checked={isSelected} />
-                          </div>
-                        </List.Item>
-                      );
-                    }}
-                  />
-                ) : (
-                  <Empty description='Специалисты не найдены' />
-                )}
-              </div>
+                          </List.Item>
+                        );
+                      }}
+                    />
+                  ) : (
+                    <Empty description='Специалисты не найдены' />
+                  )}
+                </div>
+              </>
             ),
           },
           {

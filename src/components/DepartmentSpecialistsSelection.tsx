@@ -1,5 +1,5 @@
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Empty, Input, List, Radio } from 'antd';
+import { Button, Empty, Input, List, Radio, Tag } from 'antd';
 import React, { useMemo, useState } from 'react';
 import {
   goBack,
@@ -65,6 +65,25 @@ const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelectionPro
     return 'сегодня';
   };
 
+  // Временные данные для слотов времени (заглушка)
+  const getTimeSlots = (employeeId: number): string[] => {
+    // TODO: В будущем здесь будет запрос к API
+    // Возвращаем примерные слоты как на макете
+    return [
+      '12:00',
+      '12:30',
+      '13:00',
+      '13:00',
+      '13:30',
+      '15:00',
+      '15:30',
+      '16:00',
+      '16:30',
+      '17:30',
+      '17:30',
+    ];
+  };
+
   return (
     <div className='department-specialists-selection'>
       <div className='department-specialists-selection-content'>
@@ -86,6 +105,8 @@ const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelectionPro
                 employee.patronymic || ''
               }`.trim();
 
+              const timeSlots = isSelected ? getTimeSlots(employee.id) : [];
+
               return (
                 <List.Item
                   className={`department-specialists-selection-item ${
@@ -93,23 +114,43 @@ const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelectionPro
                   }`}
                   onClick={() => handleEmployeeSelect(employee.id)}>
                   <div className='department-specialists-selection-item-content'>
-                    <div className='department-specialists-selection-item-left'>
-                      <div className='department-specialists-selection-avatar'>
-                        {employee.photo ? (
-                          <img src={employee.photo} alt={fullName} />
-                        ) : (
-                          <UserOutlined />
-                        )}
-                      </div>
-                      <div className='department-specialists-selection-item-info'>
-                        <div className='department-specialists-selection-item-name'>{fullName}</div>
-                        <div className='department-specialists-selection-item-specialization'>
-                          {employee.specialization}
+                    <div className='department-specialists-selection-item-content-left'>
+                      <div className='department-specialists-selection-item-left'>
+                        <div className='department-specialists-selection-avatar'>
+                          {employee.photo ? (
+                            <img src={employee.photo} alt={fullName} />
+                          ) : (
+                            <UserOutlined />
+                          )}
                         </div>
-                        <div className='department-specialists-selection-item-appointment'>
-                          Ближайшее время приёма: {getNearestAppointment(employee.id)}
+                        <div className='department-specialists-selection-item-info'>
+                          <div className='department-specialists-selection-item-name'>
+                            {fullName}
+                          </div>
+                          <div className='department-specialists-selection-item-specialization'>
+                            {employee.specialization}
+                          </div>
                         </div>
                       </div>
+                      <div className='department-specialists-selection-item-appointment'>
+                        Ближайшее время приёма: <Tag>{getNearestAppointment(employee.id)}</Tag>
+                      </div>
+                      {isSelected && timeSlots.length > 0 && (
+                        <div className='department-specialists-selection-time-slots'>
+                          {timeSlots.map((slot, index) => (
+                            <button
+                              key={`${slot}-${index}`}
+                              className='department-specialists-selection-time-slot'
+                              type='button'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // TODO: Обработка выбора слота времени
+                              }}>
+                              {slot}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <Radio checked={isSelected} />
                   </div>

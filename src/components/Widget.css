@@ -5,37 +5,36 @@
   z-index: 10000;
   padding-right: 10px;
   font-family: 'Onest-regular';
-  background: #ffffff00!important;
-  .ant-drawer-content{
-    background: #ffffff00!important;
+  background: #ffffff00 !important;
+  .ant-drawer-content {
+    background: #ffffff00 !important;
   }
 }
-.drawer-title{
+.drawer-title {
   font-family: Onest;
-font-weight: 500;
-font-style: Medium;
-font-size: 24px;
-leading-trim: NONE;
-line-height: 30px;
-letter-spacing: -2%;
-
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 24px;
+  leading-trim: NONE;
+  line-height: 30px;
+  letter-spacing: -2%;
 }
-.ant-drawer-header{
-  background: white!important;
+.ant-drawer-header {
+  background: white !important;
   border-radius: 16px;
-    margin-top: 10px;
-    button{
-      position: absolute;
-      left: -50px;
-      background: white!important;
-      border-radius: 50%!important;
-      aspect-ratio: 1 / 1;
-      height: auto!important;
-      top:10px
-    }
+  margin-top: 10px;
+  button {
+    position: absolute;
+    left: -50px;
+    background: white !important;
+    border-radius: 50% !important;
+    aspect-ratio: 1 / 1;
+    height: auto !important;
+    top: 10px;
+  }
 }
-.ant-drawer-body{
-  padding:unset!important;
+.ant-drawer-body {
+  padding: unset !important;
 }
 .getwell-widget-content {
   height: 100%;
@@ -44,8 +43,8 @@ letter-spacing: -2%;
   font-family: Onest;
 }
 
-.ant-drawer-footer{
-  background: white!important;
+.ant-drawer-footer {
+  background: white !important;
   border-radius: 0 0 16px 16px;
   margin-bottom: 10px;
 }
@@ -74,4 +73,19 @@ letter-spacing: -2%;
   .getwell-widget-drawer .ant-drawer-content-wrapper {
     width: 100% !important;
   }
+}
+
+.ant-tag {
+  font-family: Onest;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 16px;
+  leading-trim: NONE;
+  line-height: 24px;
+  letter-spacing: 0%;
+  text-align: center;
+  color: #344054;
+  background: #1c29360d;
+  border: none;
+  border-radius: 6px;
 }
