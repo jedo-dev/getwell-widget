@@ -2,10 +2,9 @@ import {
   CalendarOutlined,
   DownOutlined,
   EnvironmentOutlined,
-  PhoneOutlined,
-  UserOutlined,
+  PhoneOutlined
 } from '@ant-design/icons';
-import { Button, Checkbox, DatePicker, Input, message, Radio, Select, Spin } from 'antd';
+import { Button, Checkbox, DatePicker, Input, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { goBack, goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
@@ -26,11 +25,13 @@ import {
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
+import CustomInput from '../../../shared/ui/CustomInput';
+import CustomSelector from '../../../shared/ui/CustomSelector';
+import CustomTextArea from '../../../shared/ui/CustomTextArea';
 import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
 
-const { TextArea } = Input;
 
 export interface AppointmentDetailsProps {
   selectedBranch: Branch | null;
@@ -206,21 +207,21 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       isNewUser,
       clientData: isNewUser
         ? {
-            firstName,
-            lastName,
-            patronymic,
-            gender,
-          }
+          firstName,
+          lastName,
+          patronymic,
+          gender,
+        }
         : undefined,
       petId: selectedPetId,
       petData: isNewUser
         ? {
-            name: petName,
-            species: petSpecies,
-            breed: petBreed,
-            gender: petGender,
-            birthDate: petBirthDate?.format('YYYY-MM-DD'),
-          }
+          name: petName,
+          species: petSpecies,
+          breed: petBreed,
+          gender: petGender,
+          birthDate: petBirthDate?.format('YYYY-MM-DD'),
+        }
         : undefined,
       symptoms,
       consentPersonalData,
@@ -354,32 +355,29 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {isNewUser ? (
             <>
               <div className='appointment-details-field'>
-                <Input
-                  placeholder='Имя *'
+                <CustomInput
+                  text='Имя'
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  size='large'
-                  prefix={<UserOutlined className='appointment-details-name-icon' />}
+
                   required
                 />
               </div>
               <div className='appointment-details-field'>
-                <Input
-                  placeholder='Фамилия *'
+                <CustomInput
+                  text='Фамилия'
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  size='large'
-                  prefix={<UserOutlined className='appointment-details-name-icon' />}
+
                   required
                 />
               </div>
               <div className='appointment-details-field'>
-                <Input
-                  placeholder='Отчество *'
+                <CustomInput
+                  text='Отчество'
                   value={patronymic}
                   onChange={(e) => setPatronymic(e.target.value)}
-                  size='large'
-                  prefix={<UserOutlined className='appointment-details-name-icon' />}
+
                   required
                 />
               </div>
@@ -401,9 +399,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 </div>
               ) : (
                 <>
-                  <Select
+                  <CustomSelector
+                    text='Питомец'
                     className='appointment-details-pet-select'
-                    placeholder='Выберите питомца'
                     value={selectedPetId}
                     onChange={(value) => {
                       setSelectedPetId(value);
@@ -421,9 +419,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     Внести нового питомца
                   </Button>
 
-                  <TextArea
-                    className='appointment-details-symptoms-input'
-                    placeholder='Расскажите о ваших симптомах'
+                  <CustomTextArea
+                    text='Расскажите о ваших симптомах'
                     value={symptoms}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setSymptoms(e.target.value)
@@ -441,27 +438,26 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             <div className='appointment-details-pet-section'>
               <div className='appointment-details-pet-title'>Питомец</div>
               <div className='appointment-details-field'>
-                <Input
-                  placeholder='Кличка *'
+                <CustomInput
+                  text='Кличка'
                   value={petName}
                   onChange={(e) => setPetName(e.target.value)}
                   required
                 />
               </div>
               <div className='appointment-details-field'>
-                <Select
-                  placeholder='Вид *'
+                <CustomSelector
+                  text='Вид'
                   value={petSpecies}
-                  style={{ width: '100%' }}
                   onChange={setPetSpecies}
-                  suffixIcon={<DownOutlined />}
                   options={PET_SPECIES_OPTIONS}
+                  suffixIcon={<DownOutlined />}
                 />
               </div>
+
               <div className='appointment-details-field'>
-                <Select
-                  placeholder='Порода *'
-                  style={{ width: '100%' }}
+                <CustomSelector
+                  text='Порода'
                   value={petBreed}
                   onChange={setPetBreed}
                   suffixIcon={<DownOutlined />}
@@ -491,9 +487,10 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   format='DD.MM.YYYY'
                   style={{ width: '100%' }}
                 />
-                <TextArea
-                  className='appointment-details-symptoms-input'
-                  placeholder='Расскажите о ваших симптомах'
+              </div>
+              <div className='appointment-details-field'>
+                <CustomTextArea
+                  text='Расскажите о ваших симптомах'
                   value={symptoms}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setSymptoms(e.target.value)
@@ -503,7 +500,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   showCount
                 />
               </div>
-              <div className='appointment-details-symptoms'></div>
             </div>
           )}
           <div className='appointment-details-consents'>
@@ -537,14 +533,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 !consentPersonalData ||
                 (isNewUser
                   ? !firstName ||
-                    !lastName ||
-                    !patronymic ||
-                    !gender ||
-                    !petName ||
-                    !petSpecies ||
-                    !petBreed ||
-                    !petGender ||
-                    !petBirthDate
+                  !lastName ||
+                  !patronymic ||
+                  !gender ||
+                  !petName ||
+                  !petSpecies ||
+                  !petBreed ||
+                  !petGender ||
+                  !petBirthDate
                   : !selectedPetId)
               }>
               Записаться

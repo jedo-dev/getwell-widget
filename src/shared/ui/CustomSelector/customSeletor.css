@@ -1,0 +1,35 @@
+.input-container {
+  position: relative;
+}
+
+.custom-placeholder {
+  position: absolute;
+  left: 12px;
+  top: 16px;
+  z-index: 100;
+  font-size: 16px;
+  line-height: 24px;
+  color: #999;
+  padding: 0 4px;
+  margin-left: -4px;
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+}
+
+.custom-placeholder.has-value {
+  top: 10px;
+  font-size: 10px;
+  line-height: 10px;
+  color: #999;
+}
+
+.redmark {
+  color: red;
+}
+
+.ant-input {
+  padding-top: 12px;
+}
+.ant-form-item {
+  margin-bottom: 12px !important;
+}

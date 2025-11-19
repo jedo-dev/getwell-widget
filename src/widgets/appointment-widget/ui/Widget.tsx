@@ -1,25 +1,21 @@
 import { LeftOutlined } from '@ant-design/icons';
 import { Drawer, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import defaultImage from '../../../img/default.png';
-import { goBack } from '../../../lib/widget-manager';
-import { Branch, Department, Employee, WidgetState } from '../../../types';
-import { WidgetStep } from '../../../shared/constants';
-import { SelectionMode } from '../../../shared/constants';
-import { formatEmployeeFullName } from '../../../shared/lib';
-import { branchesApi } from '../../../shared/api/branches';
-import { employeesApi } from '../../../shared/api/employees';
-import { departmentsApi } from '../../../shared/api/departments';
+import { AppointmentConfirmation } from '../../../features/appointment-confirmation';
+import { AppointmentDetails } from '../../../features/appointment-details';
 import { BranchSelection } from '../../../features/branch-selection';
+import { DateTimeSelection } from '../../../features/date-time-selection';
+import { DepartmentSpecialistsSelection } from '../../../features/department-selection';
+import { DoctorInfo } from '../../../features/doctor-info';
 import { NextSteps } from '../../../features/next-steps';
 import { PhoneInput } from '../../../features/phone-input';
-import { DoctorInfo } from '../../../features/doctor-info';
-import { DepartmentSpecialistsSelection } from '../../../features/department-selection';
 import { SpecialistSelection } from '../../../features/specialist-selection';
-import { DateTimeSelection } from '../../../features/date-time-selection';
-import { AddPetModal } from '../../../features/pet-management';
-import { AppointmentDetails } from '../../../features/appointment-details';
-import { AppointmentConfirmation } from '../../../features/appointment-confirmation';
+import defaultImage from '../../../img/default.png';
+import { goBack } from '../../../lib/widget-manager';
+import { branchesApi, departmentsApi, employeesApi } from '../../../shared/api';
+import { SelectionMode, WidgetStep } from '../../../shared/constants';
+import { formatEmployeeFullName } from '../../../shared/lib';
+import { Branch, Department, Employee, WidgetState } from '../../../types';
 import './Widget.css';
 
 export interface WidgetProps {
@@ -184,7 +180,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       case WidgetStep.NEXT_STEPS:
         return (
           <div className='next-steps-image-container'>
-            <img src={defaultImage} alt='Default' className='next-steps-image' />
+            <img src={defaultImage as string} alt='Default' className='next-steps-image' />
           </div>
         );
 
@@ -228,6 +224,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
   };
 
   const renderContent = () => {
+    console.log('***', widgetState, '***');
     const { currentStep } = widgetState;
 
     if (currentStep === WidgetStep.BRANCH_SELECTION) {
@@ -341,7 +338,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
     );
   };
 
-  console.debug('***', widgetState, '***');
+
   return (
     <Drawer
       title={
