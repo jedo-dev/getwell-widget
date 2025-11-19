@@ -88,12 +88,13 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
     <Modal
       title='Новый питомец'
       open={open}
+      centered={false}
       onCancel={handleClose}
       footer={null}
       className='add-pet-modal'
       closeIcon={<span className='add-pet-modal-close'>×</span>}
       getContainer={false}
-      style={{ top: 'auto', bottom: 0, paddingBottom: 0 }}
+      style={{ top: 'auto', bottom: 0, paddingBottom: 0 ,right:0}}
       wrapClassName='add-pet-modal-wrap'>
       <div className='add-pet-modal-content'>
         <div className='add-pet-modal-field'>

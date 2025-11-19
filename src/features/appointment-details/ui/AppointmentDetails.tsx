@@ -1,13 +1,14 @@
 import {
   CalendarOutlined,
-  CheckCircleOutlined,
   DownOutlined,
-  HomeOutlined,
+  EnvironmentOutlined,
+  PhoneOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { Button, Checkbox, DatePicker, Input, message, Radio, Select, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
+import { goBack, goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
@@ -17,12 +18,14 @@ import {
   PetSpecies,
 } from '../../../shared/constants';
 import {
+  formatDate,
   formatDateTime,
   formatEmployeeFullName,
   formatPhone,
+  formatTime,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
-import { InfoCard } from '../../../shared/ui';
+import { Avatar } from '../../../shared/ui';
 import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
@@ -248,42 +251,73 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   const dateTimeInfo = formatDateTime(selectedDateTime);
   const fullName = selectedEmployee ? formatEmployeeFullName(selectedEmployee) : '';
+  const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
+  const formattedDate = dateTime ? formatDate(dateTime) : '';
+  const formattedTime = dateTime ? formatTime(dateTime) : '';
+
+  const handleBack = () => {
+    goBack();
+  };
 
   return (
     <div className='appointment-details'>
+      <AddPetModal
+        open={isAddPetModalOpen}
+        onClose={() => setIsAddPetModalOpen(false)}
+        onSave={handleSaveNewPet}
+      />
       <div className='appointment-details-content'>
-        <div className='appointment-details-info'>
+        {/* Appointment Details Container */}
+        <div className='appointment-details-appointment-details'>
+          {/* Location */}
           {selectedBranch && (
-            <InfoCard
-              icon={<HomeOutlined />}
-              title={selectedBranch.name}
-              subtitle={selectedBranch.address}
-              className='appointment-details-card'
-            />
+            <div className='appointment-details-location'>
+              <div className='appointment-details-icon-wrapper'>
+                <EnvironmentOutlined className='appointment-details-icon' />
+              </div>
+              <div className='appointment-details-location-info'>
+                <div className='appointment-details-location-name'>{selectedBranch.name}</div>
+                <div className='appointment-details-location-address'>{selectedBranch.address}</div>
+              </div>
+            </div>
           )}
 
+          {/* Doctor */}
           {selectedEmployee && (
-            <InfoCard
-              avatar={{ src: selectedEmployee.photo, alt: fullName }}
-              title={fullName}
-              subtitle={selectedEmployee.specialization}
-              className='appointment-details-card'
-            />
+            <div className='appointment-details-doctor'>
+              <Avatar
+                src={selectedEmployee.photo}
+                alt={fullName}
+                size='medium'
+                className='appointment-details-doctor-avatar'
+              />
+              <div className='appointment-details-doctor-info'>
+                <div className='appointment-details-doctor-name'>{fullName}</div>
+                <div className='appointment-details-doctor-specialization'>
+                  {selectedEmployee.specialization}
+                </div>
+              </div>
+            </div>
           )}
 
+          {/* Date */}
           {dateTimeInfo && (
-            <InfoCard
-              icon={<CalendarOutlined />}
-              title={dateTimeInfo.date}
-              subtitle={dateTimeInfo.time}
-              className='appointment-details-card'
-            />
+            <div className='appointment-details-date'>
+              <div className='appointment-details-icon-wrapper'>
+                <CalendarOutlined className='appointment-details-icon' />
+              </div>
+              <div className='appointment-details-date-info'>
+                <div className='appointment-details-date-text'>{formattedDate}</div>
+                <div className='appointment-details-time-text'>{formattedTime}</div>
+              </div>
+            </div>
           )}
         </div>
 
         <div className='appointment-details-user-data'>
           <div className='appointment-details-user-data-title'>Ваши данные</div>
 
+          {/* Phone Input */}
           <div className='appointment-details-phone-section'>
             {isPhoneEditing ? (
               <div className='appointment-details-phone-edit'>
@@ -294,21 +328,29 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneConfirm}
                   maxLength={17}
+                  size='large'
+                  prefix={<PhoneOutlined className='appointment-details-phone-icon' />}
                   autoFocus
                 />
                 {phoneError && <div className='appointment-details-phone-error'>{phoneError}</div>}
               </div>
             ) : (
               <div className='appointment-details-phone-display'>
-                <span className='appointment-details-phone-value'>{phone}</span>
-                <CheckCircleOutlined className='appointment-details-phone-check' />
-                <button className='appointment-details-phone-change' onClick={handlePhoneEdit}>
-                  изменить
-                </button>
+                <div className='appointment-details-phone-display-content'>
+                  <span className='appointment-details-phone-code'>+7</span>
+                  <span className='appointment-details-phone-number'>
+                    {phone ? phone.replace(/^\+7\s?/, '') : ''}
+                  </span>
+                  <PhoneOutlined className='appointment-details-phone-display-icon' />
+                  <button className='appointment-details-phone-change' onClick={handlePhoneEdit}>
+                    изменить
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
+          {/* Name Input */}
           {isNewUser ? (
             <>
               <div className='appointment-details-field'>
@@ -316,6 +358,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   placeholder='Имя *'
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  size='large'
+                  prefix={<UserOutlined className='appointment-details-name-icon' />}
                   required
                 />
               </div>
@@ -324,6 +368,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   placeholder='Фамилия *'
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  size='large'
+                  prefix={<UserOutlined className='appointment-details-name-icon' />}
                   required
                 />
               </div>
@@ -332,6 +378,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   placeholder='Отчество *'
                   value={patronymic}
                   onChange={(e) => setPatronymic(e.target.value)}
+                  size='large'
+                  prefix={<UserOutlined className='appointment-details-name-icon' />}
                   required
                 />
               </div>
@@ -372,146 +420,138 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   <Button className='appointment-details-pet-add-btn' onClick={handleAddNewPet}>
                     Внести нового питомца
                   </Button>
+
+                  <TextArea
+                    className='appointment-details-symptoms-input'
+                    placeholder='Расскажите о ваших симптомах'
+                    value={symptoms}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setSymptoms(e.target.value)
+                    }
+                    rows={4}
+                    maxLength={500}
+                    showCount
+                  />
                 </>
               )}
             </div>
           )}
-        </div>
 
-        {isNewUser && (
-          <div className='appointment-details-pet-section'>
-            <div className='appointment-details-pet-title'>Питомец</div>
-            <div className='appointment-details-field'>
-              <Input
-                placeholder='Кличка *'
-                value={petName}
-                onChange={(e) => setPetName(e.target.value)}
-                required
-              />
+          {isNewUser && (
+            <div className='appointment-details-pet-section'>
+              <div className='appointment-details-pet-title'>Питомец</div>
+              <div className='appointment-details-field'>
+                <Input
+                  placeholder='Кличка *'
+                  value={petName}
+                  onChange={(e) => setPetName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className='appointment-details-field'>
+                <Select
+                  placeholder='Вид *'
+                  value={petSpecies}
+                  style={{ width: '100%' }}
+                  onChange={setPetSpecies}
+                  suffixIcon={<DownOutlined />}
+                  options={PET_SPECIES_OPTIONS}
+                />
+              </div>
+              <div className='appointment-details-field'>
+                <Select
+                  placeholder='Порода *'
+                  style={{ width: '100%' }}
+                  value={petBreed}
+                  onChange={setPetBreed}
+                  suffixIcon={<DownOutlined />}
+                  options={[
+                    { value: 'breed1', label: 'Порода 1' },
+                    { value: 'breed2', label: 'Порода 2' },
+                    { value: 'breed3', label: 'Порода 3' },
+                  ]}
+                />
+              </div>
+              <div className='appointment-details-gender-section'>
+                <Radio.Group
+                  value={petGender}
+                  onChange={(e) => setPetGender(e.target.value)}
+                  className='appointment-details-gender-group'>
+                  <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>
+                  <Radio.Button value={Gender.FEMALE}>
+                    {PET_GENDER_LABELS[Gender.FEMALE]}
+                  </Radio.Button>
+                </Radio.Group>
+              </div>
+              <div className='appointment-details-field'>
+                <DatePicker
+                  placeholder='Дата рождения *'
+                  value={petBirthDate}
+                  onChange={setPetBirthDate}
+                  format='DD.MM.YYYY'
+                  style={{ width: '100%' }}
+                />
+                <TextArea
+                  className='appointment-details-symptoms-input'
+                  placeholder='Расскажите о ваших симптомах'
+                  value={symptoms}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setSymptoms(e.target.value)
+                  }
+                  rows={4}
+                  maxLength={500}
+                  showCount
+                />
+              </div>
+              <div className='appointment-details-symptoms'></div>
             </div>
-            <div className='appointment-details-field'>
-              <Select
-                placeholder='Вид *'
-                value={petSpecies}
-                onChange={setPetSpecies}
-                suffixIcon={<DownOutlined />}
-                options={PET_SPECIES_OPTIONS}
-              />
-            </div>
-            <div className='appointment-details-field'>
-              <Select
-                placeholder='Порода *'
-                value={petBreed}
-                onChange={setPetBreed}
-                suffixIcon={<DownOutlined />}
-                options={[
-                  { value: 'breed1', label: 'Порода 1' },
-                  { value: 'breed2', label: 'Порода 2' },
-                  { value: 'breed3', label: 'Порода 3' },
-                ]}
-              />
-            </div>
-            <div className='appointment-details-gender-section'>
-              <Radio.Group
-                value={petGender}
-                onChange={(e) => setPetGender(e.target.value)}
-                className='appointment-details-gender-group'>
-                <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>
-                <Radio.Button value={Gender.FEMALE}>
-                  {PET_GENDER_LABELS[Gender.FEMALE]}
-                </Radio.Button>
-              </Radio.Group>
-            </div>
-            <div className='appointment-details-field'>
-              <DatePicker
-                placeholder='Дата рождения *'
-                value={petBirthDate}
-                onChange={setPetBirthDate}
-                format='DD.MM.YYYY'
-                style={{ width: '100%' }}
-              />
-            </div>
-            <div className='appointment-details-symptoms'>
-              <TextArea
-                className='appointment-details-symptoms-input'
-                placeholder='Расскажите о ваших симптомах'
-                value={symptoms}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setSymptoms(e.target.value)
-                }
-                rows={4}
-                maxLength={500}
-                showCount
-              />
-            </div>
+          )}
+          <div className='appointment-details-consents'>
+            <Checkbox
+              checked={consentPersonalData}
+              onChange={(e) => setConsentPersonalData(e.target.checked)}
+              className='appointment-details-consent-checkbox'>
+              Согласен на{' '}
+              <a href='#' className='appointment-details-consent-link'>
+                обработку персональных данных
+              </a>
+            </Checkbox>
+
+            <Checkbox
+              checked={consentMarketing}
+              onChange={(e) => setConsentMarketing(e.target.checked)}
+              className='appointment-details-consent-checkbox'>
+              Согласен на получение сообщений и информационно-рекламной рассылки
+            </Checkbox>
           </div>
-        )}
 
-        {!isNewUser && (
-          <div className='appointment-details-symptoms'>
-            <TextArea
-              className='appointment-details-symptoms-input'
-              placeholder='Расскажите о ваших симптомах'
-              value={symptoms}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSymptoms(e.target.value)}
-              rows={4}
-              maxLength={500}
-              showCount
-            />
+          <div className='appointment-details-footer'>
+            <Button
+              type='primary'
+              className='appointment-details-submit-btn'
+              block
+              onClick={handleSubmit}
+              disabled={
+                !phone ||
+                phoneError !== '' ||
+                !consentPersonalData ||
+                (isNewUser
+                  ? !firstName ||
+                    !lastName ||
+                    !patronymic ||
+                    !gender ||
+                    !petName ||
+                    !petSpecies ||
+                    !petBreed ||
+                    !petGender ||
+                    !petBirthDate
+                  : !selectedPetId)
+              }>
+              Записаться
+            </Button>
           </div>
-        )}
-
-        <div className='appointment-details-consents'>
-          <Checkbox
-            checked={consentPersonalData}
-            onChange={(e) => setConsentPersonalData(e.target.checked)}
-            className='appointment-details-consent-checkbox'>
-            Согласен на{' '}
-            <a href='#' className='appointment-details-consent-link'>
-              обработку персональных данных
-            </a>
-          </Checkbox>
-
-          <Checkbox
-            checked={consentMarketing}
-            onChange={(e) => setConsentMarketing(e.target.checked)}
-            className='appointment-details-consent-checkbox'>
-            Согласен на получение сообщений и информационно-рекламной рассылки
-          </Checkbox>
         </div>
       </div>
-
-      <div className='appointment-details-footer'>
-        <Button
-          type='primary'
-          className='appointment-details-submit-btn'
-          block
-          onClick={handleSubmit}
-          disabled={
-            !phone ||
-            phoneError !== '' ||
-            !consentPersonalData ||
-            (isNewUser
-              ? !firstName ||
-                !lastName ||
-                !patronymic ||
-                !gender ||
-                !petName ||
-                !petSpecies ||
-                !petBreed ||
-                !petGender ||
-                !petBirthDate
-              : !selectedPetId)
-          }>
-          Записаться
-        </Button>
-      </div>
-
-      <AddPetModal
-        open={isAddPetModalOpen}
-        onClose={() => setIsAddPetModalOpen(false)}
-        onSave={handleSaveNewPet}
-      />
     </div>
   );
 };
