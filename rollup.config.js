@@ -13,11 +13,41 @@ const packageJson = require('./package.json');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Плагин для удаления директив 'use client' из кода
+const removeUseClient = () => ({
+  name: 'remove-use-client',
+  transform(code, id) {
+    // Удаляем директивы 'use client' и 'use server' (с учетом разных вариантов написания)
+    if (code.includes("'use client'") || code.includes('"use client"') ||
+      code.includes("'use server'") || code.includes('"use server"')) {
+      return {
+        // Удаляем директивы с разными вариантами кавычек и с точкой с запятой или без
+        code: code
+          .replace(/['"]use client['"];?\s*/g, '')
+          .replace(/['"]use server['"];?\s*/g, '')
+          .replace(/['"]use client['"]\s*;?\s*/gm, '')
+          .replace(/['"]use server['"]\s*;?\s*/gm, ''),
+        map: null,
+      };
+    }
+    return null;
+  },
+});
+
 // Базовая конфигурация для CJS и ESM
 const baseConfig = {
   input: 'src/index.ts',
   external: ['react', 'react-dom', 'antd', 'react/jsx-runtime'],
+  onwarn(warning, warn) {
+    // Подавляем предупреждения о 'use client' директивах
+    if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+      return;
+    }
+    warn(warning);
+  },
   plugins: [
+    // Удаляем директивы 'use client' из node_modules (особенно из antd)
+    removeUseClient(),
     peerDepsExternal(),
     resolve({
       browser: true,
@@ -63,7 +93,16 @@ const umdConfig = {
   input: 'src/index.ts',
   // Не делаем зависимости external - они будут включены в бандл
   external: [],
+  onwarn(warning, warn) {
+    // Подавляем предупреждения о 'use client' директивах
+    if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+      return;
+    }
+    warn(warning);
+  },
   plugins: [
+    // Удаляем директивы 'use client' из node_modules (особенно из antd)
+    removeUseClient(),
     // Заменяем process.env на статические значения для браузера
     replace({
       'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),

@@ -14,7 +14,8 @@ export {
 } from './lib/widget-manager';
 
 // Export components
-export { Widget, WidgetProvider } from './components';
+export { WidgetProvider } from './app/providers';
+export { Widget } from './components';
 export type { WidgetProps } from './components';
 
 // Export global registration
@@ -24,7 +25,7 @@ export { registerGlobalWidget } from './lib/global';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as ReactDOMClient from 'react-dom/client';
-import { WidgetProvider } from './components';
+import { WidgetProvider } from './app/providers';
 import { registerGlobalWidget } from './lib/global';
 
 if (typeof window !== 'undefined') {
@@ -54,10 +55,10 @@ if (typeof window !== 'undefined') {
   }
 
   // Экспортируем старый render для совместимости (React < 18)
-  if (ReactDOM && typeof ReactDOM.render === 'function') {
-    if (!window.ReactDOM) {
-      (window as any).ReactDOM = {};
-    }
-    (window as any).ReactDOM.render = ReactDOM.render;
-  }
+  // if (ReactDOM && typeof ReactDOM.render === 'function') {
+  //   if (!window.ReactDOM) {
+  //     (window as any).ReactDOM = {};
+  //   }
+  //   (window as any).ReactDOM.render = ReactDOM.render;
+  // }
 }

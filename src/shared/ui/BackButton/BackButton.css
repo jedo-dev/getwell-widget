@@ -1,0 +1,12 @@
+.shared-back-button {
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.shared-back-button:hover {
+  color: #1890ff;
+}
+

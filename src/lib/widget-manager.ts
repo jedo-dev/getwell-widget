@@ -1,11 +1,11 @@
-import { WidgetConfig, WidgetState } from '../types';
+import { SelectionMode, WidgetConfig, WidgetState, WidgetStep } from '../types';
 
 // Глобальное состояние виджета
 let widgetState: WidgetState = {
   isOpen: false,
   config: null,
   initialized: false,
-  currentStep: 'branch-selection',
+  currentStep: WidgetStep.BRANCH_SELECTION,
   selectedBranchId: null,
   selectedEmployeeId: null,
   selectedDepartmentId: null,
@@ -69,7 +69,7 @@ export function openGetWellWidget(): void {
   widgetState = {
     ...widgetState,
     isOpen: true,
-    currentStep: 'branch-selection',
+    currentStep: WidgetStep.BRANCH_SELECTION,
     selectedBranchId: null,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
@@ -102,7 +102,7 @@ export function resetGetWellWidget(): void {
     isOpen: false,
     config: null,
     initialized: false,
-    currentStep: 'branch-selection',
+    currentStep: WidgetStep.BRANCH_SELECTION,
     selectedBranchId: null,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
@@ -122,7 +122,7 @@ export function selectBranch(branchId: number): void {
   widgetState = {
     ...widgetState,
     selectedBranchId: branchId,
-    currentStep: 'next-steps',
+    currentStep: WidgetStep.NEXT_STEPS,
   };
 
   notifyStateChange();
@@ -134,8 +134,8 @@ export function selectBranch(branchId: number): void {
 export function goToSpecialistSelection(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'specialist-selection',
-    selectionMode: 'employee',
+    currentStep: WidgetStep.SPECIALIST_SELECTION,
+    selectionMode: SelectionMode.EMPLOYEE,
   };
 
   notifyStateChange();
@@ -147,8 +147,8 @@ export function goToSpecialistSelection(): void {
 export function goToDepartmentSelection(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'specialist-selection',
-    selectionMode: 'department',
+    currentStep: WidgetStep.SPECIALIST_SELECTION,
+    selectionMode: SelectionMode.DEPARTMENT,
   };
 
   notifyStateChange();
@@ -173,7 +173,7 @@ export function selectDepartment(departmentId: number): void {
   widgetState = {
     ...widgetState,
     selectedDepartmentId: departmentId,
-    currentStep: 'department-specialists-selection',
+    currentStep: WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION,
   };
 
   notifyStateChange();
@@ -185,7 +185,7 @@ export function selectDepartment(departmentId: number): void {
 export function goToDepartmentSpecialistsSelection(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'department-specialists-selection',
+    currentStep: WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION,
   };
 
   notifyStateChange();
@@ -197,7 +197,7 @@ export function goToDepartmentSpecialistsSelection(): void {
 export function goToDateTimeSelection(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'date-time-selection',
+    currentStep: WidgetStep.DATE_TIME_SELECTION,
   };
 
   notifyStateChange();
@@ -221,7 +221,7 @@ export function selectDateTime(dateTime: string): void {
 export function goToPhoneInput(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'phone-input',
+    currentStep: WidgetStep.PHONE_INPUT,
   };
 
   notifyStateChange();
@@ -235,7 +235,7 @@ export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = fals
     ...widgetState,
     phone,
     isNewUser,
-    currentStep: 'appointment-details',
+    currentStep: WidgetStep.APPOINTMENT_DETAILS,
   };
 
   notifyStateChange();
@@ -247,7 +247,7 @@ export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = fals
 export function goToAppointmentDetails(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'appointment-details',
+    currentStep: WidgetStep.APPOINTMENT_DETAILS,
   };
 
   notifyStateChange();
@@ -271,7 +271,7 @@ export function selectPet(petId: number): void {
 export function goToAppointmentConfirmation(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'appointment-confirmation',
+    currentStep: WidgetStep.APPOINTMENT_CONFIRMATION,
   };
 
   notifyStateChange();
@@ -283,7 +283,7 @@ export function goToAppointmentConfirmation(): void {
 export function goToDoctorInfo(): void {
   widgetState = {
     ...widgetState,
-    currentStep: 'doctor-info',
+    currentStep: WidgetStep.DOCTOR_INFO,
   };
 
   notifyStateChange();
@@ -298,16 +298,18 @@ export function goBack(): void {
   if (currentStep === 'appointment-details') {
     widgetState = {
       ...widgetState,
-      currentStep: 'phone-input',
+      currentStep: WidgetStep.PHONE_INPUT,
     };
   } else if (currentStep === 'phone-input') {
     widgetState = {
       ...widgetState,
-      currentStep: 'date-time-selection',
+      currentStep: WidgetStep.DATE_TIME_SELECTION,
     };
   } else if (currentStep === 'doctor-info') {
     // Определяем, откуда мы пришли - из specialist-selection или department-specialists-selection
-    const previousStep = widgetState.selectedDepartmentId ? 'department-specialists-selection' : 'specialist-selection';
+    const previousStep = widgetState.selectedDepartmentId
+      ? WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION
+      : WidgetStep.SPECIALIST_SELECTION;
     widgetState = {
       ...widgetState,
       currentStep: previousStep,
@@ -315,19 +317,22 @@ export function goBack(): void {
   } else if (currentStep === 'department-specialists-selection') {
     widgetState = {
       ...widgetState,
-      currentStep: 'specialist-selection',
+      currentStep: WidgetStep.SPECIALIST_SELECTION,
       selectedDepartmentId: null,
     };
-  } else if (currentStep === 'specialist-selection' || currentStep === 'date-time-selection') {
+  } else if (
+    currentStep === WidgetStep.SPECIALIST_SELECTION ||
+    currentStep === WidgetStep.DATE_TIME_SELECTION
+  ) {
     widgetState = {
       ...widgetState,
-      currentStep: 'next-steps',
+      currentStep: WidgetStep.NEXT_STEPS,
       selectionMode: undefined,
     };
-  } else if (currentStep === 'next-steps') {
+  } else if (currentStep === WidgetStep.NEXT_STEPS) {
     widgetState = {
       ...widgetState,
-      currentStep: 'branch-selection',
+      currentStep: WidgetStep.BRANCH_SELECTION,
       selectedBranchId: null,
     };
   }

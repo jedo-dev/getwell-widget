@@ -1,0 +1,214 @@
+.department-specialists-selection {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.department-specialists-selection-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.department-specialists-selection-back {
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.department-specialists-selection-back:hover {
+  color: #1890ff;
+}
+
+.department-specialists-selection-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.85);
+  flex: 1;
+}
+
+.department-specialists-selection-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow: hidden;
+
+  .ant-list-items {
+    border-radius: 16px 16px 0 0;
+    background: white;
+  }
+}
+
+.department-specialists-selection-search {
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.department-specialists-selection-list {
+  flex: 1;
+  overflow: auto;
+}
+
+.department-specialists-selection-item {
+  padding: 20px !important;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.department-specialists-selection-item:hover {
+  background-color: #fafafa;
+}
+
+.department-specialists-selection-item.selected {
+  background-color: #f0f7ff;
+}
+
+.department-specialists-selection-item:last-child {
+  border-bottom: none;
+}
+
+.department-specialists-selection-item-content {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+
+.department-specialists-selection-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.department-specialists-selection-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.department-specialists-selection-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.department-specialists-selection-avatar .anticon {
+  font-size: 24px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.department-specialists-selection-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.department-specialists-selection-item-name {
+  font-family: Onest;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: #101828;
+}
+
+.department-specialists-selection-item-specialization {
+  font-family: Onest;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  color: #777777;
+}
+
+.department-specialists-selection-item-appointment {
+  font-family: Onest;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  color: #777777;
+}
+
+.department-specialists-selection-item-content-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.department-specialists-selection-footer {
+  background: white;
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.department-specialists-selection-footer-btn {
+  flex: 1;
+}
+
+.department-specialists-selection-footer-btn.secondary {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.department-specialists-selection-footer-btn.secondary:hover {
+  background-color: #e6e6e6;
+  border-color: #bfbfbf;
+}
+
+.department-specialists-selection-time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.department-specialists-selection-time-slot {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: Onest;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #101828;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.department-specialists-selection-time-slot:hover {
+  background-color: #e6e6e6;
+  border-color: #d0d0d0;
+}
+
+.department-specialists-selection-time-slot:active {
+  background-color: #d9d9d9;
+}
+

@@ -1,3 +1,9 @@
+import { AppointmentType } from '../shared/constants/appointment-types';
+import { Gender } from '../shared/constants/gender';
+import { SelectionMode } from '../shared/constants/selection-modes';
+import { WidgetStep } from '../shared/constants/widget-steps';
+import { PetSpecies } from '../shared/constants/pet-species';
+
 // Branch (Филиал)
 export interface Branch {
   id: number;
@@ -31,17 +37,19 @@ export interface Department {
 export interface TimeSlot {
   datetime: string; // ISO string
   duration: number; // длительность в минутах
-  appointmentType: 'consultation' | 'examination' | 'procedure' | 'other'; // тип приёма
+  appointmentType: AppointmentType; // тип приёма
 }
 
 // Pet (Питомец)
 export interface Pet {
   id?: number;
   name: string;
-  species?: string; // вид животного
+  species?: PetSpecies | string; // вид животного (для обратной совместимости оставляем string)
   breed?: string; // порода
   age?: number;
   weight?: number;
+  gender?: Gender; // пол питомца
+  birthDate?: string; // дата рождения в формате ISO
 }
 
 // Client (Клиент)
@@ -52,6 +60,7 @@ export interface Client {
   patronymic?: string;
   phone: string;
   email?: string;
+  gender?: Gender;
 }
 
 // Appointment (Запись)
@@ -63,7 +72,7 @@ export interface Appointment {
   pet: Pet;
   timeSlot: TimeSlot;
   notes?: string;
-  appointmentType: 'consultation' | 'examination' | 'procedure' | 'other';
+  appointmentType: AppointmentType;
 }
 
 // Widget Theme
@@ -89,9 +98,6 @@ export interface WidgetConfig {
   stickyBtnEnable?: boolean; // включить плавающую кнопку
 }
 
-// Widget Step (Шаг виджета)
-export type WidgetStep = 'branch-selection' | 'next-steps' | 'specialist-selection' | 'department-specialists-selection' | 'doctor-info' | 'date-time-selection' | 'phone-input' | 'appointment-details' | 'appointment-confirmation';
-
 // Widget State
 export interface WidgetState {
   isOpen: boolean;
@@ -101,7 +107,7 @@ export interface WidgetState {
   selectedBranchId: number | null;
   selectedEmployeeId: number | null;
   selectedDepartmentId: number | null;
-  selectionMode?: 'employee' | 'department'; // режим выбора: специалист или отделение
+  selectionMode?: SelectionMode; // режим выбора: специалист или отделение
   selectedTimeSlot: string | null;
   phone: string | null;
   selectedPetId: number | null;
@@ -110,7 +116,10 @@ export interface WidgetState {
     firstName?: string;
     lastName?: string;
     patronymic?: string;
-    gender?: 'male' | 'female';
+    gender?: Gender;
   };
 }
+
+// Экспортируем enum'ы для удобства
+export { WidgetStep, AppointmentType, SelectionMode, Gender, PetSpecies };
 
