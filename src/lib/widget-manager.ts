@@ -1,18 +1,43 @@
 import { SelectionMode, WidgetConfig, WidgetState, WidgetStep } from '../types';
 
 // Глобальное состояние виджета
+
+// let widgetState: WidgetState = {
+//   isOpen: false,
+//   config: null,
+//   initialized: false,
+//   currentStep: WidgetStep.BRANCH_SELECTION,
+//   selectedBranchId: null,
+//   selectedEmployeeId: null,
+//   selectedDepartmentId: null,
+//   selectedTimeSlot: null,
+//   phone: null,
+//   selectedPetId: null,
+// };
 let widgetState: WidgetState = {
-  isOpen: false,
-  config: null,
-  initialized: false,
-  currentStep: WidgetStep.BRANCH_SELECTION,
-  selectedBranchId: null,
-  selectedEmployeeId: null,
-  selectedDepartmentId: null,
-  selectedTimeSlot: null,
-  phone: null,
-  selectedPetId: null,
-};
+  "isOpen": true,
+  "config": {
+      "apiUrl": "https://api.example.com",
+      "theme": {
+          "primaryColor": "#1890ff",
+          "secondaryColor": "#52c41a"
+      },
+      "showBranches": true,
+      "showEmployees": true,
+      "showDepartments": true,
+      "stickyBtnEnable": true
+  },
+  "initialized": true,
+  "currentStep": "appointment-confirmation",
+  "selectedBranchId": 1,
+  "selectedEmployeeId": 2,
+  "selectedDepartmentId": null,
+  "selectedTimeSlot": "2025-11-19T15:30:00",
+  "phone": "+7 909 646 84 44",
+  "selectedPetId": 1,
+  "selectionMode": "employee",
+  "isNewUser": false
+} as WidgetState;
 
 // Callbacks для уведомления компонентов об изменении состояния
 let stateChangeCallbacks: Array<(state: WidgetState) => void> = [];

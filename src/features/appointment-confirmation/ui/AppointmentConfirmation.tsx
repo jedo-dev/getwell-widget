@@ -1,16 +1,22 @@
 import {
   CalendarOutlined,
+  CheckCircleOutlined,
   ClockCircleOutlined,
-  HomeOutlined,
+  EnvironmentOutlined,
+  IdcardOutlined,
   PhoneOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
-import { Button, List, Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
+;
 import { openGetWellWidget } from '../../../lib/widget-manager';
 import { petsApi } from '../../../shared/api/pets';
-import { formatDateTime, formatEmployeeFullName } from '../../../shared/lib';
-import { InfoListItem } from '../../../shared/ui';
+import {
+  formatDate,
+  formatDateTime,
+  formatEmployeeFullName,
+  formatTime,
+} from '../../../shared/lib';
 import { Branch, Employee, Pet } from '../../../types';
 import './AppointmentConfirmation.css';
 
@@ -31,7 +37,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 }) => {
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [loadingPet, setLoadingPet] = useState<boolean>(false);
-
+const defaultImage = '';
   useEffect(() => {
     const loadPet = async () => {
       if (!phone || !selectedPetId) {
@@ -78,19 +84,27 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     openGetWellWidget();
   };
 
+  const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
+  const formattedDate = dateTime ? formatDate(dateTime) : '';
+  const formattedTime = dateTime ? formatTime(dateTime) : '';
+
   const appointmentItems = [
     selectedPet && {
       key: 'pet',
       icon: <span className='appointment-confirmation-paw-icon'>🐾</span>,
       title: selectedPet.name,
-      description: `${selectedPet.species || ''}${
-        selectedPet.breed ? ` • ${selectedPet.breed}` : ''
-      }`.trim(),
-      action: null,
+      description: null,
+      action: {
+        text: 'Подробнее',
+        onClick: () => {
+          // TODO: Открыть модальное окно с информацией о питомце
+          console.log('Подробнее о питомце');
+        },
+      },
     },
     selectedEmployee && {
       key: 'employee',
-      icon: <UserOutlined className='appointment-confirmation-item-icon' />,
+      icon: <IdcardOutlined />,
       title: fullName,
       description: null,
       action: {
@@ -103,8 +117,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     dateTimeInfo && {
       key: 'datetime',
-      icon: <CalendarOutlined className='appointment-confirmation-item-icon' />,
-      title: `${dateTimeInfo.date}, ${dateTimeInfo.time}`,
+      icon: <CalendarOutlined />,
+      title: `${formattedDate}`,
       description: null,
       action: {
         text: 'Добавить в календарь',
@@ -113,7 +127,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedBranch && {
       key: 'address',
-      icon: <HomeOutlined className='appointment-confirmation-item-icon' />,
+      icon: <EnvironmentOutlined />,
       title: selectedBranch.address,
       description: null,
       action: {
@@ -123,7 +137,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedBranch && {
       key: 'phone',
-      icon: <PhoneOutlined className='appointment-confirmation-item-icon' />,
+      icon: <PhoneOutlined />,
       title: selectedBranch.phone,
       description: null,
       action: {
@@ -133,8 +147,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedBranch && {
       key: 'schedule',
-      icon: <ClockCircleOutlined className='appointment-confirmation-item-icon' />,
-      title: selectedBranch.schedule,
+      icon: <ClockCircleOutlined />,
+      title: selectedBranch.schedule || 'Рабочие часы',
       description: null,
       action: null,
     },
@@ -148,37 +162,61 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 
   return (
     <div className='appointment-confirmation'>
-      <div className='appointment-confirmation-header'>
+      {/* Main Image Container */}
+      <div className='appointment-confirmation-image-container'>
+       <img
+          src={undefined}
+          alt=''
+          className='appointment-confirmation-image'
+        />
+      
+      <div className='appointment-confirmation-success-icon'>
+          <CheckCircleOutlined />
+        </div>
+      </div>
+      
+      {/* Appointment Info Container */}
+      <div className='appointment-confirmation-info-container'>
         <h2 className='appointment-confirmation-title'>Вы записаны на приём</h2>
         {dateTimeInfo && (
-          <div className='appointment-confirmation-subtitle'>
-            {dateTimeInfo.date} • {dateTimeInfo.time}
+          <div className='appointment-confirmation-time-container'>
+            <span className='appointment-confirmation-day'>{formattedDate}</span>
+            <span className='appointment-confirmation-separator'>•</span>
+            <span className='appointment-confirmation-time'>{formattedTime}</span>
           </div>
         )}
       </div>
 
-      <div className='appointment-confirmation-content'>
+      {/* Details Container */}
+      <div className='appointment-confirmation-details-container'>
         {loadingPet ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
             <Spin size='large' />
           </div>
         ) : (
-          <List
-            dataSource={appointmentItems}
-            renderItem={(item) => (
-              <List.Item className='appointment-confirmation-item'>
-                <InfoListItem
-                  icon={item.icon}
-                  title={item.title}
-                  description={item.description}
-                  action={item.action}
-                />
-              </List.Item>
-            )}
-          />
+          <div className='appointment-confirmation-details-list'>
+            {appointmentItems.map((item) => (
+              <div key={item.key} className='appointment-confirmation-detail-item'>
+                <div className='appointment-confirmation-detail-content'>
+                  <div className='appointment-confirmation-detail-icon'>{item.icon}</div>
+                  <div className='appointment-confirmation-detail-text'>
+                    <div className='appointment-confirmation-detail-title'>{item.title}</div>
+                  </div>
+                  {item.action && (
+                    <button
+                      className='appointment-confirmation-detail-action'
+                      onClick={item.action.onClick}>
+                      {item.action.text}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
+      {/* Footer */}
       <div className='appointment-confirmation-footer'>
         <Button
           type='primary'
