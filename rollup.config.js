@@ -4,9 +4,10 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
+import url from '@rollup/plugin-url';
+import copy from 'rollup-plugin-copy';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
-import copy from 'rollup-plugin-copy';
 
 const packageJson = require('./package.json');
 
@@ -36,6 +37,13 @@ const baseConfig = {
     postcss({
       extract: true,
       minimize: isProduction,
+    }),
+    // Обрабатываем изображения (встраиваем как base64 или копируем)
+    url({
+      include: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
+      limit: 8192, // Если изображение меньше 8KB, встраиваем как base64, иначе копируем
+      destDir: 'dist/img',
+      publicPath: './img/',
     }),
     // Копируем файлы шрифтов в dist
     copy({
@@ -107,6 +115,11 @@ const umdConfig = {
       minimize: isProduction,
       // Включаем CSS из Ant Design
       inject: false,
+    }),
+    // Обрабатываем изображения для UMD версии
+    url({
+      include: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
+      limit: Infinity, // Всегда встраиваем как base64 для UMD (чтобы не было проблем с путями)
     }),
     // Копируем файлы шрифтов в dist для UMD версии
     copy({

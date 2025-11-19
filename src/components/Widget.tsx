@@ -1,8 +1,11 @@
+import { LeftOutlined } from '@ant-design/icons';
 import { Drawer } from 'antd';
 import React, { useEffect, useState } from 'react';
+import defaultImage from '../img/default.png';
 import { getBranchesSync } from '../lib/branches-data';
 import { getDepartmentsSync } from '../lib/departments-data';
 import { getEmployeesByDepartmentSync, getEmployeesSync } from '../lib/employees-data';
+import { goBack } from '../lib/widget-manager';
 import { Branch, Department, Employee, WidgetState } from '../types';
 import AppointmentConfirmation from './AppointmentConfirmation';
 import AppointmentDetails from './AppointmentDetails';
@@ -14,7 +17,6 @@ import NextSteps from './NextSteps';
 import PhoneInput from './PhoneInput';
 import SpecialistSelection from './SpecialistSelection';
 import './Widget.css';
-
 export interface WidgetProps {
   open: boolean;
   onClose: () => void;
@@ -22,14 +24,14 @@ export interface WidgetProps {
 }
 
 const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
-  const [drawerWidth, setDrawerWidth] = useState<number | string>(400);
+  const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
 
   useEffect(() => {
     const updateWidth = () => {
-      setDrawerWidth(window.innerWidth <= 768 ? '100%' : 400);
+      setDrawerWidth(window.innerWidth <= 768 ? '100%' : 600);
     };
 
     updateWidth();
@@ -147,13 +149,60 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
     return departments.find((dept) => dept.id === widgetState.selectedDepartmentId) || null;
   };
   const renderStepTitle = () => {
-    const { currentStep } = widgetState;
+    const { currentStep, selectionMode } = widgetState;
+    const selectedDepartment = getSelectedDepartment();
+
     switch (currentStep) {
       case 'branch-selection':
         return 'Выберите филиал';
+
       case 'next-steps':
-        return 'Выберите специалиста';
+        return (
+          <div className='next-steps-image-container'>
+            <img src={defaultImage} alt='Default' className='next-steps-image' />
+          </div>
+        );
+
+      case 'specialist-selection':
+        return selectionMode === 'department' ? 'Выберите отделение' : 'Выберите специалиста';
+
+      case 'department-specialists-selection':
+        return selectedDepartment ? selectedDepartment.name : 'Выберите специалиста';
+
+      case 'doctor-info': {
+        const selectedEmployee = getSelectedEmployee();
+        const fullName = selectedEmployee
+          ? `${selectedEmployee.lastName} ${selectedEmployee.firstName} ${
+              selectedEmployee.patronymic || ''
+            }`.trim()
+          : '';
+        return fullName || 'Информация о враче';
+      }
+
+      case 'date-time-selection':
+        return 'Выберите дату и время';
+
+      case 'phone-input':
+        return 'Введите номер телефона';
+
+      case 'appointment-details':
+        return 'Детали записи';
+
+      case 'appointment-confirmation':
+        return 'Подтверждение записи';
+
+      default:
+        return '';
     }
+  };
+  const renderReturnBtn = () => {
+    if (
+      widgetState.currentStep === 'branch-selection' ||
+      widgetState.currentStep === 'next-steps'
+    ) {
+      return '';
+    }
+    return <LeftOutlined className='department-specialists-selection-back' onClick={goBack} />;
   };
   const renderContent = () => {
     const { currentStep } = widgetState;
@@ -247,10 +296,15 @@ const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
       </div>
     );
   };
-
+  console.debug('***', widgetState, '***');
   return (
     <Drawer
-      title={renderStepTitle()}
+      title={
+        <span className='drawer-title'>
+          {renderReturnBtn()}
+          {renderStepTitle()}
+        </span>
+      }
       placement='right'
       onClose={onClose}
       open={open}

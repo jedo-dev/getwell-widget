@@ -24,10 +24,17 @@
 .branch-selection-tabs .ant-tabs-content-holder {
   flex: 1;
   overflow: auto;
+  margin-top: 2px;
+  border-radius: 16px 16px 0 0;
+  background-color: white !important;
 }
 
 .branch-selection-content {
   min-height: 200px;
+  height: calc(100vh - 77px - 64px - 73px);
+  .ant-list-item {
+    padding: 0 !important;
+  }
 }
 
 .branch-item {
@@ -50,6 +57,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding: 20px;
 }
 
 .branch-item-info {
@@ -91,9 +99,29 @@
   background-color: #f5f5f5;
   border-radius: 4px;
   color: rgba(0, 0, 0, 0.45);
+  height: calc(100vh - 77px - 64px - 73px);
+  iframe {
+    width: 100%;
+    height:calc(100vh - 77px - 64px - 73px)!important;
+  }
 }
 
 .branch-map-placeholder p {
   margin: 0;
   font-size: 14px;
+}
+.branch-selection-tabs-segmented {
+  margin-top: 2px;
+  border-radius: 16px;
+  .ant-segmented-group {
+    height: 100% !important;
+  }
+  .ant-segmented-item {
+    flex: 1 1 0 !important;
+  }
+  .ant-segmented-item-label {
+    font-family: Onest;
+    font-weight: 500;
+    font-size: 16px;
+  }
 }

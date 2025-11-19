@@ -287,10 +287,7 @@ const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   return (
     <div className="appointment-details">
-      <div className="appointment-details-header">
-        <LeftOutlined className="appointment-details-back" onClick={handleBack} />
-        <h2 className="appointment-details-title">Детали записи</h2>
-      </div>
+      
 
       <div className="appointment-details-content">
         <div className="appointment-details-info">

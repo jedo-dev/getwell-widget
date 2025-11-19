@@ -1,4 +1,4 @@
-import { CalendarOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
+import { CalendarOutlined, UserOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { goBack, goToPhoneInput, selectDateTime } from '../lib/widget-manager';
@@ -100,8 +100,10 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
 
   const isCurrentMonth = (date: Date | null): boolean => {
     if (!date) return false;
-    return date.getMonth() === currentMonth.getMonth() &&
-      date.getFullYear() === currentMonth.getFullYear();
+    return (
+      date.getMonth() === currentMonth.getMonth() &&
+      date.getFullYear() === currentMonth.getFullYear()
+    );
   };
 
   // Временные слоты (заглушка, в будущем из API)
@@ -126,7 +128,7 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
       evening: [],
     };
 
-    timeSlots.forEach(slot => {
+    timeSlots.forEach((slot) => {
       grouped[slot.period].push(slot);
     });
 
@@ -143,9 +145,29 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
   };
 
   const formatDate = (date: Date): string => {
-    const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
-    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    const days = [
+      'Воскресенье',
+      'Понедельник',
+      'Вторник',
+      'Среда',
+      'Четверг',
+      'Пятница',
+      'Суббота',
+    ];
+    const months = [
+      'января',
+      'февраля',
+      'марта',
+      'апреля',
+      'мая',
+      'июня',
+      'июля',
+      'августа',
+      'сентября',
+      'октября',
+      'ноября',
+      'декабря',
+    ];
 
     const dayName = days[date.getDay()];
     const day = date.getDate();
@@ -155,84 +177,86 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
   };
 
   const formatMonthYear = (date: Date): string => {
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    const months = [
+      'Январь',
+      'Февраль',
+      'Март',
+      'Апрель',
+      'Май',
+      'Июнь',
+      'Июль',
+      'Август',
+      'Сентябрь',
+      'Октябрь',
+      'Ноябрь',
+      'Декабрь',
+    ];
     return `${months[date.getMonth()]}, ${date.getFullYear()}`;
   };
 
   const fullName = selectedEmployee
-    ? `${selectedEmployee.lastName} ${selectedEmployee.firstName} ${selectedEmployee.patronymic || ''}`.trim()
+    ? `${selectedEmployee.lastName} ${selectedEmployee.firstName} ${
+        selectedEmployee.patronymic || ''
+      }`.trim()
     : '';
 
   return (
-    <div className="date-time-selection">
-      <div className="date-time-selection-header">
-        <LeftOutlined className="date-time-selection-back" onClick={handleBack} />
-        <h2 className="date-time-selection-title">Выберите дату и время</h2>
-      </div>
-
+    <div className='date-time-selection'>
       {selectedEmployee && (
-        <div className="date-time-selection-doctor-card">
-          <div className="date-time-selection-doctor-left">
-            <div className="date-time-selection-doctor-avatar">
+        <div className='date-time-selection-doctor-card'>
+          <div className='date-time-selection-doctor-left'>
+            <div className='date-time-selection-doctor-avatar'>
               {selectedEmployee.photo ? (
                 <img src={selectedEmployee.photo} alt={fullName} />
               ) : (
                 <UserOutlined />
               )}
             </div>
-            <div className="date-time-selection-doctor-info">
-              <div className="date-time-selection-doctor-name">{fullName}</div>
-              <div className="date-time-selection-doctor-specialization">
+            <div className='date-time-selection-doctor-info'>
+              <div className='date-time-selection-doctor-name'>{fullName}</div>
+              <div className='date-time-selection-doctor-specialization'>
                 {selectedEmployee.specialization}
               </div>
             </div>
           </div>
           {selectedDate && selectedTime && (
-            <div className="date-time-selection-doctor-right">
-              <CalendarOutlined className="date-time-selection-calendar-icon" />
-              <div className="date-time-selection-selected-info">
-                <div className="date-time-selection-selected-date">
-                  {formatDate(selectedDate)}
-                </div>
-                <div className="date-time-selection-selected-time">{selectedTime}</div>
+            <div className='date-time-selection-doctor-right'>
+              <CalendarOutlined className='date-time-selection-calendar-icon' />
+              <div className='date-time-selection-selected-info'>
+                <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>
+                <div className='date-time-selection-selected-time'>{selectedTime}</div>
               </div>
             </div>
           )}
         </div>
       )}
 
-      <div className="date-time-selection-content">
-        <div className="date-time-selection-calendar">
-          <div className="date-time-selection-calendar-header">
-            <button
-              className="date-time-selection-calendar-nav"
-              onClick={handlePrevMonth}
-            >
+      <div className='date-time-selection-content'>
+        <div className='date-time-selection-calendar'>
+          <div className='date-time-selection-calendar-header'>
+            <button className='date-time-selection-calendar-nav' onClick={handlePrevMonth}>
               &lt;
             </button>
-            <div className="date-time-selection-calendar-month">
+            <div className='date-time-selection-calendar-month'>
               {formatMonthYear(currentMonth)}
             </div>
-            <button
-              className="date-time-selection-calendar-nav"
-              onClick={handleNextMonth}
-            >
+            <button className='date-time-selection-calendar-nav' onClick={handleNextMonth}>
               &gt;
             </button>
           </div>
 
-          <div className="date-time-selection-calendar-weekdays">
-            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-              <div key={day} className="date-time-selection-calendar-weekday">
+          <div className='date-time-selection-calendar-weekdays'>
+            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) => (
+              <div key={day} className='date-time-selection-calendar-weekday'>
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="date-time-selection-calendar-days">
+          <div className='date-time-selection-calendar-days'>
             {calendarDays.map((date, index) => {
-              if (!date) return <div key={index} className="date-time-selection-calendar-day empty" />;
+              if (!date)
+                return <div key={index} className='date-time-selection-calendar-day empty' />;
 
               const isPast = isPastDate(date);
               const isCurrentMonthDay = isCurrentMonth(date);
@@ -247,8 +271,7 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
                     ${isPast ? 'past' : ''} 
                     ${isSelectedDay ? 'selected' : ''} 
                     ${isTodayDay ? 'today' : ''}`}
-                  onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}
-                >
+                  onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
                   {date.getDate()}
                 </div>
               );
@@ -256,23 +279,20 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
           </div>
         </div>
 
-        <div className="date-time-selection-times">
-          {(Object.keys(groupedTimeSlots) as TimePeriod[]).map(period => {
+        <div className='date-time-selection-times'>
+          {(Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
             if (groupedTimeSlots[period].length === 0) return null;
 
             return (
-              <div key={period} className="date-time-selection-time-group">
-                <div className="date-time-selection-time-group-label">
-                  {getPeriodLabel(period)}
-                </div>
-                <div className="date-time-selection-time-group-slots">
-                  {groupedTimeSlots[period].map(slot => (
+              <div key={period} className='date-time-selection-time-group'>
+                <div className='date-time-selection-time-group-label'>{getPeriodLabel(period)}</div>
+                <div className='date-time-selection-time-group-slots'>
+                  {groupedTimeSlots[period].map((slot) => (
                     <button
                       key={slot.time}
                       className={`date-time-selection-time-slot 
                         ${selectedTime === slot.time ? 'selected' : ''}`}
-                      onClick={() => handleTimeSelect(slot.time)}
-                    >
+                      onClick={() => handleTimeSelect(slot.time)}>
                       {slot.time}
                     </button>
                   ))}
@@ -284,13 +304,12 @@ const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee 
       </div>
 
       {selectedTime && (
-        <div className="date-time-selection-footer">
+        <div className='date-time-selection-footer'>
           <Button
-            type="primary"
-            className="date-time-selection-next-btn"
+            type='primary'
+            className='date-time-selection-next-btn'
             block
-            onClick={goToPhoneInput}
-          >
+            onClick={goToPhoneInput}>
             Далее
           </Button>
         </div>

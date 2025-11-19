@@ -113,7 +113,7 @@
             showDepartments: true,
             stickyBtnEnable: true, // Включаем плавающую кнопку
           });
-          alert('Виджет инициализирован! Теперь вы можете открыть его.');
+          // alert('Виджет инициализирован! Теперь вы можете открыть его.');
         } else {
           alert('Библиотека GetWellWidget не загружена. Проверьте путь к файлу dist/index.cjs.js');
         }
@@ -171,6 +171,7 @@
               }
 
               console.log('GetWell Widget Provider успешно инициализирован');
+              initWidget()
             } else {
               console.warn('React не найден. Возможно, библиотека не загружена полностью.');
               console.log('window.React:', window.React);

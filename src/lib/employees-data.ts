@@ -39,6 +39,42 @@ const MOCK_EMPLOYEES: Employee[] = [
     specialization: 'Врач-невролог',
     showInWidget: true,
   },
+  {
+    id: 5,
+    firstName: 'Иван',
+    lastName: 'Иванов',
+    patronymic: 'Иванович',
+    position: 'Врач-кардиолог',
+    specialization: 'Врач-кардиолог',
+    showInWidget: true,
+  },
+  {
+    id: 6,
+    firstName: 'Петр',
+    lastName: 'Петров',
+    patronymic: 'Петрович',
+    position: 'Врач-эндокринолог',
+    specialization: 'Врач-эндокринолог',
+    showInWidget: true,
+  },
+  {
+    id: 7,
+    firstName: 'Сергей',
+    lastName: 'Сергеев',
+    patronymic: 'Сергеевич',
+    position: 'Врач-гастроэнтеролог',
+    specialization: 'Врач-гастроэнтеролог',
+    showInWidget: true,
+  },
+  {
+    id: 8,
+    firstName: 'Дмитрий',
+    lastName: 'Дмитриев',
+    patronymic: 'Дмитриевич',
+    position: 'Врач-гематолог',
+    specialization: 'Врач-гематолог',
+    showInWidget: true,
+  },
 ];
 
 /**
@@ -52,7 +88,7 @@ export async function getEmployees(branchId: number): Promise<Employee[]> {
   // В будущем здесь будет запрос к API:
   // const response = await fetch(`${apiUrl}/branches/${branchId}/employees`);
   // return await response.json();
-  
+
   return Promise.resolve(MOCK_EMPLOYEES);
 }
 
@@ -71,12 +107,15 @@ export function getEmployeesSync(branchId: number): Employee[] {
  * @param departmentId - ID отделения
  * @returns Promise<Employee[]> - список специалистов отделения
  */
-export async function getEmployeesByDepartment(branchId: number, departmentId: number): Promise<Employee[]> {
+export async function getEmployeesByDepartment(
+  branchId: number,
+  departmentId: number,
+): Promise<Employee[]> {
   // Временная реализация - возвращаем всех врачей
   // В будущем здесь будет запрос к API:
   // const response = await fetch(`${apiUrl}/branches/${branchId}/departments/${departmentId}/employees`);
   // return await response.json();
-  
+
   return Promise.resolve(MOCK_EMPLOYEES);
 }
 
@@ -88,4 +127,3 @@ export function getEmployeesByDepartmentSync(branchId: number, departmentId: num
   // Временная реализация - возвращаем всех врачей
   return MOCK_EMPLOYEES;
 }
-
