@@ -1,10 +1,9 @@
 import {
   CalendarOutlined,
   DownOutlined,
-  EnvironmentOutlined,
-  PhoneOutlined
+  EnvironmentOutlined
 } from '@ant-design/icons';
-import { Button, Checkbox, DatePicker, Input, message, Radio, Spin } from 'antd';
+import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { goBack, goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
@@ -25,13 +24,13 @@ import {
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
+import CustomDatepicker from '../../../shared/ui/CustomDatepicker';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
 import CustomTextArea from '../../../shared/ui/CustomTextArea';
 import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
-import CustomDatepicker from '../../../shared/ui/CustomDatepicker';
 
 
 export interface AppointmentDetailsProps {
@@ -64,13 +63,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [patronymic, setPatronymic] = useState<string>('');
-  const [gender, setGender] = useState<Gender | undefined>(undefined);
+  const [gender, setGender] = useState<Gender | undefined>(Gender.MALE);
 
   // Поля для питомца (для нового пользователя)
   const [petName, setPetName] = useState<string>('');
   const [petSpecies, setPetSpecies] = useState<PetSpecies | string>('');
   const [petBreed, setPetBreed] = useState<string>('');
-  const [petGender, setPetGender] = useState<Gender | undefined>(undefined);
+  const [petGender, setPetGender] = useState<Gender | undefined>(Gender.MALE);
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
 
   useEffect(() => {
@@ -323,15 +322,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           <div className='appointment-details-phone-section'>
             {isPhoneEditing ? (
               <div className='appointment-details-phone-edit'>
-                <Input
-                  className={`appointment-details-phone-input ${phoneError ? 'error' : ''}`}
-                  placeholder='+7 --- --- -- --'
+                <CustomInput
+                  text='Телефон'
+
                   value={phone}
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneConfirm}
                   maxLength={17}
                   size='large'
-                  prefix={<PhoneOutlined className='appointment-details-phone-icon' />}
                   autoFocus
                 />
                 {phoneError && <div className='appointment-details-phone-error'>{phoneError}</div>}
@@ -343,7 +341,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   <span className='appointment-details-phone-number'>
                     {phone ? phone.replace(/^\+7\s?/, '') : ''}
                   </span>
-                  <PhoneOutlined className='appointment-details-phone-display-icon' />
+
                   <button className='appointment-details-phone-change' onClick={handlePhoneEdit}>
                     изменить
                   </button>
@@ -470,6 +468,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               <div className='appointment-details-gender-section'>
                 <Radio.Group
                   value={petGender}
+
                   onChange={(e) => setPetGender(e.target.value)}
                   className='appointment-details-gender-group'>
                   <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>

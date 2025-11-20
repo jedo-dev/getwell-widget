@@ -42,6 +42,22 @@
   flex-direction: column;
   font-family: Onest;
 }
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-track {
+  background: #ffffff00;
+  border-radius: 2px;
+}
+
+:-webkit-scrollbar-thumb {
+  background: #344054;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffffff00;
+}
 
 .ant-drawer-footer {
   background: white !important;
@@ -89,4 +105,3 @@
   border: none;
   border-radius: 6px;
 }
-
