@@ -11,14 +11,17 @@ const CustomSelector: React.FC<CustomSelectProps> = ({ text, ...rest }) => {
   console.log(rest);
   return (
     <div className='input-container'>
-      <div className={`custom-placeholder ${hasValue ? 'has-value' : ''}`} style={{ left: '33px' }}>
+      <div className={`custom-placeholder ${hasValue ? 'has-value' : ''}`}
+      //  style={{ left: '33px' }}
+       >
         {text} <span className='redmark'>*</span>
       </div>
       <Select
         {...rest}
         notFoundContent={'Выберите дату брони'}
         size='large'
-        style={{ height: '56px',width: '100%' }}
+        variant='borderless'
+        style={{ height: '56px',width: '100%'  ,borderBottom: '1px solid #EAECF0'}}
       />
     </div>
   );

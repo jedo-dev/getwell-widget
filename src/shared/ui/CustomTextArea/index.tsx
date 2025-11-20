@@ -17,12 +17,15 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ text, ...rest }) => {
       <Input.TextArea
         {...rest}
         size='large'
+
         style={{
           paddingTop: `${hasValue ? '18px' : '12px'}`,
           overflowY: 'auto',
           resize: 'none',
+          borderBottom: '1px solid #EAECF0'
         }}
-        rows={3}
+         variant='borderless'
+        rows={1}
         maxLength={100}
       />
     </div>

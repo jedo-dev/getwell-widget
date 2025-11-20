@@ -31,6 +31,7 @@ import CustomTextArea from '../../../shared/ui/CustomTextArea';
 import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
+import CustomDatepicker from '../../../shared/ui/CustomDatepicker';
 
 
 export interface AppointmentDetailsProps {
@@ -425,9 +426,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setSymptoms(e.target.value)
                     }
-                    rows={4}
-                    maxLength={500}
-                    showCount
+                    rows={1}
                   />
                 </>
               )}
@@ -480,8 +479,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 </Radio.Group>
               </div>
               <div className='appointment-details-field'>
-                <DatePicker
-                  placeholder='Дата рождения *'
+                <CustomDatepicker
+                  text='Дата рождения *'
                   value={petBirthDate}
                   onChange={setPetBirthDate}
                   format='DD.MM.YYYY'
@@ -495,9 +494,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setSymptoms(e.target.value)
                   }
-                  rows={4}
-                  maxLength={500}
-                  showCount
+                  rows={1}
                 />
               </div>
             </div>

@@ -1,5 +1,12 @@
 .input-container {
   position: relative;
+  font-family: 'Onest', sans-serif;
+  .ant-select-selection-item {
+    font-family: 'Onest', sans-serif;
+  }
+  .ant-select-item-option-content {
+    font-family: 'Onest', sans-serif;
+  }
 }
 
 .custom-placeholder {
@@ -14,10 +21,11 @@
   margin-left: -4px;
   transition: all 0.2s ease-out;
   pointer-events: none;
+  font-family: 'Onest', sans-serif;
 }
 
 .custom-placeholder.has-value {
-  top: 10px;
+  top: 8px;
   font-size: 10px;
   line-height: 10px;
   color: #999;

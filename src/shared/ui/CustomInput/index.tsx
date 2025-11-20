@@ -22,7 +22,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
       <Input
         {...rest}
         size='large'
-        style={{ height: '56px', paddingTop: `${hasValue ? '18px' : '12px'}` }}
+          variant='borderless'
+        style={{ height: '56px',borderBottom: '1px solid #EAECF0', paddingTop: `${hasValue ? '18px' : '12px'}` }}
       />
     </div>
   );
