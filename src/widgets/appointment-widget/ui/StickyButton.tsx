@@ -1,13 +1,19 @@
 import React from 'react';
 import { openGetWellWidget } from '../../../lib/widget-manager';
+import { WidgetState } from '../../../types';
 import './StickyButton.css';
 
 export interface StickyButtonProps {
   enabled?: boolean;
+  widgetState?: WidgetState;
 }
 
-export const StickyButton: React.FC<StickyButtonProps> = ({ enabled = false }) => {
+export const StickyButton: React.FC<StickyButtonProps> = ({ enabled = false, widgetState }) => {
   const handleClick = () => {
+    if (widgetState?.config?.isNeedToBlankOpen) {
+      window.open(widgetState?.config?.apiUrl, '_blank');
+      return;
+    }
     if (enabled) {
       openGetWellWidget();
     }

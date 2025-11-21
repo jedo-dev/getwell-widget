@@ -22,9 +22,10 @@ export interface WidgetProps {
   open: boolean;
   onClose: () => void;
   widgetState: WidgetState;
+  withoutDrawer?: boolean; // режим без Drawer (для отдельной страницы)
 }
 
-export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
+export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, withoutDrawer = false }) => {
   const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -47,8 +48,8 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
   }, []);
 
   useEffect(() => {
-    // Загружаем филиалы при открытии виджета
-    if (open) {
+    // Загружаем филиалы при открытии виджета или в режиме без Drawer
+    if (open || withoutDrawer) {
       const loadBranches = async () => {
         setLoadingBranches(true);
         try {
@@ -353,6 +354,20 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       </div>
     );
   };
+
+  // Режим без Drawer (для отдельной страницы)
+  if (withoutDrawer) {
+    return (
+      <div className='getwell-widget-fullscreen'>
+        <div className='getwell-widget-fullscreen-header'>
+          {renderReturnBtn()}
+          {renderStepTitle()}
+        </div>
+        <div className='getwell-widget-fullscreen-content'>{renderContent()}</div>
+        <div className='getwell-widget-fullscreen-footer'>{renderFooter()}</div>
+      </div>
+    );
+  }
 
   return (
     <Drawer

@@ -100,10 +100,67 @@
   display: block;
 }
 
+/* Режим без Drawer (для отдельной страницы) */
+.getwell-widget-fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: #f5f5f5;
+  font-family: Onest;
+}
+
+.getwell-widget-fullscreen-header {
+  background: white;
+  padding: 21px 24px;
+  border-radius: 16px;
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: Onest;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: -0.48px;
+}
+
+.getwell-widget-fullscreen-content {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 10px;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.getwell-widget-fullscreen-footer {
+  background: white;
+  border-radius: 16px;
+  margin: 0 10px 10px;
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   .getwell-widget-drawer .ant-drawer-content-wrapper {
     width: 100% !important;
+  }
+  
+  .getwell-widget-fullscreen-header,
+  .getwell-widget-fullscreen-content,
+  .getwell-widget-fullscreen-footer {
+    margin: 5px;
+    border-radius: 12px;
+  }
+  
+  .getwell-widget-fullscreen-header {
+    padding: 16px;
+    font-size: 20px;
   }
 }
 
