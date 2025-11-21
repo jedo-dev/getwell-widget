@@ -44,14 +44,14 @@
   overflow: auto;
   margin-top: 2px;
   border-radius: 16px 16px 0 0;
-  background-color: white !important;
 }
 
 .specialist-selection-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 2px;
   min-height: 200px;
+  margin-top: 2px;
 }
 
 .specialist-selection-search {
@@ -61,21 +61,26 @@
 
 .specialist-selection-list {
   flex: 1;
+  background-color: white;
+  border-radius: 16px 16px 0 0;
 }
 
 .specialist-selection-item {
   padding: 20px !important;
   cursor: pointer;
+  border-radius: 16px;
   transition: background-color 0.2s;
   border-bottom: 1px solid #f0f0f0;
 }
 
 .specialist-selection-item:hover {
   background-color: #fafafa;
+  border-radius: 16px;
 }
 
 .specialist-selection-item.selected {
   background-color: #f0f7ff;
+  border-radius: 16px;
 }
 
 .specialist-selection-item:last-child {

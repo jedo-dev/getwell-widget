@@ -154,15 +154,13 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
       </div>
 
       {selectedEmployee && (
-        <div className='department-specialists-selection-footer'>
-          <Button
-            className='department-specialists-selection-footer-btn secondary'
-            onClick={handleDoctorInfo}>
+        <div className='specialist-selection-footer'>
+          <Button className='specialist-selection-footer-btn secondary' onClick={handleDoctorInfo}>
             О враче
           </Button>
           <Button
             type='primary'
-            className='department-specialists-selection-footer-btn primary'
+            className='specialist-selection-footer-btn primary'
             onClick={handleSelectDateTime}>
             Выбрать дату и время
           </Button>

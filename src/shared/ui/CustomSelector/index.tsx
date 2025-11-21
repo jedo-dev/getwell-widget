@@ -8,7 +8,6 @@ interface CustomSelectProps extends SelectProps {
 const CustomSelector: React.FC<CustomSelectProps> = ({ text, ...rest }) => {
 
   const hasValue = !!rest.value;
-  console.log(rest);
   return (
     <div className='input-container'>
       <div className={`custom-placeholder ${hasValue ? 'has-value' : ''}`}

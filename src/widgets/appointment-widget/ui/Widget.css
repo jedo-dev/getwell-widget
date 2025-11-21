@@ -18,11 +18,19 @@
   leading-trim: NONE;
   line-height: 30px;
   letter-spacing: -2%;
+  display: flex;
+  gap: 12px;
+}
+.ant-modal-root .ant-modal-wrap {
+  position: absolute !important;
+  bottom: 0;
+  right: 0;
 }
 .ant-drawer-header {
   background: white !important;
   border-radius: 16px;
   margin-top: 10px;
+  padding: 21px 24px !important;
   button {
     position: absolute;
     left: -50px;
@@ -32,6 +40,10 @@
     height: auto !important;
     top: 10px;
   }
+}
+.image-header {
+  padding: 0 !important;
+  border-bottom: unset !important;
 }
 .ant-drawer-body {
   padding: unset !important;

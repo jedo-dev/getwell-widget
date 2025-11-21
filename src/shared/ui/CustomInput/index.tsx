@@ -17,7 +17,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
     <div className='input-container'>
       <div className={`custom-placeholder ${hasValue ? 'has-value' : ''}`}>
-        {text} <span className='redmark'>*</span>
+        {text} {text && <span className='redmark'>*</span>}
       </div>
       <Input
         {...rest}

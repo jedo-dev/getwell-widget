@@ -59,8 +59,8 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  border-radius: 16px 16px 0 0;
 }
-
 
 /* Appointment Details Container */
 .appointment-details-appointment-details {
@@ -70,7 +70,7 @@
   padding: 20px;
   background-color: #ffffff;
   border-radius: 16px;
-  margin-bottom: 2px;
+  /* margin-bottom: 2px; */
   margin-top: 2px;
 }
 
@@ -461,8 +461,8 @@
 }
 
 .appointment-details-gender-group .ant-radio-button-wrapper-checked {
-  background-color: #595959;
-  border-color: #595959;
+  background-color: #344054;
+  border-color: #344054;
   color: #fff;
 }
 

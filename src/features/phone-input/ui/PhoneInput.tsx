@@ -1,10 +1,5 @@
-import {
-  CalendarOutlined,
-  EnvironmentOutlined,
-  LeftOutlined,
-  PhoneOutlined,
-} from '@ant-design/icons';
-import { Button, Checkbox, Input, message, Spin } from 'antd';
+import { CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { Button, Checkbox, message, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getWidgetState, goBack, savePhoneAndGoToDetails } from '../../../lib/widget-manager';
 import { branchesApi } from '../../../shared/api/branches';
@@ -17,6 +12,7 @@ import {
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
+import CustomInput from '../../../shared/ui/CustomInput';
 import { Branch, Employee } from '../../../types';
 import './PhoneInput.css';
 
@@ -110,8 +106,6 @@ export const PhoneInput: React.FC = () => {
 
   return (
     <div className='phone-input'>
-     
-
       {/* Appointment Details Container */}
       <div className='phone-input-appointment-details'>
         {/* Location */}
@@ -163,22 +157,19 @@ export const PhoneInput: React.FC = () => {
           <h3 className='phone-input-phone-title'>Номер телефона</h3>
         </div>
         <div className='phone-input-phone-input-container'>
-          <Input
-            className={`phone-input-input ${phoneError ? 'error' : ''}`}
+          <CustomInput
+            text=''
+            className={` ${phoneError ? 'error' : ''}`}
             placeholder='+7 --- --- -- --'
             value={phone}
             onChange={handlePhoneChange}
             maxLength={17}
             size='large'
-            prefix={<PhoneOutlined className='phone-input-phone-icon' />}
             autoFocus
+            variant='borderless'
           />
           {phoneError && <div className='phone-input-error'>{phoneError}</div>}
         </div>
-      </div>
-
-      {/* Checkbox */}
-      <div className='phone-input-checkbox'>
         <Checkbox checked={isNewUser} onChange={(e) => setIsNewUser(e.target.checked)}>
           Новый пользователь
         </Checkbox>

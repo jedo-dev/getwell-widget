@@ -14,14 +14,14 @@
 
 .department-specialists-selection-back {
   font-size: 18px;
-  color: rgba(0, 0, 0, 0.85);
+  color: #777777;
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s;
 }
 
 .department-specialists-selection-back:hover {
-  color: #1890ff;
+  color: #2d2d2d;
 }
 
 .department-specialists-selection-title {
@@ -38,7 +38,13 @@
   gap: 2px;
   flex: 1;
   overflow: hidden;
-
+  .ant-input-outlined:focus-within{
+    border-color: unset!important;
+    box-shadow: unset!important;
+  }
+  .ant-list-item{
+    border-radius: 16px;
+  }
   .ant-list-items {
     border-radius: 16px 16px 0 0;
     background: white;
@@ -53,6 +59,7 @@
 .department-specialists-selection-list {
   flex: 1;
   overflow: auto;
+  border-radius: 16px 16px 0 0;
 }
 
 .department-specialists-selection-item {
@@ -211,4 +218,3 @@
 .department-specialists-selection-time-slot:active {
   background-color: #d9d9d9;
 }
-

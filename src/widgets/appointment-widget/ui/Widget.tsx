@@ -1,4 +1,4 @@
-import { LeftOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, LeftOutlined } from '@ant-design/icons';
 import { Drawer, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { AppointmentConfirmation } from '../../../features/appointment-confirmation';
@@ -185,7 +185,9 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
         );
 
       case WidgetStep.SPECIALIST_SELECTION:
-        return selectionMode === SelectionMode.DEPARTMENT ? 'Выберите отделение' : 'Выберите специалиста';
+        return selectionMode === SelectionMode.DEPARTMENT
+          ? 'Выберите отделение'
+          : 'Выберите специалиста';
 
       case WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION:
         return selectedDepartment ? selectedDepartment.name : 'Выберите специалиста';
@@ -206,7 +208,15 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
         return 'Детали записи';
 
       case WidgetStep.APPOINTMENT_CONFIRMATION:
-        return 'Подтверждение записи';
+        return (
+          <div className='appointment-confirmation-image-container'>
+            <img src={undefined} alt='' className='appointment-confirmation-image' />
+
+            <div className='appointment-confirmation-success-icon'>
+              <CheckCircleOutlined />
+            </div>
+          </div>
+        );
 
       default:
         return '';
@@ -216,13 +226,19 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
   const renderReturnBtn = () => {
     if (
       widgetState.currentStep === WidgetStep.BRANCH_SELECTION ||
-      widgetState.currentStep === WidgetStep.NEXT_STEPS
+      widgetState.currentStep === WidgetStep.NEXT_STEPS ||
+      widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION
     ) {
       return '';
     }
     return <LeftOutlined className='department-specialists-selection-back' onClick={goBack} />;
   };
-
+  const isImageHeader = () => {
+    if (widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION) {
+      return true;
+    }
+    return false;
+  };
   const renderContent = () => {
     console.log('***', widgetState, '***');
     const { currentStep } = widgetState;
@@ -231,7 +247,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       if (loadingBranches) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         );
       }
@@ -247,7 +263,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       if (loadingEmployees || loadingDepartments) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         );
       }
@@ -266,7 +282,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       if (loadingEmployees) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         );
       }
@@ -338,15 +354,17 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
     );
   };
 
-
   return (
     <Drawer
       title={
-        <span className='drawer-title'>
+        <span className={`drawer-title`}>
           {renderReturnBtn()}
           {renderStepTitle()}
         </span>
       }
+      classNames={{
+        header: `${isImageHeader() ? 'image-header' : ''}`,
+      }}
       placement='right'
       onClose={onClose}
       open={open}
@@ -357,4 +375,3 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
     </Drawer>
   );
 };
-

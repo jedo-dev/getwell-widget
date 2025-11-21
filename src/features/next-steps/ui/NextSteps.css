@@ -51,7 +51,7 @@
   leading-trim: NONE;
   line-height: 20px;
   letter-spacing: 0%;
-  color:#777777
+  color: #777777;
 }
 
 .next-steps-content {
@@ -64,6 +64,7 @@
   cursor: pointer;
   transition: background-color 0.2s;
   border-bottom: 1px solid #f0f0f0;
+  border-radius: 16px;
 }
 
 .next-steps-item:hover {
@@ -120,4 +121,3 @@
   object-fit: contain;
   border-radius: 8px;
 }
-

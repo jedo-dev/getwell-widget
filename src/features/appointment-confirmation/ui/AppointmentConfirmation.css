@@ -180,7 +180,7 @@
 .appointment-confirmation-footer {
   padding: 20px;
   background-color: #ffffff;
-  border-radius: 0 0 16px 16px;
+  /* border-radius: 0 0 16px 16px; */
   margin-top: 0;
 }
 
@@ -189,8 +189,8 @@
   font-size: 16px;
   font-weight: 500;
   font-family: 'Onest', sans-serif;
-  background-color: #101828;
-  border-color: #101828;
+  background-color: #344054;
+  border-color: #344054;
   border-radius: 8px;
 }
 
