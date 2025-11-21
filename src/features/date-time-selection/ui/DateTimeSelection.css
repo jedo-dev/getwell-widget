@@ -246,6 +246,7 @@
 }
 
 .date-time-selection-calendar-day {
+  box-sizing: content-box;
   min-height: 34px;
   display: flex;
   align-items: flex-end;

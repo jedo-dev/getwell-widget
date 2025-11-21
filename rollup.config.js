@@ -154,7 +154,94 @@ const umdConfig = {
       minimize: isProduction,
       // Включаем CSS из Ant Design
       inject: false,
+      // Для UMD версии встраиваем шрифты как base64
+      // Устанавливаем переменную окружения
+      config: (ctx) => {
+        // Устанавливаем флаг для встраивания шрифтов
+        process.env.EMBED_FONTS = 'true';
+        return require('./postcss.config.js')({ ...ctx, EMBED_FONTS: 'true' });
+      },
     }),
+    // Кастомный плагин для встраивания шрифтов в UMD версию
+    {
+      name: 'embed-fonts-umd',
+      generateBundle(options, bundle) {
+        if (options.format === 'umd') {
+          const fs = require('fs');
+          const path = require('path');
+
+          // Находим CSS файл
+          const cssFile = Object.keys(bundle).find(key => key.endsWith('.css'));
+          if (cssFile && bundle[cssFile].type === 'asset') {
+            // Преобразуем source в строку, если это Buffer или другой тип
+            let cssContent = bundle[cssFile].source;
+            if (Buffer.isBuffer(cssContent)) {
+              cssContent = cssContent.toString('utf8');
+            } else if (typeof cssContent !== 'string') {
+              cssContent = String(cssContent);
+            }
+
+            // Регулярное выражение для поиска url() с путями к шрифтам
+            // Обрабатываем разные варианты: ../font/..., ./font/..., font/...
+            const fontUrlRegex = /url\(['"]?(?:\.\.\/|\.\/)?font\/([^'")]+)['"]?\)/g;
+
+            let match;
+            const fontReplacements = new Map();
+
+            while ((match = fontUrlRegex.exec(cssContent)) !== null) {
+              const fontPath = match[1];
+              const originalUrl = match[0];
+
+              // Пробуем разные пути
+              const possiblePaths = [
+                path.resolve(__dirname, 'src/font', fontPath),
+                path.resolve(__dirname, 'dist/font', fontPath),
+                path.resolve(__dirname, 'src/font/static', path.basename(fontPath)),
+                path.resolve(__dirname, 'dist/font/static', path.basename(fontPath)),
+              ];
+
+              let fullPath = null;
+              for (const possiblePath of possiblePaths) {
+                if (fs.existsSync(possiblePath)) {
+                  fullPath = possiblePath;
+                  break;
+                }
+              }
+
+              if (fullPath && !fontReplacements.has(originalUrl)) {
+                try {
+                  const fontBuffer = fs.readFileSync(fullPath);
+                  const base64 = fontBuffer.toString('base64');
+                  const ext = path.extname(fullPath).toLowerCase();
+                  const mimeType = ext === '.ttf' ? 'font/ttf' :
+                    ext === '.woff' ? 'font/woff' :
+                      ext === '.woff2' ? 'font/woff2' :
+                        ext === '.eot' ? 'application/vnd.ms-fontobject' :
+                          'application/octet-stream';
+
+                  const dataUri = `data:${mimeType};base64,${base64}`;
+                  fontReplacements.set(originalUrl, dataUri);
+                  console.log(`✓ Embedded font: ${path.basename(fullPath)} (${(fontBuffer.length / 1024).toFixed(2)} KB)`);
+                } catch (error) {
+                  console.warn(`Failed to embed font ${fontPath}:`, error.message);
+                }
+              } else if (!fullPath) {
+                console.warn(`⚠ Font file not found: ${fontPath}`);
+              }
+            }
+
+            // Заменяем все найденные пути на base64
+            fontReplacements.forEach((dataUri, originalUrl) => {
+              // Экранируем специальные символы для регулярного выражения
+              const escapedUrl = originalUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              cssContent = cssContent.replace(new RegExp(escapedUrl, 'g'), `url("${dataUri}")`);
+            });
+
+            bundle[cssFile].source = cssContent;
+          }
+        }
+      },
+    },
     // Обрабатываем изображения для UMD версии
     url({
       include: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg'],
