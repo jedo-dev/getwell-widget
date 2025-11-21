@@ -1,7 +1,7 @@
 import { CalendarOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import React, { useMemo, useState } from 'react';
-import { goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
+import { getWidgetState, goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
@@ -25,6 +25,8 @@ interface TimeSlot {
 }
 
 export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee }) => {
+  const widgetState = getWidgetState();
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
@@ -134,9 +136,11 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             />
             <div className='date-time-selection-doctor-info'>
               <div className='date-time-selection-doctor-name'>{fullName}</div>
-              <div className='date-time-selection-doctor-specialization'>
-                {selectedEmployee.specialization}
-              </div>
+              {showEmployeePosition && (
+                <div className='date-time-selection-doctor-specialization'>
+                  {selectedEmployee.specialization}
+                </div>
+              )}
             </div>
           </div>
           {selectedDate && selectedTime && (

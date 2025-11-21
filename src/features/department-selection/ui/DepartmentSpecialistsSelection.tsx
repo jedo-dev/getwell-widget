@@ -20,6 +20,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
 }) => {
   const widgetState = getWidgetState();
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredEmployees = useMemo(() => {
@@ -119,9 +120,11 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                           <div className='department-specialists-selection-item-name'>
                             {fullName}
                           </div>
-                          <div className='department-specialists-selection-item-specialization'>
-                            {employee.specialization}
-                          </div>
+                          {showEmployeePosition && (
+                            <div className='department-specialists-selection-item-specialization'>
+                              {employee.specialization}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className='department-specialists-selection-item-appointment'>

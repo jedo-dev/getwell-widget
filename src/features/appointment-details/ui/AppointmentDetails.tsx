@@ -6,7 +6,7 @@ import {
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { goBack, goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
+import { getWidgetState, goBack, goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
@@ -48,6 +48,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   phone: initialPhone,
   isNewUser = false,
 }) => {
+  const widgetState = getWidgetState();
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
@@ -294,9 +296,11 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               />
               <div className='appointment-details-doctor-info'>
                 <div className='appointment-details-doctor-name'>{fullName}</div>
-                <div className='appointment-details-doctor-specialization'>
-                  {selectedEmployee.specialization}
-                </div>
+                {showEmployeePosition && (
+                  <div className='appointment-details-doctor-specialization'>
+                    {selectedEmployee.specialization}
+                  </div>
+                )}
               </div>
             </div>
           )}

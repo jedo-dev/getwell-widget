@@ -1,4 +1,5 @@
 import React from 'react';
+import { getWidgetState } from '../../../lib/widget-manager';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
 import { Employee } from '../../../types';
@@ -9,6 +10,8 @@ export interface DoctorInfoProps {
 }
 
 export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
+  const widgetState = getWidgetState();
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   if (!employee) {
     return (
       <div className='doctor-info'>
@@ -38,7 +41,9 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
           />
 
           <div className='doctor-info-name'>{fullName}</div>
-          <div className='doctor-info-specialization'>{employee.specialization}</div>
+          {showEmployeePosition && (
+            <div className='doctor-info-specialization'>{employee.specialization}</div>
+          )}
 
           <div className='doctor-info-section'>
             <h3 className='doctor-info-section-title'>О враче</h3>

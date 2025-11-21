@@ -96,6 +96,7 @@ export interface WidgetConfig {
   showEmployees?: boolean;
   showDepartments?: boolean;
   showDoctorInfo?: boolean; // отображать информацию о врачах
+  showEmployeePosition?: boolean; // отображать должности/специализации врачей
   stickyBtnEnable?: boolean; // включить плавающую кнопку
   isNeedToBlankOpen?: boolean; // открывать в новом окне вместо Drawer
   renderedAsPage?: boolean; // отрисовать виджет как страницу

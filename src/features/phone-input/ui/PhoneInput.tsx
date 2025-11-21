@@ -17,6 +17,8 @@ import { Branch, Employee } from '../../../types';
 import './PhoneInput.css';
 
 export const PhoneInput: React.FC = () => {
+  const widgetState = getWidgetState();
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [phone, setPhone] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isNewUser, setIsNewUser] = useState<boolean>(false);
@@ -132,7 +134,9 @@ export const PhoneInput: React.FC = () => {
             />
             <div className='phone-input-doctor-info'>
               <div className='phone-input-doctor-name'>{fullName}</div>
-              <div className='phone-input-doctor-specialization'>{employee.specialization}</div>
+              {showEmployeePosition && (
+                <div className='phone-input-doctor-specialization'>{employee.specialization}</div>
+              )}
             </div>
           </div>
         )}

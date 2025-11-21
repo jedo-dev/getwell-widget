@@ -34,6 +34,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   const widgetState = getWidgetState();
   const showDepartments = widgetState.config?.showDepartments ?? true;
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [activeTab, setActiveTab] = useState<string>(
     selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name',
   );
@@ -196,9 +197,11 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                   />
                                   <div className='specialist-selection-item-info'>
                                     <div className='specialist-selection-item-name'>{fullName}</div>
-                                    <div className='specialist-selection-item-specialization'>
-                                      {employee.specialization}
-                                    </div>
+                                    {showEmployeePosition && (
+                                      <div className='specialist-selection-item-specialization'>
+                                        {employee.specialization}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                                 <div className='specialist-selection-item-appointment'>
