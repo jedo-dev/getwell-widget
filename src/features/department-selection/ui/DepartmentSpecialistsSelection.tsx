@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { Button, Input, List, Radio, Tag } from 'antd';
 import React, { useMemo, useState } from 'react';
-import { goToDateTimeSelection, goToDoctorInfo, selectEmployee } from '../../../lib/widget-manager';
+import { getWidgetState, goToDateTimeSelection, goToDoctorInfo, selectEmployee } from '../../../lib/widget-manager';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Avatar, EmptyState } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
@@ -18,6 +18,8 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   selectedDepartment,
   selectedEmployeeId,
 }) => {
+  const widgetState = getWidgetState();
+  const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredEmployees = useMemo(() => {
@@ -155,9 +157,11 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
 
       {selectedEmployee && (
         <div className='specialist-selection-footer'>
-          <Button className='specialist-selection-footer-btn secondary' onClick={handleDoctorInfo}>
-            О враче
-          </Button>
+          {showDoctorInfo && (
+            <Button className='specialist-selection-footer-btn secondary' onClick={handleDoctorInfo}>
+              О враче
+            </Button>
+          )}
           <Button
             type='primary'
             className='specialist-selection-footer-btn primary'

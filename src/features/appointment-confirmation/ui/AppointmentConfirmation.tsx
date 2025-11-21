@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { openGetWellWidget } from '../../../lib/widget-manager';
+import { getWidgetState, openGetWellWidget } from '../../../lib/widget-manager';
 import { petsApi } from '../../../shared/api/pets';
 import {
   formatDate,
@@ -32,6 +32,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   phone,
   selectedPetId,
 }) => {
+  const widgetState = getWidgetState();
+  const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [loadingPet, setLoadingPet] = useState<boolean>(false);
   const defaultImage = '';
@@ -104,13 +106,13 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       icon: <IdcardOutlined />,
       title: fullName,
       description: null,
-      action: {
+      action: showDoctorInfo ? {
         text: 'Подробнее',
         onClick: () => {
           // TODO: Открыть модальное окно с информацией о враче
           console.log('Подробнее о враче');
         },
-      },
+      } : null,
     },
     dateTimeInfo && {
       key: 'datetime',

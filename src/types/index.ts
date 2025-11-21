@@ -1,8 +1,8 @@
 import { AppointmentType } from '../shared/constants/appointment-types';
 import { Gender } from '../shared/constants/gender';
+import { PetSpecies } from '../shared/constants/pet-species';
 import { SelectionMode } from '../shared/constants/selection-modes';
 import { WidgetStep } from '../shared/constants/widget-steps';
-import { PetSpecies } from '../shared/constants/pet-species';
 
 // Branch (Филиал)
 export interface Branch {
@@ -95,6 +95,7 @@ export interface WidgetConfig {
   showBranches?: boolean;
   showEmployees?: boolean;
   showDepartments?: boolean;
+  showDoctorInfo?: boolean; // отображать информацию о врачах
   stickyBtnEnable?: boolean; // включить плавающую кнопку
   isNeedToBlankOpen?: boolean; // открывать в новом окне вместо Drawer
   renderedAsPage?: boolean; // отрисовать виджет как страницу
@@ -123,5 +124,4 @@ export interface WidgetState {
 }
 
 // Экспортируем enum'ы для удобства
-export { WidgetStep, AppointmentType, SelectionMode, Gender, PetSpecies };
-
+export { AppointmentType, Gender, PetSpecies, SelectionMode, WidgetStep };
