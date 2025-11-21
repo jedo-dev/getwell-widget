@@ -2,6 +2,7 @@ import { RightOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Input, List, Radio, Segmented, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  getWidgetState,
   goToDateTimeSelection,
   goToDepartmentSelection,
   goToDoctorInfo,
@@ -30,15 +31,25 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   selectedDepartmentId,
   selectionMode = SelectionMode.EMPLOYEE,
 }) => {
+  const widgetState = getWidgetState();
+  const showDepartments = widgetState.config?.showDepartments ?? true;
   const [activeTab, setActiveTab] = useState<string>(
-    selectionMode === SelectionMode.DEPARTMENT ? 'department' : 'name',
+    selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name',
   );
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Обновляем активную вкладку при изменении режима выбора
   useEffect(() => {
-    setActiveTab(selectionMode === SelectionMode.DEPARTMENT ? 'department' : 'name');
-  }, [selectionMode]);
+    if (selectionMode === SelectionMode.DEPARTMENT && showDepartments) {
+      setActiveTab('department');
+    } else {
+      setActiveTab('name');
+      // Если отделения скрыты, но мы в режиме выбора отделения, переключаемся на специалиста
+      if (selectionMode === SelectionMode.DEPARTMENT && !showDepartments) {
+        goToSpecialistSelection();
+      }
+    }
+  }, [selectionMode, showDepartments]);
 
   const filteredEmployees = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -116,7 +127,9 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
 
   const options = [
     { label: SELECTION_MODE_LABELS[SelectionMode.EMPLOYEE], value: 'name' },
-    { label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT], value: 'department' },
+    ...(showDepartments
+      ? [{ label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT], value: 'department' }]
+      : []),
   ];
 
   return (
@@ -124,22 +137,24 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
-        renderTabBar={() => (
-          <Segmented
-            options={options}
-            value={activeTab}
-            className='branch-selection-tabs-segmented'
-            onChange={(value) => {
-              setActiveTab(value as string);
-              if (value === 'department') {
-                goToDepartmentSelection();
-              } else {
-                goToSpecialistSelection();
-              }
-            }}
-          />
-        )}
-        defaultValue={selectionMode === SelectionMode.DEPARTMENT ? 'department' : 'name'}
+        renderTabBar={() =>
+          options.length > 1 ? (
+            <Segmented
+              options={options}
+              value={activeTab}
+              className='branch-selection-tabs-segmented'
+              onChange={(value) => {
+                setActiveTab(value as string);
+                if (value === 'department') {
+                  goToDepartmentSelection();
+                } else {
+                  goToSpecialistSelection();
+                }
+              }}
+            />
+          ) : <></>
+        }
+        defaultValue={selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name'}
         className='specialist-selection-tabs'
         items={[
           {
@@ -219,50 +234,54 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
               </>
             ),
           },
-          {
-            key: 'department',
-            label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT],
-            children: (
-              <div className='specialist-selection-content'>
-                <Input
-                  placeholder='Поиск'
-                  prefix={<SearchOutlined />}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className='specialist-selection-search'
-                />
+          ...(showDepartments
+            ? [
+              {
+                key: 'department',
+                label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT],
+                children: (
+                  <div className='specialist-selection-content'>
+                    <Input
+                      placeholder='Поиск'
+                      prefix={<SearchOutlined />}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className='specialist-selection-search'
+                    />
 
-                {filteredDepartments.length > 0 ? (
-                  <List
-                    className='specialist-selection-list'
-                    dataSource={filteredDepartments}
-                    renderItem={(department) => {
-                      const isSelected = selectedDepartmentId === department.id;
+                    {filteredDepartments.length > 0 ? (
+                      <List
+                        className='specialist-selection-list'
+                        dataSource={filteredDepartments}
+                        renderItem={(department) => {
+                          const isSelected = selectedDepartmentId === department.id;
 
-                      return (
-                        <List.Item
-                          className={`specialist-selection-item ${isSelected ? 'selected' : ''}`}
-                          onClick={() => handleDepartmentSelect(department.id)}>
-                          <div className='specialist-selection-item-content'>
-                            <div className='specialist-selection-item-left'>
-                              <div className='specialist-selection-item-info'>
-                                <div className='specialist-selection-item-name'>
-                                  {department.name}
+                          return (
+                            <List.Item
+                              className={`specialist-selection-item ${isSelected ? 'selected' : ''}`}
+                              onClick={() => handleDepartmentSelect(department.id)}>
+                              <div className='specialist-selection-item-content'>
+                                <div className='specialist-selection-item-left'>
+                                  <div className='specialist-selection-item-info'>
+                                    <div className='specialist-selection-item-name'>
+                                      {department.name}
+                                    </div>
+                                  </div>
                                 </div>
+                                <RightOutlined className='specialist-selection-item-arrow' />
                               </div>
-                            </div>
-                            <RightOutlined className='specialist-selection-item-arrow' />
-                          </div>
-                        </List.Item>
-                      );
-                    }}
-                  />
-                ) : (
-                  <EmptyState description='Отделения не найдены' />
-                )}
-              </div>
-            ),
-          },
+                            </List.Item>
+                          );
+                        }}
+                      />
+                    ) : (
+                      <EmptyState description='Отделения не найдены' />
+                    )}
+                  </div>
+                ),
+              },
+            ]
+            : []),
         ]}
       />
 

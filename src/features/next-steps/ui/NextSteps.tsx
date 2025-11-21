@@ -1,7 +1,7 @@
 import { AppstoreOutlined, HomeOutlined, RightOutlined, UserOutlined } from '@ant-design/icons';
 import { List } from 'antd';
 import React from 'react';
-import { goToDepartmentSelection, goToSpecialistSelection } from '../../../lib/widget-manager';
+import { getWidgetState, goToDepartmentSelection, goToSpecialistSelection } from '../../../lib/widget-manager';
 import { Branch } from '../../../types';
 import './NextSteps.css';
 
@@ -10,6 +10,9 @@ export interface NextStepsProps {
 }
 
 export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
+  const widgetState = getWidgetState();
+  const showDepartments = widgetState.config?.showDepartments ?? true;
+
   const menuItems = [
     {
       key: 'specialist',
@@ -19,14 +22,18 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
         goToSpecialistSelection();
       },
     },
-    {
-      key: 'department',
-      icon: <AppstoreOutlined className='next-steps-item-icon' />,
-      title: 'Выбрать отделение',
-      onClick: () => {
-        goToDepartmentSelection();
-      },
-    },
+    ...(showDepartments
+      ? [
+          {
+            key: 'department',
+            icon: <AppstoreOutlined className='next-steps-item-icon' />,
+            title: 'Выбрать отделение',
+            onClick: () => {
+              goToDepartmentSelection();
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
