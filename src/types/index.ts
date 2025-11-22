@@ -103,6 +103,9 @@ export interface WidgetConfig {
   isExternalLinkPolicy?: boolean; // открывать политику по внешней ссылке
   textPolicy?: string; // текст политики конфиденциальности
   linkToExternalPolicy?: string; // ссылка на внешнюю политику конфиденциальности
+  stickyButtonPulse?: boolean; // включить/выключить пульсацию кнопки
+  stickyButtonPosition?: 'left' | 'right'; // расположение кнопки (лево/право)
+  stickyButtonColor?: string; // цвет кнопки (hex формат, например #F3F4F8)
 }
 
 // Widget State
