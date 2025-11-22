@@ -8,11 +8,12 @@ import './BranchSelection.css';
 
 export interface BranchSelectionProps {
   branches: Branch[];
+  yandexMapFrameCode?: string;
 }
 
-export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches }) => {
+export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yandexMapFrameCode }) => {
   const [activeTab, setActiveTab] = useState<string>('list');
-  const iframe = `<iframe
+  const iframe = yandexMapFrameCode || `<iframe
                     src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
                     width='100%'
                     height='572'

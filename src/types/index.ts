@@ -87,6 +87,10 @@ export interface WidgetTheme {
 export interface WidgetConfig {
   theme?: WidgetTheme;
   logo?: string; // URL логотипа
+  logoUrl?: string; // URL логотипа (строка)
+  desktopImageUrl?: string; // URL изображения для ПК (строка)
+  mobileImageUrl?: string; // URL изображения для мобильного устройства (строка)
+  yandexMapFrameCode?: string; // код фрейма Яндекс карт (строка)
   apiUrl?: string; // URL API для получения данных
   branches?: Branch[];
   employees?: Employee[];

@@ -256,7 +256,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
           </div>
         );
       }
-      return <BranchSelection branches={branches} />;
+      return <BranchSelection branches={branches} yandexMapFrameCode={widgetState.config?.yandexMapFrameCode} />;
     }
 
     if (currentStep === WidgetStep.NEXT_STEPS) {
