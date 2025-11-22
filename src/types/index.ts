@@ -100,7 +100,9 @@ export interface WidgetConfig {
   stickyBtnEnable?: boolean; // включить плавающую кнопку
   isNeedToBlankOpen?: boolean; // открывать в новом окне вместо Drawer
   renderedAsPage?: boolean; // отрисовать виджет как страницу
-  privacyPolicyText?: string; // текст политики конфиденциальности
+  isExternalLinkPolicy?: boolean; // открывать политику по внешней ссылке
+  textPolicy?: string; // текст политики конфиденциальности
+  linkToExternalPolicy?: string; // ссылка на внешнюю политику конфиденциальности
 }
 
 // Widget State

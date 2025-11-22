@@ -509,12 +509,16 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               className='appointment-details-consent-checkbox'>
               Согласен на{' '}
               <a
-                href='#'
+                href={widgetState.config?.isExternalLinkPolicy ? widgetState.config?.linkToExternalPolicy : '#'}
                 className='appointment-details-consent-link'
                 onClick={(e) => {
-                  e.preventDefault();
-                  goToPrivacyPolicy();
-                }}>
+                  if (!widgetState.config?.isExternalLinkPolicy) {
+                    e.preventDefault();
+                    goToPrivacyPolicy();
+                  }
+                }}
+                target={widgetState.config?.isExternalLinkPolicy ? '_blank' : undefined}
+                rel={widgetState.config?.isExternalLinkPolicy ? 'noopener noreferrer' : undefined}>
                 обработку персональных данных
               </a>
             </Checkbox>

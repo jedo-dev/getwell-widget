@@ -6,7 +6,7 @@ export const PrivacyPolicy: React.FC = () => {
   const widgetState = getWidgetState();
   // Текст политики будет приходить с бекенда через config
   const privacyPolicyText =
-    widgetState.config?.privacyPolicyText ||
+    widgetState.config?.textPolicy ||
     `ПОЛИТИКА ООО "ВЕТ СИТИ ЦЕНТР" В ОТНОШЕНИИ ОБРАБОТКИ ПЕРСОНАЛЬНЫХ ДАННЫХ
 
 1. ОБЩИЕ ПОЛОЖЕНИЯ
