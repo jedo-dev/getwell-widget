@@ -341,12 +341,29 @@ export function goToDoctorInfo(): void {
 }
 
 /**
+ * Переход к политике конфиденциальности
+ */
+export function goToPrivacyPolicy(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: WidgetStep.PRIVACY_POLICY,
+  };
+
+  notifyStateChange();
+}
+
+/**
  * Возврат к предыдущему шагу
  */
 export function goBack(): void {
   const { currentStep } = widgetState;
 
-  if (currentStep === 'appointment-details') {
+  if (currentStep === WidgetStep.PRIVACY_POLICY) {
+    widgetState = {
+      ...widgetState,
+      currentStep: WidgetStep.APPOINTMENT_DETAILS,
+    };
+  } else if (currentStep === 'appointment-details') {
     widgetState = {
       ...widgetState,
       currentStep: WidgetStep.PHONE_INPUT,

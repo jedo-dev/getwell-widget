@@ -6,7 +6,7 @@ import {
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { getWidgetState, goBack, goToAppointmentConfirmation, selectPet } from '../../../lib/widget-manager';
+import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectPet } from '../../../lib/widget-manager';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
@@ -508,7 +508,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               onChange={(e) => setConsentPersonalData(e.target.checked)}
               className='appointment-details-consent-checkbox'>
               Согласен на{' '}
-              <a href='#' className='appointment-details-consent-link'>
+              <a
+                href='#'
+                className='appointment-details-consent-link'
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToPrivacyPolicy();
+                }}>
                 обработку персональных данных
               </a>
             </Checkbox>

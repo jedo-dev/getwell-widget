@@ -11,6 +11,7 @@ export enum WidgetStep {
   PHONE_INPUT = 'phone-input',
   APPOINTMENT_DETAILS = 'appointment-details',
   APPOINTMENT_CONFIRMATION = 'appointment-confirmation',
+  PRIVACY_POLICY = 'privacy-policy',
 }
 
 /**

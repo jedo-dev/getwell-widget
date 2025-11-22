@@ -9,6 +9,7 @@ import { DepartmentSpecialistsSelection } from '../../../features/department-sel
 import { DoctorInfo } from '../../../features/doctor-info';
 import { NextSteps } from '../../../features/next-steps';
 import { PhoneInput } from '../../../features/phone-input';
+import { PrivacyPolicy } from '../../../features/privacy-policy';
 import { SpecialistSelection } from '../../../features/specialist-selection';
 import defaultImage from '../../../img/default.png';
 import { goBack } from '../../../lib/widget-manager';
@@ -219,6 +220,9 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
           </div>
         );
 
+      case WidgetStep.PRIVACY_POLICY:
+        return 'Политика конфиденциальности';
+
       default:
         return '';
     }
@@ -337,6 +341,10 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
           selectedPetId={widgetState.selectedPetId}
         />
       );
+    }
+
+    if (currentStep === WidgetStep.PRIVACY_POLICY) {
+      return <PrivacyPolicy />;
     }
 
     return null;
