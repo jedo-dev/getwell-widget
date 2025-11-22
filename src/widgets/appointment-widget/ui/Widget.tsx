@@ -51,6 +51,14 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
   useEffect(() => {
     // Загружаем филиалы при открытии виджета или в режиме без Drawer
     if (open || withoutDrawer) {
+      // Если филиалы переданы в конфиге, используем их
+      if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
+        setBranches(widgetState.config.branches);
+        setLoadingBranches(false);
+        return;
+      }
+
+      // Иначе загружаем через API
       const loadBranches = async () => {
         setLoadingBranches(true);
         try {
@@ -66,7 +74,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
       };
       loadBranches();
     }
-  }, [open]);
+  }, [open, widgetState.config?.branches]);
 
   useEffect(() => {
     // Загружаем специалистов при переходе к выбору специалиста
