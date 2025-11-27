@@ -9,6 +9,10 @@
   .ant-drawer-content {
     background: #ffffff00 !important;
   }
+  @media (max-width: 768px) {
+    padding-right: 2px !important;
+    padding-left: 2px !important;
+  }
 }
 .drawer-title {
   font-family: Onest;
@@ -31,6 +35,10 @@
   border-radius: 16px;
   margin-top: 10px;
   padding: 21px 24px !important;
+  @media (max-width: 768px) {
+    margin-top: 0 !important;
+    padding: 14px 20px !important;
+  }
   button {
     position: absolute;
 
@@ -41,7 +49,7 @@
     height: auto !important;
     top: 10px;
     @media (max-width: 768px) {
-      position: relative;
+     
     }
   }
 }
@@ -79,6 +87,9 @@
   background: white !important;
   border-radius: 0 0 16px 16px;
   margin-bottom: 10px;
+  @media (max-width: 768px) {
+    margin-bottom:0;
+  }
 }
 .getwell-widget-footer {
   display: flex;
@@ -150,14 +161,14 @@
   .getwell-widget-drawer .ant-drawer-content-wrapper {
     width: 100% !important;
   }
-  
+
   .getwell-widget-fullscreen-header,
   .getwell-widget-fullscreen-content,
   .getwell-widget-fullscreen-footer {
     margin: 5px;
     border-radius: 12px;
   }
-  
+
   .getwell-widget-fullscreen-header {
     padding: 16px;
     font-size: 20px;
