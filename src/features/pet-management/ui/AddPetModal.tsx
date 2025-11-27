@@ -1,4 +1,4 @@
-import { Button, DatePicker, Input, Modal, Radio, Select, message } from 'antd';
+import { Button, DatePicker, Modal, Radio, message } from 'antd';
 import { Dayjs } from 'dayjs';
 import React, { useState } from 'react';
 import {
@@ -7,6 +7,8 @@ import {
   PET_SPECIES_OPTIONS,
   PetSpecies,
 } from '../../../shared/constants';
+import CustomInput from '../../../shared/ui/CustomInput';
+import CustomSelector from '../../../shared/ui/CustomSelector';
 import { Pet } from '../../../types';
 import './AddPetModal.css';
 
@@ -94,16 +96,14 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       className='add-pet-modal'
       closeIcon={<span className='add-pet-modal-close'>×</span>}
       getContainer={false}
-      style={{ top: 'auto', bottom: 0, paddingBottom: 0 ,right:0}}
+      style={{ top: 'auto', bottom: 0, paddingBottom: 0, right: 0 }}
       wrapClassName='add-pet-modal-wrap'>
       <div className='add-pet-modal-content'>
         <div className='add-pet-modal-field'>
-          <label className='add-pet-modal-label'>
-            Кличка <span className='add-pet-modal-required'>*</span>
-          </label>
-          <Input
+          <CustomInput
             className={errors.name ? 'error' : ''}
-            placeholder='Введите кличку'
+            text='Кличка'
+            required
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -116,12 +116,9 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
         </div>
 
         <div className='add-pet-modal-field'>
-          <label className='add-pet-modal-label'>
-            Вид <span className='add-pet-modal-required'>*</span>
-          </label>
-          <Select
+          <CustomSelector
             className={errors.species ? 'error' : ''}
-            placeholder='Выберите вид'
+            text='Вид'
             value={species}
             onChange={(value) => {
               setSpecies(value);
@@ -136,12 +133,9 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
         </div>
 
         <div className='add-pet-modal-field'>
-          <label className='add-pet-modal-label'>
-            Порода <span className='add-pet-modal-required'>*</span>
-          </label>
-          <Select
+          <CustomSelector
             className={errors.breed ? 'error' : ''}
-            placeholder='Выберите породу'
+            text='Порода'
             value={breed}
             onChange={(value) => {
               setBreed(value);
@@ -160,7 +154,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
           <Radio.Group
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className='add-pet-modal-gender'>
+            className='appointment-details-gender-group'>
             <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>
             <Radio.Button value={Gender.FEMALE}>{PET_GENDER_LABELS[Gender.FEMALE]}</Radio.Button>
           </Radio.Group>

@@ -1,34 +1,32 @@
-import { LeftOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, LeftOutlined } from '@ant-design/icons';
 import { Drawer, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import defaultImage from '../../../img/default.png';
-import { goBack } from '../../../lib/widget-manager';
-import { Branch, Department, Employee, WidgetState } from '../../../types';
-import { WidgetStep } from '../../../shared/constants';
-import { SelectionMode } from '../../../shared/constants';
-import { formatEmployeeFullName } from '../../../shared/lib';
-import { branchesApi } from '../../../shared/api/branches';
-import { employeesApi } from '../../../shared/api/employees';
-import { departmentsApi } from '../../../shared/api/departments';
+import { AppointmentConfirmation } from '../../../features/appointment-confirmation';
+import { AppointmentDetails } from '../../../features/appointment-details';
 import { BranchSelection } from '../../../features/branch-selection';
+import { DateTimeSelection } from '../../../features/date-time-selection';
+import { DepartmentSpecialistsSelection } from '../../../features/department-selection';
+import { DoctorInfo } from '../../../features/doctor-info';
 import { NextSteps } from '../../../features/next-steps';
 import { PhoneInput } from '../../../features/phone-input';
-import { DoctorInfo } from '../../../features/doctor-info';
-import { DepartmentSpecialistsSelection } from '../../../features/department-selection';
+import { PrivacyPolicy } from '../../../features/privacy-policy';
 import { SpecialistSelection } from '../../../features/specialist-selection';
-import { DateTimeSelection } from '../../../features/date-time-selection';
-import { AddPetModal } from '../../../features/pet-management';
-import { AppointmentDetails } from '../../../features/appointment-details';
-import { AppointmentConfirmation } from '../../../features/appointment-confirmation';
+import defaultImage from '../../../img/default.png';
+import { goBack } from '../../../lib/widget-manager';
+import { branchesApi, departmentsApi, employeesApi } from '../../../shared/api';
+import { SelectionMode, WidgetStep } from '../../../shared/constants';
+import { formatEmployeeFullName } from '../../../shared/lib';
+import { Branch, Department, Employee, WidgetState } from '../../../types';
 import './Widget.css';
 
 export interface WidgetProps {
   open: boolean;
   onClose: () => void;
   widgetState: WidgetState;
+  withoutDrawer?: boolean; // режим без Drawer (для отдельной страницы)
 }
 
-export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) => {
+export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, withoutDrawer = false }) => {
   const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -51,8 +49,16 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
   }, []);
 
   useEffect(() => {
-    // Загружаем филиалы при открытии виджета
-    if (open) {
+    // Загружаем филиалы при открытии виджета или в режиме без Drawer
+    if (open || withoutDrawer) {
+      // Если филиалы переданы в конфиге, используем их
+      if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
+        setBranches(widgetState.config.branches);
+        setLoadingBranches(false);
+        return;
+      }
+
+      // Иначе загружаем через API
       const loadBranches = async () => {
         setLoadingBranches(true);
         try {
@@ -68,7 +74,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       };
       loadBranches();
     }
-  }, [open]);
+  }, [open, widgetState.config?.branches]);
 
   useEffect(() => {
     // Загружаем специалистов при переходе к выбору специалиста
@@ -184,12 +190,14 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       case WidgetStep.NEXT_STEPS:
         return (
           <div className='next-steps-image-container'>
-            <img src={defaultImage} alt='Default' className='next-steps-image' />
+            <img src={defaultImage as string} alt='Default' className='next-steps-image' />
           </div>
         );
 
       case WidgetStep.SPECIALIST_SELECTION:
-        return selectionMode === SelectionMode.DEPARTMENT ? 'Выберите отделение' : 'Выберите специалиста';
+        return selectionMode === SelectionMode.DEPARTMENT
+          ? 'Выберите отделение'
+          : 'Выберите специалиста';
 
       case WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION:
         return selectedDepartment ? selectedDepartment.name : 'Выберите специалиста';
@@ -210,7 +218,18 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
         return 'Детали записи';
 
       case WidgetStep.APPOINTMENT_CONFIRMATION:
-        return 'Подтверждение записи';
+        return (
+          <div className='appointment-confirmation-image-container'>
+            <img src={undefined} alt='' className='appointment-confirmation-image' />
+
+            <div className='appointment-confirmation-success-icon'>
+              <CheckCircleOutlined />
+            </div>
+          </div>
+        );
+
+      case WidgetStep.PRIVACY_POLICY:
+        return 'Политика конфиденциальности';
 
       default:
         return '';
@@ -220,25 +239,32 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
   const renderReturnBtn = () => {
     if (
       widgetState.currentStep === WidgetStep.BRANCH_SELECTION ||
-      widgetState.currentStep === WidgetStep.NEXT_STEPS
+      widgetState.currentStep === WidgetStep.NEXT_STEPS ||
+      widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION
     ) {
       return '';
     }
     return <LeftOutlined className='department-specialists-selection-back' onClick={goBack} />;
   };
-
+  const isImageHeader = () => {
+    if (widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION) {
+      return true;
+    }
+    return false;
+  };
   const renderContent = () => {
+    console.log('***', widgetState, '***');
     const { currentStep } = widgetState;
 
     if (currentStep === WidgetStep.BRANCH_SELECTION) {
       if (loadingBranches) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         );
       }
-      return <BranchSelection branches={branches} />;
+      return <BranchSelection branches={branches} yandexMapFrameCode={widgetState.config?.yandexMapFrameCode} />;
     }
 
     if (currentStep === WidgetStep.NEXT_STEPS) {
@@ -250,7 +276,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       if (loadingEmployees || loadingDepartments) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         );
       }
@@ -269,7 +295,7 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       if (loadingEmployees) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         );
       }
@@ -325,6 +351,10 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
       );
     }
 
+    if (currentStep === WidgetStep.PRIVACY_POLICY) {
+      return <PrivacyPolicy />;
+    }
+
     return null;
   };
 
@@ -341,15 +371,31 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
     );
   };
 
-  console.debug('***', widgetState, '***');
+  // Режим без Drawer (для отдельной страницы)
+  if (withoutDrawer) {
+    return (
+      <div className='getwell-widget-fullscreen'>
+        <div className='getwell-widget-fullscreen-header'>
+          {renderReturnBtn()}
+          {renderStepTitle()}
+        </div>
+        <div className='getwell-widget-fullscreen-content'>{renderContent()}</div>
+        <div className='getwell-widget-fullscreen-footer'>{renderFooter()}</div>
+      </div>
+    );
+  }
+
   return (
     <Drawer
       title={
-        <span className='drawer-title'>
+        <span className={`drawer-title`}>
           {renderReturnBtn()}
           {renderStepTitle()}
         </span>
       }
+      classNames={{
+        header: `${isImageHeader() ? 'image-header' : ''}`,
+      }}
       placement='right'
       onClose={onClose}
       open={open}
@@ -360,4 +406,3 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState }) =>
     </Drawer>
   );
 };
-

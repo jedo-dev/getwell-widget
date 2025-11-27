@@ -1,0 +1,43 @@
+.input-container {
+  position: relative;
+  font-family: 'Onest', sans-serif;
+  .ant-select-selection-item {
+    font-family: 'Onest', sans-serif;
+  }
+  .ant-select-item-option-content {
+    font-family: 'Onest', sans-serif;
+  }
+}
+
+.custom-placeholder {
+  position: absolute;
+  left: 12px;
+  top: 16px;
+  z-index: 100;
+  font-size: 16px;
+  line-height: 24px;
+  color: #999;
+  padding: 0 4px;
+  margin-left: -4px;
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+  font-family: 'Onest', sans-serif;
+}
+
+.custom-placeholder.has-value {
+  top: 8px;
+  font-size: 10px;
+  line-height: 10px;
+  color: #999;
+}
+
+.redmark {
+  color: red;
+}
+
+.ant-input {
+  padding-top: 12px;
+}
+.ant-form-item {
+  margin-bottom: 12px !important;
+}

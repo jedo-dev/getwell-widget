@@ -59,6 +59,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  border-radius: 16px 16px 0 0;
 }
 
 /* Appointment Details Container */
@@ -69,7 +70,7 @@
   padding: 20px;
   background-color: #ffffff;
   border-radius: 16px;
-  margin-bottom: 2px;
+  /* margin-bottom: 2px; */
   margin-top: 2px;
 }
 
@@ -185,7 +186,7 @@
 }
 
 .appointment-details-user-data {
-  height: -webkit-fill-available;
+  /* min-height: -webkit-fill-available; */
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -222,7 +223,7 @@
   gap: 8px;
   width: 100%;
   padding: 12px 8px;
-  border: 1px solid #d0d5dd;
+
   border-radius: 8px;
   background-color: #ffffff;
 }
@@ -254,7 +255,7 @@
 .appointment-details-phone-change {
   background: none;
   border: none;
-  color: #1890ff;
+  color: #344054;
   font-size: 14px;
   font-family: 'Onest', sans-serif;
   cursor: pointer;
@@ -264,7 +265,8 @@
 }
 
 .appointment-details-phone-change:hover {
-  color: #40a9ff;
+  color: #222936;
+  background: none;
 }
 
 .appointment-details-phone-edit {
@@ -417,9 +419,6 @@
 .appointment-details-field .ant-input,
 .appointment-details-field .ant-select-selector,
 .appointment-details-field .ant-picker {
-  height: 48px;
-  border-radius: 8px;
-  font-size: 16px;
   font-family: 'Onest', sans-serif;
 }
 
@@ -440,7 +439,7 @@
 .appointment-details-gender-group {
   width: 100%;
   display: flex;
-  gap: 8px;
+  /* gap: 8px; */
 }
 
 .appointment-details-gender-group .ant-radio-button-wrapper {
@@ -450,19 +449,20 @@
   line-height: 46px;
   border-radius: 6px;
   font-size: 14px;
+  background: #f4f4f5;
 }
 
 .appointment-details-gender-group .ant-radio-button-wrapper:first-child {
-  border-radius: 6px 0 0 6px;
+  border-radius: 8px 0 0 8px;
 }
 
 .appointment-details-gender-group .ant-radio-button-wrapper:last-child {
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .appointment-details-gender-group .ant-radio-button-wrapper-checked {
-  background-color: #595959;
-  border-color: #595959;
+  background-color: #344054;
+  border-color: #344054;
   color: #fff;
 }
 

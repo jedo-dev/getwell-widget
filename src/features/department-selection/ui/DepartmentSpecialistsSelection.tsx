@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { Button, Input, List, Radio, Tag } from 'antd';
 import React, { useMemo, useState } from 'react';
-import { goToDateTimeSelection, goToDoctorInfo, selectEmployee } from '../../../lib/widget-manager';
+import { getWidgetState, goToDateTimeSelection, goToDoctorInfo, selectEmployee } from '../../../lib/widget-manager';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Avatar, EmptyState } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
@@ -18,6 +18,9 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   selectedDepartment,
   selectedEmployeeId,
 }) => {
+  const widgetState = getWidgetState();
+  const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
+  const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredEmployees = useMemo(() => {
@@ -117,9 +120,11 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                           <div className='department-specialists-selection-item-name'>
                             {fullName}
                           </div>
-                          <div className='department-specialists-selection-item-specialization'>
-                            {employee.specialization}
-                          </div>
+                          {showEmployeePosition && (
+                            <div className='department-specialists-selection-item-specialization'>
+                              {employee.specialization}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className='department-specialists-selection-item-appointment'>
@@ -154,15 +159,15 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
       </div>
 
       {selectedEmployee && (
-        <div className='department-specialists-selection-footer'>
-          <Button
-            className='department-specialists-selection-footer-btn secondary'
-            onClick={handleDoctorInfo}>
-            О враче
-          </Button>
+        <div className='specialist-selection-footer'>
+          {showDoctorInfo && (
+            <Button className='specialist-selection-footer-btn secondary' onClick={handleDoctorInfo}>
+              О враче
+            </Button>
+          )}
           <Button
             type='primary'
-            className='department-specialists-selection-footer-btn primary'
+            className='specialist-selection-footer-btn primary'
             onClick={handleSelectDateTime}>
             Выбрать дату и время
           </Button>

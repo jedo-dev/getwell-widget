@@ -1,6 +1,5 @@
 import {
   CalendarOutlined,
-  CheckCircleOutlined,
   ClockCircleOutlined,
   EnvironmentOutlined,
   IdcardOutlined,
@@ -8,8 +7,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-;
-import { openGetWellWidget } from '../../../lib/widget-manager';
+import { getWidgetState, openGetWellWidget } from '../../../lib/widget-manager';
 import { petsApi } from '../../../shared/api/pets';
 import {
   formatDate,
@@ -19,7 +17,6 @@ import {
 } from '../../../shared/lib';
 import { Branch, Employee, Pet } from '../../../types';
 import './AppointmentConfirmation.css';
-
 export interface AppointmentConfirmationProps {
   selectedBranch: Branch | null;
   selectedEmployee: Employee | null;
@@ -35,9 +32,11 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   phone,
   selectedPetId,
 }) => {
+  const widgetState = getWidgetState();
+  const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [loadingPet, setLoadingPet] = useState<boolean>(false);
-const defaultImage = '';
+  const defaultImage = '';
   useEffect(() => {
     const loadPet = async () => {
       if (!phone || !selectedPetId) {
@@ -107,13 +106,13 @@ const defaultImage = '';
       icon: <IdcardOutlined />,
       title: fullName,
       description: null,
-      action: {
+      action: showDoctorInfo ? {
         text: 'Подробнее',
         onClick: () => {
           // TODO: Открыть модальное окно с информацией о враче
           console.log('Подробнее о враче');
         },
-      },
+      } : null,
     },
     dateTimeInfo && {
       key: 'datetime',
@@ -163,18 +162,7 @@ const defaultImage = '';
   return (
     <div className='appointment-confirmation'>
       {/* Main Image Container */}
-      <div className='appointment-confirmation-image-container'>
-       <img
-          src={undefined}
-          alt=''
-          className='appointment-confirmation-image'
-        />
-      
-      <div className='appointment-confirmation-success-icon'>
-          <CheckCircleOutlined />
-        </div>
-      </div>
-      
+
       {/* Appointment Info Container */}
       <div className='appointment-confirmation-info-container'>
         <h2 className='appointment-confirmation-title'>Вы записаны на приём</h2>

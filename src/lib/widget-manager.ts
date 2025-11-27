@@ -1,43 +1,69 @@
-import { SelectionMode, WidgetConfig, WidgetState, WidgetStep } from '../types';
+import { SelectionMode, WidgetStep } from '../shared/constants';
+import { WidgetConfig, WidgetState } from '../types';
 
 // Глобальное состояние виджета
 
-// let widgetState: WidgetState = {
-//   isOpen: false,
-//   config: null,
-//   initialized: false,
-//   currentStep: WidgetStep.BRANCH_SELECTION,
-//   selectedBranchId: null,
-//   selectedEmployeeId: null,
-//   selectedDepartmentId: null,
-//   selectedTimeSlot: null,
-//   phone: null,
-//   selectedPetId: null,
-// };
 let widgetState: WidgetState = {
-  "isOpen": true,
-  "config": {
-      "apiUrl": "https://api.example.com",
-      "theme": {
-          "primaryColor": "#1890ff",
-          "secondaryColor": "#52c41a"
-      },
-      "showBranches": true,
-      "showEmployees": true,
-      "showDepartments": true,
-      "stickyBtnEnable": true
-  },
-  "initialized": true,
-  "currentStep": "appointment-confirmation",
-  "selectedBranchId": 1,
-  "selectedEmployeeId": 2,
-  "selectedDepartmentId": null,
-  "selectedTimeSlot": "2025-11-19T15:30:00",
-  "phone": "+7 909 646 84 44",
-  "selectedPetId": 1,
-  "selectionMode": "employee",
-  "isNewUser": false
-} as WidgetState;
+  isOpen: false,
+  config: null,
+  initialized: false,
+  currentStep: WidgetStep.BRANCH_SELECTION,
+  selectedBranchId: null,
+  selectedEmployeeId: null,
+  selectedDepartmentId: null,
+  selectedTimeSlot: null,
+  phone: null,
+  selectedPetId: null,
+};
+
+// let widgetState: WidgetState = {
+//   isOpen: true,
+//   config: {
+//     apiUrl: 'https://api.example.com',
+//     theme: {
+//       primaryColor: '#1890ff',
+//       secondaryColor: '#52c41a',
+//     },
+//     showBranches: true,
+//     showEmployees: true,
+//     showDepartments: true,
+//     stickyBtnEnable: true,
+//   },
+//   initialized: true,
+//   currentStep: 'appointment-confirmation',
+//   selectedBranchId: 3,
+//   selectedEmployeeId: 2,
+//   selectedDepartmentId: null,
+//   selectedTimeSlot: '2025-11-19T15:30:00',
+//   phone: '+7 909 646 84 44',
+//   selectedPetId: null,
+//   selectionMode: 'employee',
+//   isNewUser: true,
+// } as WidgetState;
+// let widgetState: WidgetState = {
+//   "isOpen": true,
+//   "config": {
+//       "apiUrl": "https://api.example.com",
+//       "theme": {
+//           "primaryColor": "#1890ff",
+//           "secondaryColor": "#52c41a"
+//       },
+//       "showBranches": true,
+//       "showEmployees": true,
+//       "showDepartments": true,
+//       "stickyBtnEnable": true
+//   },
+//   "initialized": true,
+//   "currentStep": "appointment-confirmation",
+//   "selectedBranchId": 1,
+//   "selectedEmployeeId": 2,
+//   "selectedDepartmentId": null,
+//   "selectedTimeSlot": "2025-11-19T15:30:00",
+//   "phone": "+7 909 646 84 44",
+//   "selectedPetId": 1,
+//   "selectionMode": "employee",
+//   "isNewUser": false
+// } as WidgetState;
 
 // Callbacks для уведомления компонентов об изменении состояния
 let stateChangeCallbacks: Array<(state: WidgetState) => void> = [];
@@ -315,12 +341,29 @@ export function goToDoctorInfo(): void {
 }
 
 /**
+ * Переход к политике конфиденциальности
+ */
+export function goToPrivacyPolicy(): void {
+  widgetState = {
+    ...widgetState,
+    currentStep: WidgetStep.PRIVACY_POLICY,
+  };
+
+  notifyStateChange();
+}
+
+/**
  * Возврат к предыдущему шагу
  */
 export function goBack(): void {
   const { currentStep } = widgetState;
 
-  if (currentStep === 'appointment-details') {
+  if (currentStep === WidgetStep.PRIVACY_POLICY) {
+    widgetState = {
+      ...widgetState,
+      currentStep: WidgetStep.APPOINTMENT_DETAILS,
+    };
+  } else if (currentStep === 'appointment-details') {
     widgetState = {
       ...widgetState,
       currentStep: WidgetStep.PHONE_INPUT,

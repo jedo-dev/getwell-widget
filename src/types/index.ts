@@ -1,8 +1,8 @@
 import { AppointmentType } from '../shared/constants/appointment-types';
 import { Gender } from '../shared/constants/gender';
+import { PetSpecies } from '../shared/constants/pet-species';
 import { SelectionMode } from '../shared/constants/selection-modes';
 import { WidgetStep } from '../shared/constants/widget-steps';
-import { PetSpecies } from '../shared/constants/pet-species';
 
 // Branch (Филиал)
 export interface Branch {
@@ -87,6 +87,10 @@ export interface WidgetTheme {
 export interface WidgetConfig {
   theme?: WidgetTheme;
   logo?: string; // URL логотипа
+  logoUrl?: string; // URL логотипа (строка)
+  desktopImageUrl?: string; // URL изображения для ПК (строка)
+  mobileImageUrl?: string; // URL изображения для мобильного устройства (строка)
+  yandexMapFrameCode?: string; // код фрейма Яндекс карт (строка)
   apiUrl?: string; // URL API для получения данных
   branches?: Branch[];
   employees?: Employee[];
@@ -95,7 +99,17 @@ export interface WidgetConfig {
   showBranches?: boolean;
   showEmployees?: boolean;
   showDepartments?: boolean;
+  showDoctorInfo?: boolean; // отображать информацию о врачах
+  showEmployeePosition?: boolean; // отображать должности/специализации врачей
   stickyBtnEnable?: boolean; // включить плавающую кнопку
+  isNeedToBlankOpen?: boolean; // открывать в новом окне вместо Drawer
+  renderedAsPage?: boolean; // отрисовать виджет как страницу
+  isExternalLinkPolicy?: boolean; // открывать политику по внешней ссылке
+  textPolicy?: string; // текст политики конфиденциальности
+  linkToExternalPolicy?: string; // ссылка на внешнюю политику конфиденциальности
+  stickyButtonPulse?: boolean; // включить/выключить пульсацию кнопки
+  stickyButtonPosition?: 'left' | 'right'; // расположение кнопки (лево/право)
+  stickyButtonColor?: string; // цвет кнопки (hex формат, например #F3F4F8)
 }
 
 // Widget State
@@ -121,5 +135,4 @@ export interface WidgetState {
 }
 
 // Экспортируем enum'ы для удобства
-export { WidgetStep, AppointmentType, SelectionMode, Gender, PetSpecies };
-
+export { AppointmentType, Gender, PetSpecies, SelectionMode, WidgetStep };

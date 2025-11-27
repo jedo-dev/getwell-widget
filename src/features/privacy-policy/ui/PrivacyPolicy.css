@@ -1,0 +1,43 @@
+.privacy-policy {
+  display: flex;
+  flex-direction: column;
+  height: -webkit-fill-available;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 16px 16px 0 0;
+}
+
+.privacy-policy-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.privacy-policy-text {
+  font-family: 'Onest', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #101828;
+  white-space: pre-line;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+/* Стилизация скроллбара для webkit браузеров */
+.privacy-policy-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.privacy-policy-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.privacy-policy-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.privacy-policy-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
