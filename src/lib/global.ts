@@ -1,7 +1,8 @@
 import React from 'react';
-import { WidgetConfig } from '../types';
+import { WidgetConfig, WidgetState } from '../types';
 import {
   closeGetWellWidget,
+  getWidgetState,
   initGetWellWidget,
   openGetWellWidget,
   resetGetWellWidget,
@@ -15,6 +16,7 @@ declare global {
       open: () => void;
       close: () => void;
       reset: () => void;
+      getState: () => WidgetState;
       WidgetProvider?: React.ComponentType;
     };
   }
@@ -28,6 +30,7 @@ export function registerGlobalWidget(WidgetProvider?: React.ComponentType): void
       open: openGetWellWidget,
       close: closeGetWellWidget,
       reset: resetGetWellWidget,
+      getState: getWidgetState,
       WidgetProvider,
     };
   }

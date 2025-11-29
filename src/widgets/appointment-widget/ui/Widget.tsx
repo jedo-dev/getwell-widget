@@ -26,7 +26,12 @@ export interface WidgetProps {
   withoutDrawer?: boolean; // режим без Drawer (для отдельной страницы)
 }
 
-export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, withoutDrawer = false }) => {
+export const Widget: React.FC<WidgetProps> = ({
+  open,
+  onClose,
+  widgetState,
+  withoutDrawer = false,
+}) => {
   const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -64,7 +69,20 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
         try {
           const response = await branchesApi.getAll();
           if (response.success && response.data) {
-            setBranches(response.data);
+            await console.log(
+              '***',
+              response.data.map((branch) => branch.name),
+              '***',
+            );
+            setBranches(
+              response.data.map((branch) => ({
+                id: branch.id,
+                name: branch.name,
+                address: branch.address,
+                phone: branch.phone,
+                schedule: branch.schedule,
+              })),
+            );
           }
         } catch (error) {
           console.error('Ошибка загрузки филиалов:', error);
@@ -264,7 +282,12 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
           </div>
         );
       }
-      return <BranchSelection branches={branches} yandexMapFrameCode={widgetState.config?.yandexMapFrameCode} />;
+      return (
+        <BranchSelection
+          branches={branches}
+          yandexMapFrameCode={widgetState.config?.yandexMapFrameCode}
+        />
+      );
     }
 
     if (currentStep === WidgetStep.NEXT_STEPS) {

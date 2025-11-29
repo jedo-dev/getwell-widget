@@ -1,33 +1,134 @@
 import { Branch } from '../../types';
 import { BranchesResponse } from '../types/api';
-import { apiClient } from './instance';
+import { apiClient, RequestParams } from './instance';
 
 /**
- * Моковые данные филиалов
+ * Интерфейс расписания филиала из API
  */
-const MOCK_BRANCHES: Branch[] = [
-  {
-    id: 1,
-    name: 'VetUnion профсоюзная',
-    address: 'г. Москва, Профсоюзная улица 45',
-    phone: '+7 (495) 123-45-67',
-    schedule: 'Пн-Пт: 9:00-21:00, Сб-Вс: 10:00-20:00',
-  },
-  {
-    id: 2,
-    name: 'VetUnion вернадского',
-    address: 'г. Москва, Проспект Вернадского 39, 2 этаж',
-    phone: '+7 (495) 234-56-78',
-    schedule: 'Пн-Пт: 9:00-21:00, Сб-Вс: 10:00-20:00',
-  },
-  {
-    id: 3,
-    name: 'VetUnion мневники',
-    address: 'г. Москва, улица Мневники 21',
-    phone: '+7 (495) 345-67-89',
-    schedule: 'Пн-Пт: 9:00-21:00, Сб-Вс: 10:00-20:00',
-  },
-];
+interface FilialSchedule {
+  id: number;
+  week_day: string;
+  from: string;
+  to: string;
+  is_around_the_clock: boolean;
+}
+
+/**
+ * Интерфейс филиала из API
+ */
+interface FilialApiData {
+  id: number;
+  name: string;
+  is_active: boolean;
+  phone_number: string | null;
+  residential_address: {
+    apartment: string;
+    comment: string;
+    district: string;
+    house: string;
+    hull: string;
+    id: 78;
+    index: string;
+    settlement: string;
+    street: string;
+  } | null;
+  schedules: FilialSchedule[];
+  timezone?: {
+    name: string;
+    code: string;
+  };
+  [key: string]: unknown;
+}
+
+/**
+ * Интерфейс ответа API для списка филиалов
+ */
+interface FilialsApiResponse {
+  status: string;
+  reason: string | null;
+  data: FilialApiData[];
+  meta: {
+    per_page: number;
+    current_page: number;
+    last_page: number;
+    total: number;
+    from: number;
+  };
+  validation_errors: Record<string, unknown>;
+}
+
+/**
+ * Преобразование расписания в читаемую строку
+ */
+function formatSchedule(schedules: FilialSchedule[]): string {
+  if (!schedules || schedules.length === 0) {
+    return '';
+  }
+
+  // Группируем по дням недели
+  const dayNames: Record<string, string> = {
+    Monday: 'Пн',
+    Tuesday: 'Вт',
+    Wednesday: 'Ср',
+    Thursday: 'Чт',
+    Friday: 'Пт',
+    Saturday: 'Сб',
+    Sunday: 'Вс',
+  };
+
+  const scheduleMap = new Map<string, FilialSchedule[]>();
+  schedules.forEach((schedule) => {
+    const dayName = dayNames[schedule.week_day] || schedule.week_day;
+    if (!scheduleMap.has(dayName)) {
+      scheduleMap.set(dayName, []);
+    }
+    scheduleMap.get(dayName)!.push(schedule);
+  });
+
+  // Форматируем время из формата "1969-12-31 21:00:00" в "HH:mm"
+  const formatTime = (timeStr: string): string => {
+    try {
+      const date = new Date(timeStr);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return '';
+    }
+  };
+
+  // Собираем строку расписания
+  const scheduleParts: string[] = [];
+  scheduleMap.forEach((daySchedules, dayName) => {
+    if (daySchedules.length > 0) {
+      const firstSchedule = daySchedules[0];
+      if (firstSchedule.is_around_the_clock) {
+        scheduleParts.push(`${dayName}: круглосуточно`);
+      } else {
+        const fromTime = formatTime(firstSchedule.from);
+        const toTime = formatTime(firstSchedule.to);
+        if (fromTime && toTime) {
+          scheduleParts.push(`${dayName}: ${fromTime}-${toTime}`);
+        }
+      }
+    }
+  });
+
+  return scheduleParts.join(', ');
+}
+
+/**
+ * Преобразование данных филиала из API в формат приложения
+ */
+function mapFilialToBranch(filial: FilialApiData): Branch {
+  return {
+    id: filial.id,
+    name: filial.name,
+    address: filial?.residential_address?.street || '',
+    phone: filial.phone_number || '',
+    schedule: formatSchedule(filial.schedules || []),
+  };
+}
 
 /**
  * API для работы с филиалами
@@ -35,28 +136,79 @@ const MOCK_BRANCHES: Branch[] = [
 export const branchesApi = {
   /**
    * Получить список всех филиалов
+   * @param params - Параметры запроса (page, per_page и т.д.)
    */
-  async getAll(): Promise<BranchesResponse> {
-    // В реальной реализации:
-    // return await apiClient.get<BranchesResponse>('/branches');
+  async getAll(params?: { page?: number; per_page?: number }): Promise<BranchesResponse> {
+    try {
+      const requestParams: RequestParams = {
+        page: params?.page || 1,
+        per_page: params?.per_page || 20,
+      };
 
-    // Моковая реализация
-    return {
-      data: MOCK_BRANCHES,
-      success: true,
-    };
+      const response = await apiClient.get<FilialsApiResponse>(
+        '/tenant/catalogues/filials',
+        requestParams,
+      );
+
+      // Проверяем статус ответа
+      if (response.status !== 'ok') {
+        return {
+          data: [],
+          success: false,
+          message: response.reason || 'Failed to fetch branches',
+        };
+      }
+
+      // Преобразуем данные из формата API в формат приложения
+      // Фильтруем только активные филиалы
+      const branches: Branch[] = (response.data || [])
+        .filter((filial) => filial.is_active !== false)
+        .map(mapFilialToBranch);
+
+      return {
+        data: branches,
+        success: true,
+      };
+    } catch (error) {
+      console.error('Error fetching branches:', error);
+      return {
+        data: [],
+        success: false,
+        message:
+          error && typeof error === 'object' && 'message' in error
+            ? String(error.message)
+            : 'Failed to fetch branches',
+      };
+    }
   },
 
   /**
    * Получить филиал по ID
+   * @param id - ID филиала
    */
   async getById(id: number): Promise<Branch | null> {
-    // В реальной реализации:
-    // return await apiClient.get<Branch>(`/branches/${id}`);
+    try {
+      const response = await apiClient.get<{
+        status: string;
+        reason: string | null;
+        data: FilialApiData;
+        validation_errors: Record<string, unknown>;
+      }>(`/tenant/catalogues/filials/${id}`);
 
-    // Моковая реализация
-    const branch = MOCK_BRANCHES.find((b) => b.id === id);
-    return branch || null;
+      // Проверяем статус ответа
+      if (response.status !== 'ok' || !response.data) {
+        return null;
+      }
+
+      // Проверяем, что филиал активен
+      if (response.data.is_active === false) {
+        return null;
+      }
+
+      return mapFilialToBranch(response.data);
+    } catch (error) {
+      console.error(`Error fetching branch ${id}:`, error);
+      return null;
+    }
   },
 };
-

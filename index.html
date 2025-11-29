@@ -27,7 +27,7 @@
     <script>
       // Конфигурация виджета
       window.GetWellWidgetConfig = {
-        apiUrl: 'https://getwell-widget.flareon.ru',
+        apiUrl: 'https://vetcity.stage.getwell.ru',
         theme: { primaryColor: '#1890ff', secondaryColor: '#52c41a' },
         showBranches: true,
         showEmployees: true,
@@ -35,23 +35,16 @@
         stickyBtnEnable: true,
         isNeedToBlankOpen: false,
         renderedAsPage: false,
-        showDepartments: false,
-        showDoctorInfo: false,
-        showEmployeePosition: false,
+        showDepartments: true,
+        showDoctorInfo: true,
+        showEmployeePosition: true,
         isExternalLinkPolicy: false,
-        stickyButtonPulse: false,
+        stickyButtonPulse: true,
         stickyButtonPosition: 'left',
         stickyButtonColor: '#782c2c',
         textPolicy: 'textPolicy',
         // linkToExternalPolicy: 'https://getwell-widget.flareon.ru/privacy-policy',
-        branches: [
-          {
-            id: 1,
-            name: 'Филиал 1',
-            address: 'г. Москва, ул. Ленина, 1',
-            phone: '+7 (999) 123-45-67',
-          },
-        ],
+       
         basePath: './dist',
       };
     </script>
