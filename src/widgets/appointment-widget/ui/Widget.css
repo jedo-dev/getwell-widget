@@ -49,7 +49,6 @@
     height: auto !important;
     top: 10px;
     @media (max-width: 768px) {
-     
     }
   }
 }
@@ -67,7 +66,7 @@
   font-family: Onest;
 }
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 0;
 }
 ::-webkit-scrollbar-track {
   background: #ffffff00;
@@ -88,7 +87,7 @@
   border-radius: 0 0 16px 16px;
   margin-bottom: 10px;
   @media (max-width: 768px) {
-    margin-bottom:0;
+    margin-bottom: 0;
   }
 }
 .getwell-widget-footer {
@@ -188,4 +187,14 @@
   background: #1c29360d;
   border: none;
   border-radius: 6px;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  height: -webkit-fill-available;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  align-items: center;
 }

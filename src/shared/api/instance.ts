@@ -27,9 +27,10 @@ class ApiClient {
   constructor(config: ApiConfig = {}) {
     this.baseURL = config.baseURL || '';
     this.timeout = config.timeout || 30000; // 30 секунд по умолчанию
+
     this.defaultHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       ...config.headers,
     };
   }

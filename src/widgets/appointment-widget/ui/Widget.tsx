@@ -69,11 +69,7 @@ export const Widget: React.FC<WidgetProps> = ({
         try {
           const response = await branchesApi.getAll();
           if (response.success && response.data) {
-            await console.log(
-              '***',
-              response.data.map((branch) => branch.name),
-              '***',
-            );
+           
             setBranches(
               response.data.map((branch) => ({
                 id: branch.id,
@@ -277,7 +273,7 @@ export const Widget: React.FC<WidgetProps> = ({
     if (currentStep === WidgetStep.BRANCH_SELECTION) {
       if (loadingBranches) {
         return (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+          <div  className='loader'>
             <Spin size='large' />
           </div>
         );

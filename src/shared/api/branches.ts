@@ -14,6 +14,38 @@ interface FilialSchedule {
 }
 
 /**
+ * Интерфейс адреса из API
+ */
+interface ResidentialAddress {
+  id: number;
+  district: string | null;
+  settlement: string | null;
+  street: string | null;
+  house: string | null;
+  hull: string | null;
+  apartment: string | null;
+  index: string | null;
+  comment: string | null;
+}
+
+/**
+ * Интерфейс организации из API
+ */
+interface Organization {
+  id: number;
+  organization_name: string;
+  clinic_name: string;
+  inn: string | null;
+  is_active: boolean;
+  prefix: string | null;
+  residential_address: ResidentialAddress | null;
+  filials: unknown[];
+  ogrn_ogrnip: string | null;
+  deleted_at: string | null;
+  deleted_by: number | null;
+}
+
+/**
  * Интерфейс филиала из API
  */
 interface FilialApiData {
@@ -21,23 +53,16 @@ interface FilialApiData {
   name: string;
   is_active: boolean;
   phone_number: string | null;
-  residential_address: {
-    apartment: string;
-    comment: string;
-    district: string;
-    house: string;
-    hull: string;
-    id: 78;
-    index: string;
-    settlement: string;
-    street: string;
-  } | null;
+  has_employees: boolean;
+  residential_address: ResidentialAddress | null;
   schedules: FilialSchedule[];
-  timezone?: {
+  timezone: {
     name: string;
     code: string;
-  };
-  [key: string]: unknown;
+  } | null;
+  organizations: Organization[];
+  deleted_at: string | null;
+  deleted_by: number | null;
 }
 
 /**
@@ -142,7 +167,7 @@ export const branchesApi = {
     try {
       const requestParams: RequestParams = {
         page: params?.page || 1,
-        per_page: params?.per_page || 20,
+        per_page: params?.per_page || 1,
       };
 
       const response = await apiClient.get<FilialsApiResponse>(

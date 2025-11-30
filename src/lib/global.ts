@@ -12,7 +12,7 @@ import {
 declare global {
   interface Window {
     GetWellWidget: {
-      init: (config: WidgetConfig) => void;
+      init: (config: WidgetConfig) => Promise<void>;
       open: () => void;
       close: () => void;
       reset: () => void;

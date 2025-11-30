@@ -1,3 +1,4 @@
+import { fetchWidgetConfig } from '../shared/api/widget-config';
 import { SelectionMode, WidgetStep } from '../shared/constants';
 import { WidgetConfig, WidgetState } from '../types';
 
@@ -92,15 +93,29 @@ export function getWidgetState(): WidgetState {
  * Инициализация виджета с конфигурацией
  * @param config - Конфигурация виджета
  */
-export function initGetWellWidget(config: WidgetConfig): void {
+export async function initGetWellWidget(config: WidgetConfig): Promise<void> {
+  let finalConfig = config;
+
+  // Если есть apiUrl, пытаемся получить конфиг с сервера
+  if (config.apiUrl) {
+    try {
+      const serverConfig = await fetchWidgetConfig(config);
+      if (serverConfig) {
+        finalConfig = serverConfig;
+      }
+    } catch (error) {
+      console.warn('Failed to fetch widget config from server, using initial config:', error);
+    }
+  }
+
   widgetState = {
     ...widgetState,
     config: {
-      ...config,
+      ...finalConfig,
       // Применяем дефолтные значения
-      showBranches: config.showBranches ?? true,
-      showEmployees: config.showEmployees ?? true,
-      showDepartments: config.showDepartments ?? true,
+      showBranches: finalConfig.showBranches ?? true,
+      showEmployees: finalConfig.showEmployees ?? true,
+      showDepartments: finalConfig.showDepartments ?? true,
     },
     initialized: true,
   };
