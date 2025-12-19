@@ -9,7 +9,7 @@
   align-items: center;
   gap: 12px;
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--widget-background-color);
   border-radius: 16px;
   margin-bottom: 2px;
 }
@@ -22,7 +22,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #777777;
+  color: var(--widget-text-tertiary);
   border-radius: 6.564px;
   transition: background-color 0.2s;
 }
@@ -41,7 +41,7 @@
   font-family: 'Onest', sans-serif;
   line-height: 30px;
   margin: 0;
-  color: #101828;
+  color: var(--widget-text-color);
   flex: 1;
   text-align: center;
   letter-spacing: -0.48px;
@@ -57,7 +57,7 @@
   flex-direction: column;
   gap: 0;
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--widget-background-color);
   border-radius: 16px;
   margin-top: 2px;
 }
@@ -90,7 +90,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #f4f4f5;
+  background-color: var(--widget-background-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,7 +99,7 @@
 
 .phone-input-icon {
   font-size: 24px;
-  color: #344054;
+  color: var(--widget-text-secondary);
 }
 
 .phone-input-location-info,
@@ -114,7 +114,7 @@
   font-weight: 500;
   font-family: 'Onest', sans-serif;
   line-height: 24px;
-  color: #101828;
+  color: var(--widget-text-color);
   margin-bottom: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -126,7 +126,7 @@
   font-size: 14px;
   font-family: 'Onest', sans-serif;
   line-height: 20px;
-  color: #777777;
+  color: var(--widget-text-tertiary);
   margin-top: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -155,7 +155,7 @@
   font-weight: 500;
   font-family: 'Onest', sans-serif;
   line-height: 24px;
-  color: #101828;
+  color: var(--widget-text-color);
   margin-bottom: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -166,7 +166,7 @@
   font-size: 14px;
   font-family: 'Onest', sans-serif;
   line-height: 20px;
-  color: #777777;
+  color: var(--widget-text-tertiary);
   margin-top: 4px;
 }
 
@@ -174,7 +174,7 @@
   height: -webkit-fill-available;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: var(--widget-background-color);
   border-radius: 16px 16px 0 0;
   margin-top: 2px;
 }
@@ -188,7 +188,7 @@
   font-weight: 500;
   font-family: 'Onest', sans-serif;
   line-height: 24px;
-  color: #101828;
+  color: var(--widget-text-color);
   margin: 0;
   letter-spacing: -0.4px;
 }
@@ -206,41 +206,41 @@
   font-family: 'Onest', sans-serif;
   line-height: 24px;
   border-radius: 8px;
-  border: 1px solid #eaecf0;
+  border: 1px solid var(--widget-border-secondary);
 }
 
 .phone-input-input:focus,
 .phone-input-input:focus-within {
-  border-color: #344054;
+  border-color: var(--widget-primary-color);
   box-shadow: 0 0 0 2px rgba(52, 64, 84, 0.1);
 }
 
 .phone-input-input.error {
-  border-color: #ff4d4f;
+  border-color: var(--widget-error-color);
 }
 
 .phone-input-input.error:focus,
 .phone-input-input.error:focus-within {
-  border-color: #ff4d4f;
+  border-color: var(--widget-error-color);
   box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
 }
 
 .phone-input-phone-icon {
   font-size: 20px;
-  color: #777777;
+  color: var(--widget-text-tertiary);
 }
 
 .phone-input-error {
   font-size: 12px;
   font-family: 'Onest', sans-serif;
   line-height: 20px;
-  color: #ff4d4f;
+  color: var(--widget-error-color);
   margin-top: 4px;
 }
 
 .phone-input-checkbox {
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--widget-background-color);
   border-radius: 16px;
   margin-bottom: 2px;
 }
@@ -249,11 +249,11 @@
   font-size: 14px;
   font-family: 'Onest', sans-serif;
   line-height: 20px;
-  color: #101828;
+  color: var(--widget-text-color);
 }
 
 .phone-input-footer {
-  background-color: #ffffff;
+  background-color: var(--widget-background-color);
   padding: 20px;
   margin-top: auto;
 }
@@ -264,20 +264,20 @@
   font-weight: 500;
   font-family: 'Onest', sans-serif;
   line-height: 24px;
-  background-color: #344054;
-  border-color: #344054;
+  background-color: var(--widget-button-primary);
+  border-color: var(--widget-button-primary);
   border-radius: 64px;
-  color: #ffffff;
+  color: var(--widget-button-text);
 }
 
 .phone-input-submit-btn:hover:not(:disabled) {
-  background-color: #1f2937;
-  border-color: #1f2937;
+  background-color: var(--widget-button-primary-hover);
+  border-color: var(--widget-button-primary-hover);
 }
 
 .phone-input-submit-btn:disabled {
-  background-color: #c9c9c9;
-  border-color: #c9c9c9;
-  color: #ffffff;
+  background-color: var(--widget-text-disabled);
+  border-color: var(--widget-text-disabled);
+  color: var(--widget-button-text);
   opacity: 1;
 }

@@ -160,7 +160,7 @@ function mapApiResponseToWidgetConfig(
     theme: {
       ...initialConfig.theme,
       // widget_theme может быть строкой с цветом или enum
-      primaryColor: apiResponse.widget_theme || initialConfig.theme?.primaryColor,
+      primaryColor: apiResponse.widget_theme || initialConfig.theme?.primaryColor || '#344054',
     },
 
     // Данные

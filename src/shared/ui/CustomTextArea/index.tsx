@@ -22,7 +22,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ text, ...rest }) => {
           paddingTop: `${hasValue ? '18px' : '12px'}`,
           overflowY: 'auto',
           resize: 'none',
-          borderBottom: '1px solid #EAECF0'
+          borderBottom: '1px solid var(--widget-border-secondary)'
         }}
          variant='borderless'
         rows={1}

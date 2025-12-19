@@ -1,0 +1,29 @@
+/**
+ * CSS переменные для темы виджета
+ * Дефолтные значения устанавливаются здесь, но могут быть переопределены через applyTheme()
+ */
+
+:root {
+  --widget-primary-color: #344054;
+  --widget-secondary-color: #52c41a;
+  --widget-background-color: #ffffff;
+  --widget-background-secondary: #f5f5f5;
+  --widget-background-tertiary: #fafafa;
+  --widget-text-color: #101828;
+  --widget-text-secondary: #344054;
+  --widget-text-tertiary: #777777;
+  --widget-text-disabled: #c9c9c9;
+  --widget-border-color: #f0f0f0;
+  --widget-border-secondary: #eaecf0;
+  --widget-border-tertiary: #d0d5dd;
+  --widget-error-color: #ff4d4f;
+  --widget-success-color: #52c41a;
+  --widget-link-color: #1890ff;
+  --widget-link-hover-color: #40a9ff;
+  --widget-button-primary: #344054;
+  --widget-button-primary-hover: #1f2937;
+  --widget-button-secondary: #d0d5dd;
+  --widget-button-text: #ffffff;
+  --widget-scrollbar-color: #344054;
+  --widget-tag-background: #1c29360d;
+}

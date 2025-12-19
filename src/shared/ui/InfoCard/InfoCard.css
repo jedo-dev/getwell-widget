@@ -3,7 +3,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background-color: #f5f5f5;
+  background-color: var(--widget-background-secondary);
   border-radius: 8px;
 }
 
