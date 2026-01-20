@@ -33,6 +33,7 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
     <div className='doctor-info'>
       <div className='doctor-info-content'>
         <div className='doctor-info-card'>
+          <div className='doctor-info-card-wallpaper'></div>
           <Avatar
             src={employee.photo}
             alt={fullName}

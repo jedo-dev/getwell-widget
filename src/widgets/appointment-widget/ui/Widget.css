@@ -26,6 +26,16 @@
   letter-spacing: -2%;
   display: flex;
   gap: 12px;
+  @media  (max-width: 768px) {
+    font-family: Onest;
+font-weight: 500;
+font-style: Medium;
+font-size: 20px;
+leading-trim: NONE;
+line-height: 24px;
+letter-spacing: -2%;
+
+  }
 }
 .ant-modal-root .ant-modal-wrap {
   position: absolute !important;

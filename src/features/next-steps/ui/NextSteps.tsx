@@ -1,10 +1,11 @@
-import { AppstoreOutlined, HomeOutlined, RightOutlined, UserOutlined } from '@ant-design/icons';
+import { RightOutlined } from '@ant-design/icons';
 import { List } from 'antd';
 import React from 'react';
+import deparmentChoose from '../../../img/department-choose.svg';
+import doctorChoose from '../../../img/doctor-choose.svg';
 import { getWidgetState, goToDepartmentSelection, goToSpecialistSelection } from '../../../lib/widget-manager';
 import { Branch } from '../../../types';
 import './NextSteps.css';
-
 export interface NextStepsProps {
   selectedBranch: Branch | null;
 }
@@ -16,7 +17,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
   const menuItems = [
     {
       key: 'specialist',
-      icon: <UserOutlined className='next-steps-item-icon' />,
+      icon: <img src={doctorChoose} className='next-steps-item-icon' />,
       title: 'Выбрать специалиста',
       onClick: () => {
         goToSpecialistSelection();
@@ -26,7 +27,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
       ? [
         {
           key: 'department',
-          icon: <AppstoreOutlined className='next-steps-item-icon' />,
+          icon: <img src={deparmentChoose} className='next-steps-item-icon' />,
           title: 'Выбрать отделение',
           onClick: () => {
             goToDepartmentSelection();
@@ -40,7 +41,8 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
     <div className='next-steps'>
       {selectedBranch && (
         <div className='next-steps-branch-card'>
-          <HomeOutlined className='next-steps-branch-icon' />
+
+
           <div className='next-steps-branch-info'>
             <img src={widgetState.config?.logoUrl} width={60} height={60} alt={selectedBranch.name} className='next-steps-branch-image' />
             <div className='next-steps-branch-name'>{selectedBranch.name}</div>

@@ -37,7 +37,7 @@ export function applyTheme(theme?: WidgetTheme): void {
   }
 
   const root = document.documentElement;
-  const finalTheme = { ...defaultTheme, ...theme };
+  const finalTheme = { ...defaultTheme };
 
   // Устанавливаем CSS переменные
   root.style.setProperty('--widget-primary-color', finalTheme.primaryColor);

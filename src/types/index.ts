@@ -77,6 +77,8 @@ export interface Appointment {
 
 // Widget Theme
 export interface WidgetTheme {
+ 
+      
   // Основные цвета
   primaryColor?: string; // Основной цвет (#344054)
   secondaryColor?: string; // Вторичный цвет (#52c41a)
@@ -165,3 +167,4 @@ export interface WidgetState {
 
 // Экспортируем enum'ы для удобства
 export { AppointmentType, Gender, PetSpecies, SelectionMode, WidgetStep };
+
