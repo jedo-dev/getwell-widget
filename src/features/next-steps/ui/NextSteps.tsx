@@ -24,15 +24,15 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
     },
     ...(showDepartments
       ? [
-          {
-            key: 'department',
-            icon: <AppstoreOutlined className='next-steps-item-icon' />,
-            title: 'Выбрать отделение',
-            onClick: () => {
-              goToDepartmentSelection();
-            },
+        {
+          key: 'department',
+          icon: <AppstoreOutlined className='next-steps-item-icon' />,
+          title: 'Выбрать отделение',
+          onClick: () => {
+            goToDepartmentSelection();
           },
-        ]
+        },
+      ]
       : []),
   ];
 
@@ -42,6 +42,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
         <div className='next-steps-branch-card'>
           <HomeOutlined className='next-steps-branch-icon' />
           <div className='next-steps-branch-info'>
+            <img src={widgetState.config?.logoUrl} width={60} height={60} alt={selectedBranch.name} className='next-steps-branch-image' />
             <div className='next-steps-branch-name'>{selectedBranch.name}</div>
             <div className='next-steps-branch-address'>{selectedBranch.address}</div>
           </div>

@@ -1,5 +1,5 @@
 import { ApiError } from '../types/api';
-const token=''
+const token = '';
 /**
  * Конфигурация API клиента
  */
@@ -41,19 +41,22 @@ class ApiClient {
   private getBaseURL(): string {
     // Пытаемся получить apiUrl из глобального состояния виджета
     if (typeof window !== 'undefined' && (window as any).GetWellWidget) {
-      const state = (window as any).GetWellWidget.getState?.();
+      console.log('*** penis***', window.GetWellWidget.getState() );
+      const state = window.GetWellWidget.getState();
+      console.log('*** here we are thart***', state);
       if (state?.config?.apiUrl) {
         const apiUrl = state.config.apiUrl;
         // Если URL уже содержит /api/v1, используем как есть
-        if (apiUrl.includes('/api/v1')) {
-          const baseUrl = apiUrl.replace(/\/api\/v1.*$/, '/api/v1');
-          console.log('[API Client] Base URL from widget config:', baseUrl);
-          return baseUrl;
-        }
-        // Иначе добавляем /api/v1
-        const baseUrl = `${apiUrl.replace(/\/$/, '')}/api/v1`;
-        console.log('[API Client] Base URL from widget config:', baseUrl);
-        return baseUrl;
+        // if (apiUrl.includes('/api/v1')) {
+        //   const baseUrl = apiUrl.replace(/\/api\/v1.*$/, '/api/v1');
+        //   console.log('[API Client] Base URL from widget config:', baseUrl);
+        //   return baseUrl;
+        // }
+        // // Иначе добавляем /api/v1
+        // const baseUrl = `${apiUrl.replace(/\/$/, '')}/api/v1`;
+        // console.log('[API Client] Base URL from widget config:', baseUrl);
+
+        return apiUrl;
       }
     }
     // Fallback на переданный baseURL

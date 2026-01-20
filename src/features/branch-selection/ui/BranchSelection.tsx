@@ -38,7 +38,6 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yand
             defaultValue='list'
             className='branch-selection-tabs-segmented'
             onChange={(value) => {
-              console.log(value);
               setActiveTab(value);
             }}
           />

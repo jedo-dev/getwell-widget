@@ -60,6 +60,7 @@
   flex: 1;
   overflow: auto;
   border-radius: 16px 16px 0 0;
+  background:  var(--widget-background-color);
 }
 
 .department-specialists-selection-item {

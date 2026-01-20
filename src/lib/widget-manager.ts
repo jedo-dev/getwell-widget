@@ -98,6 +98,7 @@ export async function initGetWellWidget(config: WidgetConfig): Promise<void> {
 
   // Если есть apiUrl, пытаемся получить конфиг с сервера
   if (config.apiUrl) {
+    console.log('*** here we ***',config);
     try {
       const serverConfig = await fetchWidgetConfig(config);
       if (serverConfig) {

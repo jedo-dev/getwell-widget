@@ -1,91 +1,13 @@
 import { Branch } from '../../types';
 import { BranchesResponse } from '../types/api';
-import { apiClient, RequestParams } from './instance';
-
-/**
- * Интерфейс расписания филиала из API
- */
-interface FilialSchedule {
-  id: number;
-  week_day: string;
-  from: string;
-  to: string;
-  is_around_the_clock: boolean;
-}
-
-/**
- * Интерфейс адреса из API
- */
-interface ResidentialAddress {
-  id: number;
-  district: string | null;
-  settlement: string | null;
-  street: string | null;
-  house: string | null;
-  hull: string | null;
-  apartment: string | null;
-  index: string | null;
-  comment: string | null;
-}
-
-/**
- * Интерфейс организации из API
- */
-interface Organization {
-  id: number;
-  organization_name: string;
-  clinic_name: string;
-  inn: string | null;
-  is_active: boolean;
-  prefix: string | null;
-  residential_address: ResidentialAddress | null;
-  filials: unknown[];
-  ogrn_ogrnip: string | null;
-  deleted_at: string | null;
-  deleted_by: number | null;
-}
-
-/**
- * Интерфейс филиала из API
- */
-interface FilialApiData {
-  id: number;
-  name: string;
-  is_active: boolean;
-  phone_number: string | null;
-  has_employees: boolean;
-  residential_address: ResidentialAddress | null;
-  schedules: FilialSchedule[];
-  timezone: {
-    name: string;
-    code: string;
-  } | null;
-  organizations: Organization[];
-  deleted_at: string | null;
-  deleted_by: number | null;
-}
-
-/**
- * Интерфейс ответа API для списка филиалов
- */
-interface FilialsApiResponse {
-  status: string;
-  reason: string | null;
-  data: FilialApiData[];
-  meta: {
-    per_page: number;
-    current_page: number;
-    last_page: number;
-    total: number;
-    from: number;
-  };
-  validation_errors: Record<string, unknown>;
-}
+import { FilialApiData, getWidgetSettings } from './widget-settings-cache';
 
 /**
  * Преобразование расписания в читаемую строку
  */
-function formatSchedule(schedules: FilialSchedule[]): string {
+function formatSchedule(
+  schedules: Array<{ week_day: string; from: string; to: string; is_around_the_clock: boolean }>,
+): string {
   if (!schedules || schedules.length === 0) {
     return '';
   }
@@ -101,7 +23,10 @@ function formatSchedule(schedules: FilialSchedule[]): string {
     Sunday: 'Вс',
   };
 
-  const scheduleMap = new Map<string, FilialSchedule[]>();
+  const scheduleMap = new Map<
+    string,
+    Array<{ week_day: string; from: string; to: string; is_around_the_clock: boolean }>
+  >();
   schedules.forEach((schedule) => {
     const dayName = dayNames[schedule.week_day] || schedule.week_day;
     if (!scheduleMap.has(dayName)) {
@@ -161,34 +86,25 @@ function mapFilialToBranch(filial: FilialApiData): Branch {
 export const branchesApi = {
   /**
    * Получить список всех филиалов
-   * @param params - Параметры запроса (page, per_page и т.д.)
    */
-  async getAll(params?: { page?: number; per_page?: number }): Promise<BranchesResponse> {
+  async getAll(): Promise<BranchesResponse> {
     try {
-      const requestParams: RequestParams = {
-        page: params?.page || 1,
-        per_page: params?.per_page || 1,
-      };
-
-      const response = await apiClient.get<FilialsApiResponse>(
-        '/tenant/catalogues/filials',
-        requestParams,
-      );
+      const settings = await getWidgetSettings();
 
       // Проверяем статус ответа
-      if (response.status !== 'ok') {
+      if (settings.status !== 'ok') {
         return {
           data: [],
           success: false,
-          message: response.reason || 'Failed to fetch branches',
+          message: settings.reason || 'Failed to fetch branches',
         };
       }
 
+      // Извлекаем филиалы из departments или используем filials
+      const filials = settings.data.filials || [];
+      console.log('***', filials, '***');
       // Преобразуем данные из формата API в формат приложения
-      // Фильтруем только активные филиалы
-      const branches: Branch[] = (response.data || [])
-        .filter((filial) => filial.is_active !== false)
-        .map(mapFilialToBranch);
+      const branches: Branch[] = Array.from(filials.values()).map(mapFilialToBranch);
 
       return {
         data: branches,
@@ -213,24 +129,22 @@ export const branchesApi = {
    */
   async getById(id: number): Promise<Branch | null> {
     try {
-      const response = await apiClient.get<{
-        status: string;
-        reason: string | null;
-        data: FilialApiData;
-        validation_errors: Record<string, unknown>;
-      }>(`/tenant/catalogues/filials/${id}`);
-
-      // Проверяем статус ответа
-      if (response.status !== 'ok' || !response.data) {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
         return null;
       }
 
-      // Проверяем, что филиал активен
-      if (response.data.is_active === false) {
+      // Ищем филиал в departments
+      const filialsFromDepartments = (settings.data.departments || []).map((dept) => dept.filial);
+      const filialsFromList = settings.data.filials || [];
+      const allFilials = [...filialsFromDepartments, ...filialsFromList];
+
+      const filial = allFilials.find((f) => f.id === id && f.is_active !== false);
+      if (!filial) {
         return null;
       }
 
-      return mapFilialToBranch(response.data);
+      return mapFilialToBranch(filial);
     } catch (error) {
       console.error(`Error fetching branch ${id}:`, error);
       return null;

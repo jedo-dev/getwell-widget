@@ -58,6 +58,12 @@
   padding: 0 !important;
   border-bottom: unset !important;
 }
+.ant-tabs-content{
+  height: -webkit-fill-available!important;
+}
+.ant-tabs-tabpane{
+  height: -webkit-fill-available!important;
+}
 .ant-drawer-body {
   padding: unset !important;
 }

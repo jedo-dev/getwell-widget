@@ -39,7 +39,7 @@ export const Widget: React.FC<WidgetProps> = ({
   const [loadingBranches, setLoadingBranches] = useState<boolean>(false);
   const [loadingEmployees, setLoadingEmployees] = useState<boolean>(false);
   const [loadingDepartments, setLoadingDepartments] = useState<boolean>(false);
-
+ ;
   useEffect(() => {
     const updateWidth = () => {
       setDrawerWidth(window.innerWidth <= 768 ? '100%' : 600);
@@ -58,35 +58,14 @@ export const Widget: React.FC<WidgetProps> = ({
     if (open || withoutDrawer) {
       // Если филиалы переданы в конфиге, используем их
       if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
+
         setBranches(widgetState.config.branches);
+
         setLoadingBranches(false);
         return;
       }
 
-      // Иначе загружаем через API
-      const loadBranches = async () => {
-        setLoadingBranches(true);
-        try {
-          const response = await branchesApi.getAll();
-          if (response.success && response.data) {
-           
-            setBranches(
-              response.data.map((branch) => ({
-                id: branch.id,
-                name: branch.name,
-                address: branch.address,
-                phone: branch.phone,
-                schedule: branch.schedule,
-              })),
-            );
-          }
-        } catch (error) {
-          console.error('Ошибка загрузки филиалов:', error);
-        } finally {
-          setLoadingBranches(false);
-        }
-      };
-      loadBranches();
+     
     }
   }, [open, widgetState.config?.branches]);
 
@@ -273,7 +252,7 @@ export const Widget: React.FC<WidgetProps> = ({
     if (currentStep === WidgetStep.BRANCH_SELECTION) {
       if (loadingBranches) {
         return (
-          <div  className='loader'>
+          <div className='loader'>
             <Spin size='large' />
           </div>
         );

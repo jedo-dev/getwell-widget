@@ -6,8 +6,8 @@ import {
   openGetWellWidget,
   subscribeToStateChange
 } from '../../lib/widget-manager';
-import { WidgetState } from '../../types';
 import { applyTheme } from '../../shared/utils/theme';
+import { WidgetState } from '../../types';
 import { StickyButton, Widget } from '../../widgets/appointment-widget/ui';
 
 const WidgetProvider: React.FC = () => {
@@ -56,17 +56,60 @@ const WidgetProvider: React.FC = () => {
   const stickyBtnEnabled = widgetState.config?.stickyBtnEnable ?? false;
 
   const primaryColor = widgetState.config?.theme?.primaryColor || '#344054';
+  console.log(`color`, widgetState.config)
+  const theme = {
+    dark: {
+      default: '#344054',
+      hover: '#1D2939',
+      pressed: '#101828',
 
+    },
+    blue: {
+      default: "#0142FF",
+      hover: '#0037D6',
+      pressed: '#002FB9'
+    },
+    red: {
+      default: "#C01048",
+      hover: '#A11043',
+      pressed: '#89123E'
+    },
+    green: {
+      default: "#039855",
+      hover: '#027A48',
+      pressed: '#05603A'
+    },
+    orange: {
+      default: "#F79009",
+      hover: '#DC6803',
+      pressed: '#B54708'
+    },
+    purple: {
+      default: "#752BDF",
+      hover: '#601DC0',
+      pressed: '#4D179A'
+    },
+    aqua: {
+      default: "#50B7BF",
+      hover: '#119AA5',
+      pressed: '#0A5C63'
+    }
+  }
+  const getTheme = {
+    'dark': theme
+  }
+
+  const currentTheme = getTheme?.[widgetState?.config?.theme?.primaryColor as keyof typeof getTheme]
   return (
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: primaryColor,
+          colorPrimary: currentTheme.blue.default,
           colorInfo: primaryColor,
         },
         components: {
           "Segmented": {
-            "itemSelectedBg": primaryColor,
+            "itemSelectedBg": currentTheme.dark.default,
             "itemSelectedColor": "rgb(255,255,255)",
             "trackBg": "rgb(255,255,255)",
             "controlHeight": 60,

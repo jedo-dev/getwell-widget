@@ -1,166 +1,151 @@
 import { Branch, Department, Employee, WidgetConfig } from '../../types';
+import {
+  EmployeeApiData,
+  FilialApiData,
+  getWidgetSettings,
+  WidgetSettingsApiResponse,
+} from './widget-settings-cache';
 
 /**
- * Короткая информация о филиале из API
+ * Преобразование расписания в читаемую строку
  */
-interface ShortFiliaDto {
-  id: number;
-  name: string;
-  address?: string;
-  phone?: string;
-  schedule?: string;
+function formatSchedule(
+  schedules: Array<{ week_day: string; from: string; to: string; is_around_the_clock: boolean }>,
+): string {
+  if (!schedules || schedules.length === 0) {
+    return '';
+  }
+
+  const dayNames: Record<string, string> = {
+    Monday: 'Пн',
+    Tuesday: 'Вт',
+    Wednesday: 'Ср',
+    Thursday: 'Чт',
+    Friday: 'Пт',
+    Saturday: 'Сб',
+    Sunday: 'Вс',
+  };
+
+  const scheduleMap = new Map<string, typeof schedules>();
+  schedules.forEach((schedule) => {
+    const dayName = dayNames[schedule.week_day] || schedule.week_day;
+    if (!scheduleMap.has(dayName)) {
+      scheduleMap.set(dayName, []);
+    }
+    scheduleMap.get(dayName)!.push(schedule);
+  });
+
+  const formatTime = (timeStr: string): string => {
+    try {
+      const date = new Date(timeStr);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return '';
+    }
+  };
+
+  const scheduleParts: string[] = [];
+  scheduleMap.forEach((daySchedules, dayName) => {
+    if (daySchedules.length > 0) {
+      const firstSchedule = daySchedules[0];
+      if (firstSchedule.is_around_the_clock) {
+        scheduleParts.push(`${dayName}: круглосуточно`);
+      } else {
+        const fromTime = formatTime(firstSchedule.from);
+        const toTime = formatTime(firstSchedule.to);
+        if (fromTime && toTime) {
+          scheduleParts.push(`${dayName}: ${fromTime}-${toTime}`);
+        }
+      }
+    }
+  });
+
+  return scheduleParts.join(', ');
 }
 
 /**
- * Короткая информация об отделении из API
+ * Преобразование филиала из API в Branch
  */
-interface ShortDepartmentDto {
-  id: number;
-  name: string;
-}
-
-/**
- * Короткая информация о сотруднике из API
- */
-interface EmployeeShortInfoDto {
-  id: number;
-  firstName: string;
-  lastName: string;
-  patronymic?: string;
-  photo?: string;
-  position?: string;
-  specialization?: string;
-  information?: string;
-}
-
-/**
- * Информация об отделении с сотрудниками
- */
-interface DepartmentInfo {
-  department: ShortDepartmentDto;
-  employees: EmployeeShortInfoDto[];
-}
-
-/**
- * Информация о филиале с отделениями
- */
-interface FilialInfo {
-  filial: ShortFiliaDto;
-  departments_info: DepartmentInfo[];
-}
-
-/**
- * Изображения виджета
- */
-interface ImageUrls {
-  logo: string | null;
-  for_pc: string | null;
-  for_mobile: string | null;
-}
-
-/**
- * Юридические документы
- */
-interface LegalDocuments {
-  privacy_policy: {
-    text: string | null;
-    link: string | null;
+function mapFilialToBranch(filial: FilialApiData): Branch {
+  return {
+    id: filial.id,
+    name: filial.name,
+    address: filial.residential_address?.street || '',
+    phone: filial.phone_number || '',
+    schedule: formatSchedule(filial.schedules || []),
   };
 }
 
 /**
- * Настройки кнопки онлайн-записи
+ * Преобразование сотрудника из API в Employee
  */
-interface OnlineAppointmentButton {
-  display_on_site: boolean;
-  ripple_effect: boolean;
-  color: string;
-  position_on_site: string;
-  js_code: string;
-  link_for_site: string;
-}
+function mapEmployeeApiToEmployee(employeeApi: EmployeeApiData): Employee {
+  const position = employeeApi.job_position_for_documents?.name || '';
 
-/**
- * Ответ API с настройками виджета
- */
-export interface OnlineAppointmentWidgetSettingsDto {
-  image_urls: ImageUrls;
-  widget_theme: string;
-  filials_info: FilialInfo[];
-  departments_display_in_widget: boolean;
-  employee_display_position: boolean;
-  employee_display_info: boolean;
-  yandex_map_iframe_string: string | null;
-  legal_documents: LegalDocuments;
-  online_appointment_button: OnlineAppointmentButton;
+  return {
+    id: employeeApi.id,
+    firstName: employeeApi.name || '',
+    lastName: employeeApi.surname || '',
+    patronymic: employeeApi.patronymic || undefined,
+    photo: employeeApi.photo || undefined,
+    position: position,
+    specialization: position,
+    information: employeeApi.info || undefined,
+    showInWidget: true,
+  };
 }
 
 /**
  * Преобразование данных из API в формат WidgetConfig
  */
 function mapApiResponseToWidgetConfig(
-  apiResponse: OnlineAppointmentWidgetSettingsDto,
+  apiResponse: WidgetSettingsApiResponse,
   initialConfig: WidgetConfig,
 ): WidgetConfig {
-  // Собираем все филиалы
-  const branches: Branch[] = apiResponse.filials_info.map((filialInfo) => ({
-    id: filialInfo.filial.id,
-    name: filialInfo.filial.name,
-    address: filialInfo.filial.address || '',
-    phone: filialInfo.filial.phone || '',
-    schedule: filialInfo.filial.schedule || '',
-  }));
+  const { data } = apiResponse;
+
+
+
+
+  const branches: Branch[] = Array.from(data.filials.values()).map(mapFilialToBranch);
 
   // Собираем все отделения
-  const departments: Department[] = [];
-  apiResponse.filials_info.forEach((filialInfo) => {
-    filialInfo.departments_info.forEach((deptInfo) => {
-      if (!departments.find((d) => d.id === deptInfo.department.id)) {
-        departments.push({
-          id: deptInfo.department.id,
-          name: deptInfo.department.name,
-          showInWidget: true,
-        });
-      }
-    });
+  const departmentsMap = new Map<number, Department>();
+  (data.departments || []).forEach((dept) => {
+    if (!departmentsMap.has(dept.id)) {
+      departmentsMap.set(dept.id, {
+        id: dept.id,
+        name: dept.name,
+        showInWidget: true,
+      });
+    }
   });
+  const departments: Department[] = Array.from(departmentsMap.values());
 
   // Собираем всех сотрудников
-  const employees: Employee[] = [];
-  apiResponse.filials_info.forEach((filialInfo) => {
-    filialInfo.departments_info.forEach((deptInfo) => {
-      deptInfo.employees.forEach((emp) => {
-        if (!employees.find((e) => e.id === emp.id)) {
-          employees.push({
-            id: emp.id,
-            firstName: emp.firstName,
-            lastName: emp.lastName,
-            patronymic: emp.patronymic,
-            photo: emp.photo,
-            position: emp.position || '',
-            specialization: emp.specialization || '',
-            information: emp.information,
-            showInWidget: true,
-          });
-        }
-      });
-    });
+  const employeesMap = new Map<number, Employee>();
+  (data.employees || []).forEach((emp) => {
+    if (!employeesMap.has(emp.id)) {
+      employeesMap.set(emp.id, mapEmployeeApiToEmployee(emp));
+    }
   });
+  const employees: Employee[] = Array.from(employeesMap.values());
 
   // Формируем конфиг
   const config: WidgetConfig = {
     ...initialConfig,
     // Изображения
-    logoUrl: apiResponse.image_urls.logo || undefined,
-    desktopImageUrl: apiResponse.image_urls.for_pc || undefined,
-    mobileImageUrl: apiResponse.image_urls.for_mobile || undefined,
-    logo: apiResponse.image_urls.logo || undefined,
+    logoUrl: data.logo_image?.original_link || undefined,
+    desktopImageUrl: data.image_pc || undefined,
+    mobileImageUrl: data.image_mobile || undefined,
+    logo: data.logo_image?.original_link || undefined,
 
     // Тема
     theme: {
       ...initialConfig.theme,
-      // widget_theme может быть строкой с цветом или enum
-      primaryColor: apiResponse.widget_theme || initialConfig.theme?.primaryColor || '#344054',
+      primaryColor: data.widget_theme || initialConfig.theme?.primaryColor || '#344054',
     },
 
     // Данные
@@ -169,24 +154,24 @@ function mapApiResponseToWidgetConfig(
     employees,
 
     // Настройки отображения
-    showDepartments: apiResponse.departments_display_in_widget,
-    showEmployeePosition: apiResponse.employee_display_position,
-    showDoctorInfo: apiResponse.employee_display_info,
+    showDepartments: data.show_departments ,
+    showEmployeePosition: data.show_employee_position ,
+    showDoctorInfo: data.show_employee_info ,
 
     // Яндекс карты
-    yandexMapFrameCode: apiResponse.yandex_map_iframe_string || undefined,
+    yandexMapFrameCode: data.yandex_map_frame || undefined,
 
     // Политика конфиденциальности
-    textPolicy: apiResponse.legal_documents.privacy_policy.text || undefined,
-    linkToExternalPolicy: apiResponse.legal_documents.privacy_policy.link || undefined,
-    isExternalLinkPolicy: !!apiResponse.legal_documents.privacy_policy.link,
+    textPolicy: data.legal_documents?.value || undefined,
+    linkToExternalPolicy: undefined,
+    isExternalLinkPolicy: false,
 
     // Кнопка онлайн-записи
-    stickyBtnEnable: apiResponse.online_appointment_button.display_on_site,
-    stickyButtonPulse: apiResponse.online_appointment_button.ripple_effect,
-    stickyButtonColor: apiResponse.online_appointment_button.color,
+    stickyBtnEnable: data.online_appointment_button?.display_on_site || false,
+    stickyButtonPulse: data.online_appointment_button?.decoration?.ripple_effect || false,
+    stickyButtonColor: data.online_appointment_button?.decoration?.color || 'dark',
     stickyButtonPosition:
-      apiResponse.online_appointment_button.position_on_site === 'left' ? 'left' : 'right',
+      data.online_appointment_button?.decoration?.position_on_site === 'left' ? 'left' : 'right',
   };
 
   return config;
@@ -198,29 +183,11 @@ function mapApiResponseToWidgetConfig(
 export const widgetConfigApi = {
   /**
    * Получить конфигурацию виджета
-   * @param apiUrl - URL API для запроса
    */
-  async getConfig(apiUrl: string): Promise<OnlineAppointmentWidgetSettingsDto | null> {
+  async getConfig(apiUrl?: string): Promise<WidgetSettingsApiResponse | null> {
     try {
-      // Формируем базовый URL
-      const baseUrl = apiUrl.includes('/api/v1')
-        ? apiUrl.replace(/\/api\/v1.*$/, '/api/v1')
-        : `${apiUrl.replace(/\/$/, '')}/api/v1`;
-
-      const response = await fetch(`${baseUrl}/online-appointment-widget/get-config`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        console.error('Failed to fetch widget config:', response.status, response.statusText);
-        return null;
-      }
-
-      const data: OnlineAppointmentWidgetSettingsDto = await response.json();
-      return data;
+      const response = await getWidgetSettings(apiUrl);
+      return response;
     } catch (error) {
       console.error('Error fetching widget config:', error);
       return null;
@@ -237,7 +204,7 @@ export async function fetchWidgetConfig(initialConfig: WidgetConfig): Promise<Wi
   }
 
   const apiResponse = await widgetConfigApi.getConfig(initialConfig.apiUrl);
-  if (!apiResponse) {
+  if (!apiResponse || apiResponse.status !== 'ok') {
     return null;
   }
 
