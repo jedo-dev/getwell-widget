@@ -123,6 +123,13 @@ export interface WidgetConfig {
   mobileImageUrl?: string; // URL изображения для мобильного устройства (строка)
   yandexMapFrameCode?: string; // код фрейма Яндекс карт (строка)
   apiUrl?: string; // URL API для получения данных
+  offlineMode?: boolean; // Режим без запросов к API, данные берём из конфига
+
+  render?: {
+    currentStep?: WidgetStep; // Принудительно отрисовать указанный шаг (для предпросмотра)
+    lockStep?: boolean; // Зафиксировать шаг и запретить навигацию
+    preserveStepOnOpen?: boolean; // Не сбрасывать шаг при open()
+  };
   branches?: Branch[];
   employees?: Employee[];
   departments?: Department[];

@@ -102,6 +102,7 @@ const WidgetProvider: React.FC = () => {
   const handleClose = () => {
     closeGetWellWidget();
   };
+  console.log(`stickyBtnEnabled`, widgetState.config?.stickyBtnEnable)
 
   const stickyBtnEnabled = widgetState.config?.stickyBtnEnable ?? false;
 

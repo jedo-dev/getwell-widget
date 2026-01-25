@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GetWell Widget – Offline Preview</title>
+
+    <!-- 1) Подключи CSS UMD сборки (путь поправь под себя) -->
+    <!-- Вариант А: если index.html лежит рядом с dist/ -->
+    <link rel="stylesheet" href="./dist/index.umd.css" />
+    <!-- Вариант B: если dist на другом хосте -->
+    <!-- <link rel="stylesheet" href="https://your-cdn.example.com/getwell/dist/index.umd.css" /> -->
+
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 16px; }
+      .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+      button { padding: 10px 12px; cursor: pointer; }
+      select, input { padding: 8px 10px; }
+      pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
+      .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-top: 12px; }
+      .hint { color: #6b7280; font-size: 13px; }
+    </style>
+  </head>
+
+  <body>
+    <h2>GetWell Widget — offline/config-only запуск</h2>
+    <p class="hint">
+      Этот HTML демонстрирует запуск виджета без apiUrl: все branches/employees/departments задаются вручную в конфиге.
+      Можно менять currentStep на лету через applyConfig().
+    </p>
+
+    <div class="row">
+      <button id="btnInit">Init (подхват window.GetWellWidgetConfig)</button>
+      <button id="btnOpen">Open</button>
+      <button id="btnClose">Close</button>
+      <button id="btnReset">Reset</button>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <label for="stepSelect"><b>currentStep:</b></label>
+        <select id="stepSelect">
+          <option value="branch-selection">branch-selection</option>
+          <option value="next-steps">next-steps</option>
+          <option value="specialist-selection">specialist-selection</option>
+          <option value="department-specialists-selection">department-specialists-selection</option>
+          <option value="doctor-info">doctor-info</option>
+          <option value="date-time-selection">date-time-selection</option>
+          <option value="phone-input">phone-input</option>
+          <option value="appointment-details">appointment-details</option>
+          <option value="appointment-confirmation">appointment-confirmation</option>
+          <option value="privacy-policy">privacy-policy</option>
+        </select>
+
+        <button id="btnApplyStep">applyConfig(currentStep)</button>
+
+        <label style="margin-left: 8px;">
+          <input type="checkbox" id="lockStep" />
+          lockStep
+        </label>
+
+        <label style="margin-left: 8px;">
+          <input type="checkbox" id="preserveStepOnOpen" checked />
+          preserveStepOnOpen
+        </label>
+      </div>
+
+      <div class="row" style="margin-top: 10px;">
+        <label for="primaryColor"><b>primaryColor:</b></label>
+        <input id="primaryColor" type="text" value="#6D28D9" placeholder="#6D28D9" />
+        <button id="btnApplyTheme">applyConfig(theme)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <b>Текущий конфиг (window.GetWellWidgetConfig)</b>
+      <pre id="configView"></pre>
+    </div>
+
+    <!-- 2) ВАЖНО: объявляем window.GetWellWidgetConfig ДО подключения JS -->
+    <script>
+      // Минимальный офлайн-конфиг: branches/employees/departments вручную.
+      // Связи (какой врач в каком департаменте/филиале) пока не делаем — виджет может показать "плоские" списки.
+      window.GetWellWidgetConfig = {
+        offlineMode: true,
+
+        // Превью-режим
+        render: {
+          currentStep: "branch-selection",
+          lockStep: false,
+          preserveStepOnOpen: true,
+        },
+
+        // UI
+        theme: {
+          primaryColor: "dark",
+        },
+
+        // (опционально) Картинки/брендирование
+        logo: "https://dummyimage.com/180x44/111827/ffffff&text=GetWell",
+        desktopImageUrl: "https://dummyimage.com/1200x700/e5e7eb/111827&text=Desktop+Banner",
+        mobileImageUrl: "https://dummyimage.com/700x900/e5e7eb/111827&text=Mobile+Banner",
+
+        // Флаги отображения
+        showBranches: true,
+        showEmployees: true,
+        showDepartments: true,
+        showDoctorInfo: true,
+        showEmployeePosition: true,
+        stickyButtonPulse: true,
+        stickyButtonPosition: 'left',
+        stickyButtonColor: '#782c2c',
+        stickyBtnEnable: true,
+
+        // Политика (для примера)
+        textPolicy: {
+          title: "Политика конфиденциальности",
+          // Можно HTML/текст — как у вас принято
+          text:
+            "Пример текста политики. Здесь может быть ваш HTML или markdown-подобный текст.",
+        },
+
+        // Данные (пример)
+        branches: [
+          {
+            id: 1,
+            name: "Клиника на Тверской",
+            address: "г. Москва, ул. Тверская, 1",
+            phone: "+7 (999) 111-22-33",
+          },
+          {
+            id: 2,
+            name: "Клиника на Арбате",
+            address: "г. Москва, ул. Арбат, 10",
+            phone: "+7 (999) 444-55-66",
+          },
+        ],
+
+        departments: [
+          { id: 10, name: "Терапия" },
+          { id: 11, name: "Хирургия" },
+          { id: 12, name: "Стоматология" },
+        ],
+
+        employees: [
+          {
+            id: 100,
+            fullName: "Иванов Илья Сергеевич",
+            position: "Ветеринарный врач",
+            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=I",
+            description: "Опыт 8 лет. Терапия, диагностика.",
+          },
+          {
+            id: 101,
+            fullName: "Петрова Анна Дмитриевна",
+            position: "Хирург",
+            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=A",
+            description: "Опыт 6 лет. Мягкотканная хирургия.",
+          },
+          {
+            id: 102,
+            fullName: "Сидоров Максим Олегович",
+            position: "Стоматолог",
+            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=M",
+            description: "Ультразвуковая чистка, удаление зубов.",
+          },
+        ],
+      };
+    </script>
+
+    <!-- 3) Подключаем UMD JS (путь поправь под себя) -->
+    <script src="./dist/index.umd.js"></script>
+    <!-- Вариант B: -->
+    <!-- <script src="https://your-cdn.example.com/getwell/dist/index.umd.js"></script> -->
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      function renderConfig() {
+        $("configView").textContent = JSON.stringify(window.GetWellWidgetConfig, null, 2);
+      }
+
+      function safeWidget() {
+        if (!window.GetWellWidget) {
+          alert("GetWellWidget не найден. Проверь подключение dist/index.umd.js");
+          return null;
+        }
+        return window.GetWellWidget;
+      }
+
+      // Первичный рендер конфига
+      renderConfig();
+
+      $("btnInit").addEventListener("click", () => {
+        const w = safeWidget();
+        if (!w) return;
+
+        // init без аргументов — должен подхватить window.GetWellWidgetConfig
+        w.init();
+        alert("init() выполнен (config из window.GetWellWidgetConfig)");
+      });
+
+      $("btnOpen").addEventListener("click", () => {
+        const w = safeWidget();
+        if (!w) return;
+        w.open();
+      });
+
+      $("btnClose").addEventListener("click", () => {
+        const w = safeWidget();
+        if (!w) return;
+        w.close();
+      });
+
+      $("btnReset").addEventListener("click", () => {
+        const w = safeWidget();
+        if (!w) return;
+        w.reset();
+      });
+
+      $("btnApplyStep").addEventListener("click", () => {
+        const w = safeWidget();
+        if (!w) return;
+
+        const step = $("stepSelect").value;
+        const lockStep = $("lockStep").checked;
+        const preserveStepOnOpen = $("preserveStepOnOpen").checked;
+
+        // Обновляем глобальный конфиг (как будто Flutter подменил на лету)
+        window.GetWellWidgetConfig = {
+          ...window.GetWellWidgetConfig,
+          render: {
+            ...(window.GetWellWidgetConfig.render || {}),
+            currentStep: step,
+            lockStep,
+            preserveStepOnOpen,
+          },
+        };
+
+        // Горячее применение в уже инициализированный виджет
+        w.applyConfig(
+          {
+            render: { currentStep: step, lockStep, preserveStepOnOpen },
+          },
+          { resetState: false, rerender: true }
+        );
+
+        renderConfig();
+      });
+
+      $("btnApplyTheme").addEventListener("click", () => {
+        const w = safeWidget();
+        if (!w) return;
+
+        const color = $("primaryColor").value.trim() || "#6D28D9";
+
+        window.GetWellWidgetConfig = {
+          ...window.GetWellWidgetConfig,
+          theme: { ...(window.GetWellWidgetConfig.theme || {}), primaryColor: color },
+        };
+
+        w.applyConfig({ theme: { primaryColor: color } }, { resetState: false, rerender: true });
+        renderConfig();
+      });
+
+      // Авто-init (опционально): если хочешь, чтобы сразу запускалось при открытии страницы
+      // window.GetWellWidget.init();
+      // window.GetWellWidget.open();
+    </script>
+  </body>
+</html>

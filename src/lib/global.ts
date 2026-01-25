@@ -6,13 +6,16 @@ import {
   initGetWellWidget,
   openGetWellWidget,
   resetGetWellWidget,
+  applyConfig,
 } from './widget-manager';
 
 // Тип для Window с нашими функциями
 declare global {
   interface Window {
+    GetWellWidgetConfig?: WidgetConfig;
     GetWellWidget: {
-      init: (config: WidgetConfig) => Promise<void>;
+      init: (config?: WidgetConfig) => Promise<void>;
+      applyConfig: (config: WidgetConfig, options?: { resetState?: boolean; rerender?: boolean }) => void;
       open: () => void;
       close: () => void;
       reset: () => void;
@@ -30,6 +33,7 @@ export function registerGlobalWidget(WidgetProvider?: React.ComponentType): void
       open: openGetWellWidget,
       close: closeGetWellWidget,
       reset: resetGetWellWidget,
+      applyConfig,
       getState: getWidgetState,
       WidgetProvider,
     };
