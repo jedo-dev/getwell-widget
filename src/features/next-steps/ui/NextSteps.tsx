@@ -1,9 +1,14 @@
 import { RightOutlined } from '@ant-design/icons';
-import { List } from 'antd';
+import { List, Skeleton } from 'antd';
+import { Image } from 'antd/lib';
 import React from 'react';
 import deparmentChoose from '../../../img/department-choose.svg';
 import doctorChoose from '../../../img/doctor-choose.svg';
-import { getWidgetState, goToDepartmentSelection, goToSpecialistSelection } from '../../../lib/widget-manager';
+import {
+  getWidgetState,
+  goToDepartmentSelection,
+  goToSpecialistSelection,
+} from '../../../lib/widget-manager';
 import { Branch } from '../../../types';
 import './NextSteps.css';
 export interface NextStepsProps {
@@ -25,15 +30,15 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
     },
     ...(showDepartments
       ? [
-        {
-          key: 'department',
-          icon: <img src={deparmentChoose} className='next-steps-item-icon' />,
-          title: 'Выбрать отделение',
-          onClick: () => {
-            goToDepartmentSelection();
+          {
+            key: 'department',
+            icon: <img src={deparmentChoose} className='next-steps-item-icon' />,
+            title: 'Выбрать отделение',
+            onClick: () => {
+              goToDepartmentSelection();
+            },
           },
-        },
-      ]
+        ]
       : []),
   ];
 
@@ -41,10 +46,16 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
     <div className='next-steps'>
       {selectedBranch && (
         <div className='next-steps-branch-card'>
-
-
           <div className='next-steps-branch-info'>
-            <img src={widgetState.config?.logoUrl} width={60} height={60} alt={selectedBranch.name} className='next-steps-branch-image' />
+            <Image
+              placeholder={<Skeleton.Avatar active={true} shape='circle' size={60} />}
+              preview={false}
+              src={widgetState.config?.logoUrl}
+              width={60}
+              height={60}
+              alt={selectedBranch.name}
+              className='next-steps-branch-image'
+            />
             <div className='next-steps-branch-name'>{selectedBranch.name}</div>
             <div className='next-steps-branch-address'>{selectedBranch.address}</div>
           </div>

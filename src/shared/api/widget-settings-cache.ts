@@ -194,7 +194,7 @@ export async function getWidgetSettings(apiUrl?: string): Promise<WidgetSettings
   }
 
   // Формируем полный URL
-  const fullUrl = `${baseUrl.replace(/\/$/, '')}/api/v1/tenant/widgets/online-appointment/settings`;
+  const fullUrl = `${baseUrl}/api/v1/tenant/external/widgets/online-appointment/settings`;
 
   // Выполняем новый запрос
   cachePromise = fetch(fullUrl, {
