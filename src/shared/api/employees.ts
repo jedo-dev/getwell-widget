@@ -1,101 +1,126 @@
 import { Employee } from '../../types';
 import { EmployeesResponse } from '../types/api';
 import { apiClient } from './instance';
+import { getWidgetSettings, EmployeeApiData } from './widget-settings-cache';
 
 /**
- * Моковые данные сотрудников
+ * Интерфейс должности из API
  */
-const MOCK_EMPLOYEES: Employee[] = [
-  {
-    id: 1,
-    firstName: 'Наталья',
-    lastName: 'Алексеева',
-    patronymic: 'Петровна',
-    position: 'Врач-терапевт',
-    specialization: 'Врач-терапевт',
+interface JobPosition {
+  id: number;
+  name: string;
+  has_employees: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: number | null;
+}
+
+/**
+ * Интерфейс типа пользователя из API
+ */
+interface UserType {
+  id: number;
+  name: string;
+  has_access: boolean;
+}
+
+
+/**
+ * Преобразование данных сотрудника из API в формат приложения
+ */
+function mapEmployeeApiToEmployee(employeeApi: EmployeeApiData): Employee {
+  const position = employeeApi.job_position_for_documents?.name || '';
+
+  return {
+    id: employeeApi.id,
+    firstName: employeeApi.name || '',
+    lastName: employeeApi.surname || '',
+    patronymic: employeeApi.patronymic || undefined,
+    photo: employeeApi.photo || undefined,
+    position: position,
+    specialization: position,
+    information: employeeApi.info || undefined,
     showInWidget: true,
-  },
-  {
-    id: 2,
-    firstName: 'Наталья',
-    lastName: 'Алексеева',
-    patronymic: 'Петровна',
-    position: 'Врач-дерматолог',
-    specialization: 'Врач-дерматолог',
-    showInWidget: true,
-  },
-  {
-    id: 3,
-    firstName: 'Наталья',
-    lastName: 'Алексеева',
-    patronymic: 'Петровна',
-    position: 'Врач-диетолог',
-    specialization: 'Врач-диетолог',
-    showInWidget: true,
-  },
-  {
-    id: 4,
-    firstName: 'Наталья',
-    lastName: 'Алексеева',
-    patronymic: 'Петровна',
-    position: 'Врач-невролог',
-    specialization: 'Врач-невролог',
-    showInWidget: true,
-  },
-  {
-    id: 5,
-    firstName: 'Иван',
-    lastName: 'Иванов',
-    patronymic: 'Иванович',
-    position: 'Врач-кардиолог',
-    specialization: 'Врач-кардиолог',
-    showInWidget: true,
-  },
-  {
-    id: 6,
-    firstName: 'Петр',
-    lastName: 'Петров',
-    patronymic: 'Петрович',
-    position: 'Врач-эндокринолог',
-    specialization: 'Врач-эндокринолог',
-    showInWidget: true,
-  },
-  {
-    id: 7,
-    firstName: 'Сергей',
-    lastName: 'Сергеев',
-    patronymic: 'Сергеевич',
-    position: 'Врач-гастроэнтеролог',
-    specialization: 'Врач-гастроэнтеролог',
-    showInWidget: true,
-  },
-  {
-    id: 8,
-    firstName: 'Дмитрий',
-    lastName: 'Дмитриев',
-    patronymic: 'Дмитриевич',
-    position: 'Врач-гематолог',
-    specialization: 'Врач-гематолог',
-    showInWidget: true,
-  },
-];
+  };
+}
 
 /**
  * API для работы с сотрудниками
  */
 export const employeesApi = {
   /**
+   * Получить список всех сотрудников
+   */
+  async getAll(): Promise<EmployeesResponse> {
+    try {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
+        return {
+          data: [],
+          success: false,
+          message: settings.reason || 'Failed to fetch employees',
+        };
+      }
+
+      const employees: Employee[] = (settings.data.employees || []).map(mapEmployeeApiToEmployee);
+
+      return {
+        data: employees,
+        success: true,
+      };
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      return {
+        data: [],
+        success: false,
+        message:
+          error && typeof error === 'object' && 'message' in error
+            ? String(error.message)
+            : 'Failed to fetch employees',
+      };
+    }
+  },
+
+  /**
    * Получить список сотрудников филиала
    */
   async getByBranch(branchId: number): Promise<EmployeesResponse> {
-    // В реальной реализации:
-    // return await apiClient.get<EmployeesResponse>(`/branches/${branchId}/employees`);
+    try {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
+        return {
+          data: [],
+          success: false,
+          message: settings.reason || 'Failed to fetch employees',
+        };
+      }
 
-    // Моковая реализация
-    return {
-      data: MOCK_EMPLOYEES,
-      success: true,
-    };
+      // Фильтруем сотрудников по филиалу через отделения
+      const departmentsForBranch = (settings.data.departments || []).filter(
+        (dept) => dept.filial.id === branchId,
+      );
+
+      // Собираем всех сотрудников из отделений филиала
+      // В текущей структуре API сотрудники не привязаны напрямую к отделениям в ответе,
+      // поэтому возвращаем всех сотрудников
+      const employees: Employee[] = (settings.data.employees || []).map(mapEmployeeApiToEmployee);
+
+      return {
+        data: employees,
+        success: true,
+      };
+    } catch (error) {
+      console.error('Error fetching employees by branch:', error);
+      return {
+        data: [],
+        success: false,
+        message:
+          error && typeof error === 'object' && 'message' in error
+            ? String(error.message)
+            : 'Failed to fetch employees',
+      };
+    }
   },
 
   /**
@@ -105,28 +130,70 @@ export const employeesApi = {
     branchId: number,
     departmentId: number,
   ): Promise<EmployeesResponse> {
-    // В реальной реализации:
-    // return await apiClient.get<EmployeesResponse>(
-    //   `/branches/${branchId}/departments/${departmentId}/employees`
-    // );
+    try {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
+        return {
+          data: [],
+          success: false,
+          message: settings.reason || 'Failed to fetch employees',
+        };
+      }
 
-    // Моковая реализация
-    return {
-      data: MOCK_EMPLOYEES,
-      success: true,
-    };
+      // Проверяем, что отделение принадлежит указанному филиалу
+      const department = (settings.data.departments || []).find(
+        (dept) => dept.id === departmentId && dept.filial.id === branchId,
+      );
+
+      if (!department) {
+        return {
+          data: [],
+          success: false,
+          message: 'Department not found',
+        };
+      }
+
+      // В текущей структуре API сотрудники не привязаны напрямую к отделениям в ответе,
+      // поэтому возвращаем всех сотрудников
+      const employees: Employee[] = (settings.data.employees || []).map(mapEmployeeApiToEmployee);
+
+      return {
+        data: employees,
+        success: true,
+      };
+    } catch (error) {
+      console.error('Error fetching employees by department:', error);
+      return {
+        data: [],
+        success: false,
+        message:
+          error && typeof error === 'object' && 'message' in error
+            ? String(error.message)
+            : 'Failed to fetch employees',
+      };
+    }
   },
 
   /**
    * Получить сотрудника по ID
    */
   async getById(id: number): Promise<Employee | null> {
-    // В реальной реализации:
-    // return await apiClient.get<Employee>(`/employees/${id}`);
+    try {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
+        return null;
+      }
 
-    // Моковая реализация
-    const employee = MOCK_EMPLOYEES.find((e) => e.id === id);
-    return employee || null;
+      const employeeData = (settings.data.employees || []).find((emp) => emp.id === id);
+      if (!employeeData) {
+        return null;
+      }
+
+      return mapEmployeeApiToEmployee(employeeData);
+    } catch (error) {
+      console.error(`Error fetching employee ${id}:`, error);
+      return null;
+    }
   },
 };
 

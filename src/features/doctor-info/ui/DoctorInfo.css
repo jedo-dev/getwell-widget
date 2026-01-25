@@ -35,21 +35,34 @@
 .doctor-info-content {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 16px;
+
   display: flex;
 }
 
 .doctor-info-card {
+  margin-top: 2px;
   background: #ffffff;
-  border-radius: 8px;
+  border-radius: 16px 16px 0 0;
   padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  position: relative;
+}
+.doctor-info-card-wallpaper{
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  border-radius: 16px 16px 0 0;
+  background:var(--widget-primary-color);
+  z-index:2;
+  top:0
+  
 }
 
 .doctor-info-avatar {
+  z-index: 3;
   width: 120px;
   height: 120px;
   border-radius: 50%;
@@ -113,4 +126,3 @@
 .doctor-info-text p:last-child {
   margin-bottom: 0;
 }
-

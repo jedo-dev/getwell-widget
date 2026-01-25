@@ -7,6 +7,6 @@
 }
 
 .shared-back-button:hover {
-  color: #1890ff;
+  color: var(--widget-link-color);
 }
 

@@ -26,7 +26,12 @@ export interface WidgetProps {
   withoutDrawer?: boolean; // режим без Drawer (для отдельной страницы)
 }
 
-export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, withoutDrawer = false }) => {
+export const Widget: React.FC<WidgetProps> = ({
+  open,
+  onClose,
+  widgetState,
+  withoutDrawer = false,
+}) => {
   const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -34,6 +39,13 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
   const [loadingBranches, setLoadingBranches] = useState<boolean>(false);
   const [loadingEmployees, setLoadingEmployees] = useState<boolean>(false);
   const [loadingDepartments, setLoadingDepartments] = useState<boolean>(false);
+
+  const isOffline =
+    widgetState.config?.offlineMode === true ||
+    (!widgetState.config?.apiUrl &&
+      ((widgetState.config?.branches?.length ?? 0) > 0 ||
+        (widgetState.config?.employees?.length ?? 0) > 0 ||
+        (widgetState.config?.departments?.length ?? 0) > 0));
 
   useEffect(() => {
     const updateWidth = () => {
@@ -49,16 +61,24 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
   }, []);
 
   useEffect(() => {
-    // Загружаем филиалы при открытии виджета или в режиме без Drawer
-    if (open || withoutDrawer) {
-      // Если филиалы переданы в конфиге, используем их
-      if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
-        setBranches(widgetState.config.branches);
-        setLoadingBranches(false);
-        return;
-      }
+  // Загружаем филиалы при открытии виджета или в режиме без Drawer
+  if (open || withoutDrawer) {
+    // Если филиалы переданы в конфиге, используем их
+    if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
+      setBranches(widgetState.config.branches);
+      setLoadingBranches(false);
+      return;
+    }
 
-      // Иначе загружаем через API
+    // В офлайн-режиме не ходим в API
+    if (isOffline) {
+      setBranches([]);
+      setLoadingBranches(false);
+      return;
+    }
+
+    // Онлайн-режим: пробуем загрузить из API (если apiUrl задан)
+    if (widgetState.config?.apiUrl) {
       const loadBranches = async () => {
         setLoadingBranches(true);
         try {
@@ -72,91 +92,143 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
           setLoadingBranches(false);
         }
       };
+
       loadBranches();
     }
-  }, [open, widgetState.config?.branches]);
+  }
+}, [open, withoutDrawer, isOffline, widgetState.config?.apiUrl, widgetState.config?.branches]);
 
   useEffect(() => {
-    // Загружаем специалистов при переходе к выбору специалиста
-    if (
-      open &&
-      widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION &&
-      widgetState.selectedBranchId
-    ) {
-      const loadEmployees = async () => {
-        setLoadingEmployees(true);
-        try {
-          const response = await employeesApi.getByBranch(widgetState.selectedBranchId!);
-          if (response.success && response.data) {
-            setEmployees(response.data);
-          }
-        } catch (error) {
-          console.error('Ошибка загрузки сотрудников:', error);
-        } finally {
-          setLoadingEmployees(false);
-        }
-      };
-      loadEmployees();
+  // Загружаем специалистов при переходе к выбору специалиста
+  if (
+    open &&
+    widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION &&
+    widgetState.selectedBranchId
+  ) {
+    // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
+    if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
+      setEmployees(widgetState.config.employees);
+      setLoadingEmployees(false);
+      return;
     }
-  }, [open, widgetState.currentStep, widgetState.selectedBranchId]);
+
+    if (isOffline) {
+      setEmployees([]);
+      setLoadingEmployees(false);
+      return;
+    }
+
+    const loadEmployees = async () => {
+      setLoadingEmployees(true);
+      try {
+        const response = await employeesApi.getByBranch(widgetState.selectedBranchId!);
+        if (response.success && response.data) {
+          setEmployees(response.data);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки сотрудников:', error);
+      } finally {
+        setLoadingEmployees(false);
+      }
+    };
+
+    loadEmployees();
+  }
+}, [open, isOffline, widgetState.currentStep, widgetState.selectedBranchId, widgetState.config?.employees]);
 
   useEffect(() => {
-    // Загружаем специалистов отделения при переходе к списку врачей отделения
-    if (
-      open &&
-      widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION &&
-      widgetState.selectedBranchId &&
-      widgetState.selectedDepartmentId
-    ) {
-      const loadEmployees = async () => {
-        setLoadingEmployees(true);
-        try {
-          const response = await employeesApi.getByDepartment(
-            widgetState.selectedBranchId!,
-            widgetState.selectedDepartmentId!,
-          );
-          if (response.success && response.data) {
-            setEmployees(response.data);
-          }
-        } catch (error) {
-          console.error('Ошибка загрузки сотрудников отделения:', error);
-        } finally {
-          setLoadingEmployees(false);
-        }
-      };
-      loadEmployees();
+  // Загружаем специалистов отделения при переходе к списку врачей отделения
+  if (
+    open &&
+    widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION &&
+    widgetState.selectedBranchId &&
+    widgetState.selectedDepartmentId
+  ) {
+    // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
+    if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
+      setEmployees(widgetState.config.employees);
+      setLoadingEmployees(false);
+      return;
     }
-  }, [
-    open,
-    widgetState.currentStep,
-    widgetState.selectedBranchId,
-    widgetState.selectedDepartmentId,
-  ]);
+
+    if (isOffline) {
+      setEmployees([]);
+      setLoadingEmployees(false);
+      return;
+    }
+
+    const loadEmployees = async () => {
+      setLoadingEmployees(true);
+      try {
+        const response = await employeesApi.getByDepartment(
+          widgetState.selectedBranchId!,
+          widgetState.selectedDepartmentId!,
+        );
+        if (response.success && response.data) {
+          setEmployees(response.data);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки сотрудников отделения:', error);
+      } finally {
+        setLoadingEmployees(false);
+      }
+    };
+
+    loadEmployees();
+  }
+}, [
+  open,
+  isOffline,
+  widgetState.currentStep,
+  widgetState.selectedBranchId,
+  widgetState.selectedDepartmentId,
+  widgetState.config?.employees,
+]);
 
   useEffect(() => {
-    // Загружаем отделения при переходе к выбору специалиста/отделения
-    if (
-      open &&
-      (widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION ||
-        widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION) &&
-      widgetState.selectedBranchId
-    ) {
-      const loadDepartments = async () => {
-        setLoadingDepartments(true);
-        try {
-          const response = await departmentsApi.getByBranch(widgetState.selectedBranchId!);
-          if (response.success && response.data) {
-            setDepartments(response.data);
-          }
-        } catch (error) {
-          console.error('Ошибка загрузки отделений:', error);
-        } finally {
-          setLoadingDepartments(false);
-        }
-      };
-      loadDepartments();
+  // Загружаем отделения при переходе к выбору специалиста/отделения
+  if (
+    open &&
+    (widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION ||
+      widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION) &&
+    widgetState.selectedBranchId
+  ) {
+    // Офлайн: берём из конфига
+    if (widgetState.config?.departments && widgetState.config.departments.length > 0) {
+      setDepartments(widgetState.config.departments);
+      setLoadingDepartments(false);
+      return;
     }
-  }, [open, widgetState.currentStep, widgetState.selectedBranchId]);
+
+    if (isOffline) {
+      setDepartments([]);
+      setLoadingDepartments(false);
+      return;
+    }
+
+    const loadDepartments = async () => {
+      setLoadingDepartments(true);
+      try {
+        const response = await departmentsApi.getByBranch(widgetState.selectedBranchId!);
+        if (response.success && response.data) {
+          setDepartments(response.data);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки отделений:', error);
+      } finally {
+        setLoadingDepartments(false);
+      }
+    };
+
+    loadDepartments();
+  }
+}, [
+  open,
+  isOffline,
+  widgetState.currentStep,
+  widgetState.selectedBranchId,
+  widgetState.config?.departments,
+]);
 
   const getSelectedBranch = (): Branch | null => {
     if (!widgetState.selectedBranchId) {
@@ -259,12 +331,17 @@ export const Widget: React.FC<WidgetProps> = ({ open, onClose, widgetState, with
     if (currentStep === WidgetStep.BRANCH_SELECTION) {
       if (loadingBranches) {
         return (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+          <div className='loader'>
             <Spin size='large' />
           </div>
         );
       }
-      return <BranchSelection branches={branches} yandexMapFrameCode={widgetState.config?.yandexMapFrameCode} />;
+      return (
+        <BranchSelection
+          branches={branches}
+          yandexMapFrameCode={widgetState.config?.yandexMapFrameCode}
+        />
+      );
     }
 
     if (currentStep === WidgetStep.NEXT_STEPS) {

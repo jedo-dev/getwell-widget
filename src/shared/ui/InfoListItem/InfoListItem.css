@@ -5,7 +5,7 @@
   width: 100%;
   gap: 12px;
   padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--widget-border-color);
 }
 
 .shared-info-list-item:last-child {
@@ -54,7 +54,7 @@
 .shared-info-list-item-action {
   background: none;
   border: none;
-  color: #1890ff;
+  color: var(--widget-link-color);
   font-size: 14px;
   cursor: pointer;
   padding: 0;
@@ -64,6 +64,6 @@
 }
 
 .shared-info-list-item-action:hover {
-  color: #40a9ff;
+  color: var(--widget-link-hover-color);
 }
 

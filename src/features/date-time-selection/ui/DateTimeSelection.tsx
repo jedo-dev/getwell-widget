@@ -240,7 +240,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             className='date-time-selection-next-btn'
             block
             onClick={goToPhoneInput}>
-            Далее
+            Записаться
           </Button>
         </div>
       )}

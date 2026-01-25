@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -10,8 +10,8 @@
         margin: 0;
         padding: 0;
         background: #f5f5f5;
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+          sans-serif;
         display: flex;
         justify-content: center;
       }
@@ -27,61 +27,8 @@
     <script>
       // Конфигурация виджета
       window.GetWellWidgetConfig = {
-        render: {
-          currentStep: "specialist-selection",
-          lockStep: false,
-          preserveStepOnOpen: false,
-        },
-        offlineMode: true,
-        apiUrl: '',
-        theme:{
-          primaryColor:'dark'
-        } ,
-        showBranches: true,
-        showEmployees: true,
-        showDepartments: true,
-        stickyBtnEnable: true,
-        isNeedToBlankOpen: false,
-        renderedAsPage: true,
-        showDepartments: true,
-        showDoctorInfo: true,
-        showEmployeePosition: true,
-        isExternalLinkPolicy: true,
-        stickyButtonPulse: true,
-        stickyButtonPosition: 'left',
-        stickyButtonColor: '#782c2c',
-     
+        apiUrl: 'https://test.dev10.getwell.ru',
         
-        textPolicy: 'textPolicy',
-        // linkToExternalPolicy: 'https://getwell-widget.flareon.ru/privacy-policy',
-        branches: [
-          {
-            id: 1,
-            name: "Клиника на Тверской",
-            address: "г. Москва, ул. Тверская, 1",
-            phone: "+7 (999) 111-22-33",
-          },
-          {
-            id: 2,
-            name: "Клиника на Арбате",
-            address: "г. Москва, ул. Арбат, 10",
-            phone: "+7 (999) 444-55-66",
-          },
-        ],
-
-        departments: [
-          { id: 10, name: "Терапия" },
-          { id: 11, name: "Хирургия" },
-          { id: 12, name: "Стоматология" },
-        ],
-
-        employees: [    {
-            id: 102,
-            fullName: "Сидоров Максим Олегович",
-            position: "Стоматолог",
-            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=M",
-            description: "Ультразвуковая чистка, удаление зубов.",
-          },],
         // linkToExternalPolicy: 'https://getwell-widget.flareon.ru/privacy-policy',
 
         basePath: './dist',
@@ -97,18 +44,17 @@
         link.rel = 'stylesheet';
         link.href = basePath + '/index.umd.css';
         document.head.appendChild(link);
-      
+
         // Загружаем JS
         const script = document.createElement('script');
         script.src = basePath + '/index.umd.js';
         script.onload = function () {
-          console.log(`ff`)
           // Создаём корневой элемент для виджета
           const widgetRoot = document.createElement('div');
           widgetRoot.id = 'widget-root';
           document.body.appendChild(widgetRoot);
 
-          if (window.GetWellWidget) {
+          if (window.GetWellWidget && config.apiUrl) {
             const { basePath, ...initConfig } = config;
             // Асинхронная инициализация с загрузкой конфига
             window.GetWellWidget.init(initConfig)

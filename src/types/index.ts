@@ -77,10 +77,41 @@ export interface Appointment {
 
 // Widget Theme
 export interface WidgetTheme {
-  primaryColor?: string;
-  secondaryColor?: string;
-  backgroundColor?: string;
-  textColor?: string;
+ 
+      
+  // Основные цвета
+  primaryColor?: string; // Основной цвет (#344054)
+  secondaryColor?: string; // Вторичный цвет (#52c41a)
+  backgroundColor?: string; // Фоновый цвет (#ffffff)
+  backgroundSecondary?: string; // Вторичный фон (#f5f5f5)
+  backgroundTertiary?: string; // Третичный фон (#fafafa)
+  
+  // Цвета текста
+  textColor?: string; // Основной текст (#101828)
+  textSecondary?: string; // Вторичный текст (#344054)
+  textTertiary?: string; // Третичный текст (#777777)
+  textDisabled?: string; // Отключенный текст (#c9c9c9)
+  
+  // Цвета границ
+  borderColor?: string; // Основная граница (#f0f0f0)
+  borderSecondary?: string; // Вторичная граница (#eaecf0)
+  borderTertiary?: string; // Третичная граница (#d0d5dd)
+  
+  // Цвета состояний
+  errorColor?: string; // Цвет ошибки (#ff4d4f)
+  successColor?: string; // Цвет успеха (#52c41a)
+  linkColor?: string; // Цвет ссылки (#1890ff)
+  linkHoverColor?: string; // Цвет ссылки при наведении (#40a9ff)
+  
+  // Цвета кнопок
+  buttonPrimary?: string; // Основная кнопка (#344054)
+  buttonPrimaryHover?: string; // Основная кнопка при наведении (#1f2937)
+  buttonSecondary?: string; // Вторичная кнопка (#d0d5dd)
+  buttonText?: string; // Текст кнопки (#ffffff)
+  
+  // Дополнительные цвета
+  scrollbarColor?: string; // Цвет скроллбара (#344054)
+  tagBackground?: string; // Фон тега (#1c29360d)
 }
 
 // Widget Config (Настройки виджета)
@@ -92,6 +123,13 @@ export interface WidgetConfig {
   mobileImageUrl?: string; // URL изображения для мобильного устройства (строка)
   yandexMapFrameCode?: string; // код фрейма Яндекс карт (строка)
   apiUrl?: string; // URL API для получения данных
+  offlineMode?: boolean; // Режим без запросов к API, данные берём из конфига
+
+  render?: {
+    currentStep?: WidgetStep; // Принудительно отрисовать указанный шаг (для предпросмотра)
+    lockStep?: boolean; // Зафиксировать шаг и запретить навигацию
+    preserveStepOnOpen?: boolean; // Не сбрасывать шаг при open()
+  };
   branches?: Branch[];
   employees?: Employee[];
   departments?: Department[];
@@ -136,3 +174,4 @@ export interface WidgetState {
 
 // Экспортируем enum'ы для удобства
 export { AppointmentType, Gender, PetSpecies, SelectionMode, WidgetStep };
+

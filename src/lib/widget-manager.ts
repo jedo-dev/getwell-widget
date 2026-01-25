@@ -1,3 +1,4 @@
+import { fetchWidgetConfig } from '../shared/api/widget-config';
 import { SelectionMode, WidgetStep } from '../shared/constants';
 import { WidgetConfig, WidgetState } from '../types';
 
@@ -92,18 +93,64 @@ export function getWidgetState(): WidgetState {
  * Инициализация виджета с конфигурацией
  * @param config - Конфигурация виджета
  */
-export function initGetWellWidget(config: WidgetConfig): void {
+export async function initGetWellWidget(config?: WidgetConfig): Promise<void> {
+  // 1) Берём конфиг из аргумента или из window.GetWellWidgetConfig
+  console.log(`initGetWellWidget`,config)
+  const windowConfig =
+    typeof window !== 'undefined' ? (window as any).GetWellWidgetConfig : undefined;
+
+  const inputConfig: WidgetConfig = (config ?? windowConfig ?? {}) as WidgetConfig;
+
+  // 2) Определяем, работаем ли мы в офлайн-режиме (без запросов к API)
+  const hasLocalData =
+    (inputConfig.branches && inputConfig.branches.length > 0) ||
+    (inputConfig.employees && inputConfig.employees.length > 0) ||
+    (inputConfig.departments && inputConfig.departments.length > 0);
+
+  const isOffline =
+    inputConfig.offlineMode === true || (!inputConfig.apiUrl && hasLocalData);
+
+  let finalConfig: WidgetConfig = inputConfig;
+
+  // 3) В онлайне можем подтянуть конфиг с сервера
+  if (!isOffline && inputConfig.apiUrl) {
+    try {
+      const serverConfig = await fetchWidgetConfig(inputConfig);
+      if (serverConfig) {
+        finalConfig = serverConfig;
+      }
+    } catch (error) {
+      console.warn('Failed to fetch widget config from server, using initial config:', error);
+    }
+  }
+
+  // 4) Применяем дефолты
+  const normalizedConfig: WidgetConfig = {
+    ...finalConfig,
+    showBranches: finalConfig.showBranches ?? true,
+    showEmployees: finalConfig.showEmployees ?? true,
+    showDepartments: finalConfig.showDepartments ?? true,
+    offlineMode: isOffline,
+    render: {
+      preserveStepOnOpen: finalConfig.render?.preserveStepOnOpen ?? false,
+      lockStep: finalConfig.render?.lockStep ?? false,
+      currentStep: finalConfig.render?.currentStep,
+    },
+  };
+
   widgetState = {
     ...widgetState,
-    config: {
-      ...config,
-      // Применяем дефолтные значения
-      showBranches: config.showBranches ?? true,
-      showEmployees: config.showEmployees ?? true,
-      showDepartments: config.showDepartments ?? true,
-    },
+    config: normalizedConfig,
     initialized: true,
   };
+
+  // 5) Принудительный шаг (для предпросмотра)
+  if (normalizedConfig.render?.currentStep) {
+    widgetState = {
+      ...widgetState,
+      currentStep: normalizedConfig.render.currentStep,
+    };
+  }
 
   notifyStateChange();
 }
@@ -111,16 +158,40 @@ export function initGetWellWidget(config: WidgetConfig): void {
 /**
  * Открытие виджета
  */
+
 export function openGetWellWidget(): void {
   if (!widgetState.initialized) {
     console.warn('GetWell Widget: Widget is not initialized. Call initGetWellWidget() first.');
     return;
   }
 
+  const preserve = widgetState.config?.render?.preserveStepOnOpen === true;
+
+  // В режиме предпросмотра (preserveStepOnOpen) не сбрасываем состояние,
+  // чтобы Flutter-админка могла менять конфиг "на лету" и сразу видеть результат.
+  if (preserve) {
+    widgetState = {
+      ...widgetState,
+      isOpen: true,
+    };
+
+    // Если задан текущий шаг в конфиге — применяем его (даже если preserve включён)
+    const forcedStep = widgetState.config?.render?.currentStep;
+    if (forcedStep) {
+      widgetState = {
+        ...widgetState,
+        currentStep: forcedStep,
+      };
+    }
+
+    notifyStateChange();
+    return;
+  }
+
   widgetState = {
     ...widgetState,
     isOpen: true,
-    currentStep: WidgetStep.BRANCH_SELECTION,
+    currentStep: widgetState.config?.render?.currentStep ?? WidgetStep.BRANCH_SELECTION,
     selectedBranchId: null,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
@@ -170,6 +241,7 @@ export function resetGetWellWidget(): void {
  * Установка выбранного филиала и переход к следующему шагу
  */
 export function selectBranch(branchId: number): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     selectedBranchId: branchId,
@@ -183,6 +255,7 @@ export function selectBranch(branchId: number): void {
  * Переход к выбору специалиста
  */
 export function goToSpecialistSelection(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.SPECIALIST_SELECTION,
@@ -196,6 +269,7 @@ export function goToSpecialistSelection(): void {
  * Переход к выбору отделения
  */
 export function goToDepartmentSelection(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.SPECIALIST_SELECTION,
@@ -221,6 +295,7 @@ export function selectEmployee(employeeId: number): void {
  * Выбор отделения и переход к списку врачей отделения
  */
 export function selectDepartment(departmentId: number): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     selectedDepartmentId: departmentId,
@@ -234,6 +309,7 @@ export function selectDepartment(departmentId: number): void {
  * Переход к списку врачей отделения
  */
 export function goToDepartmentSpecialistsSelection(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION,
@@ -246,6 +322,7 @@ export function goToDepartmentSpecialistsSelection(): void {
  * Переход к выбору даты и времени
  */
 export function goToDateTimeSelection(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.DATE_TIME_SELECTION,
@@ -270,6 +347,7 @@ export function selectDateTime(dateTime: string): void {
  * Переход к вводу телефона
  */
 export function goToPhoneInput(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.PHONE_INPUT,
@@ -282,6 +360,7 @@ export function goToPhoneInput(): void {
  * Сохранение телефона и переход к деталям записи
  */
 export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = false): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     phone,
@@ -296,6 +375,7 @@ export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = fals
  * Переход к деталям записи
  */
 export function goToAppointmentDetails(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.APPOINTMENT_DETAILS,
@@ -320,6 +400,7 @@ export function selectPet(petId: number): void {
  * Переход к подтверждению записи
  */
 export function goToAppointmentConfirmation(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.APPOINTMENT_CONFIRMATION,
@@ -332,6 +413,7 @@ export function goToAppointmentConfirmation(): void {
  * Переход к экрану информации о враче
  */
 export function goToDoctorInfo(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.DOCTOR_INFO,
@@ -344,6 +426,7 @@ export function goToDoctorInfo(): void {
  * Переход к политике конфиденциальности
  */
 export function goToPrivacyPolicy(): void {
+  if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.PRIVACY_POLICY,
@@ -356,6 +439,7 @@ export function goToPrivacyPolicy(): void {
  * Возврат к предыдущему шагу
  */
 export function goBack(): void {
+  if (widgetState.config?.render?.lockStep) return;
   const { currentStep } = widgetState;
 
   if (currentStep === WidgetStep.PRIVACY_POLICY) {
@@ -405,5 +489,71 @@ export function goBack(): void {
     };
   }
 
+  notifyStateChange();
+}
+
+
+/**
+ * Применить конфиг на лету (hot reload) — для iframe/админки.
+ * По умолчанию обновляет конфиг и триггерит перерендер.
+ */
+export function applyConfig(
+  nextConfig: WidgetConfig,
+  options?: { resetState?: boolean; rerender?: boolean },
+): void {
+  const prevConfig = widgetState.config ?? ({} as WidgetConfig);
+
+  // Простой merge (с учётом вложенных theme/render)
+  const mergedConfig: WidgetConfig = {
+    ...prevConfig,
+    ...nextConfig,
+    theme: {
+      ...(prevConfig.theme ?? {}),
+      ...(nextConfig.theme ?? {}),
+    },
+    render: {
+      ...(prevConfig.render ?? {}),
+      ...(nextConfig.render ?? {}),
+    },
+  };
+
+  const hasLocalData =
+    (mergedConfig.branches && mergedConfig.branches.length > 0) ||
+    (mergedConfig.employees && mergedConfig.employees.length > 0) ||
+    (mergedConfig.departments && mergedConfig.departments.length > 0);
+
+  const isOffline =
+    mergedConfig.offlineMode === true || (!mergedConfig.apiUrl && hasLocalData);
+
+  mergedConfig.offlineMode = isOffline;
+
+  widgetState = {
+    ...widgetState,
+    config: mergedConfig,
+  };
+
+  if (options?.resetState) {
+    widgetState = {
+      ...widgetState,
+      selectedBranchId: null,
+      selectedEmployeeId: null,
+      selectedDepartmentId: null,
+      selectionMode: undefined,
+      selectedTimeSlot: null,
+      phone: null,
+      selectedPetId: null,
+    };
+  }
+
+  // Принудительный шаг из render.currentStep — применяется всегда
+  if (mergedConfig.render?.currentStep) {
+    widgetState = {
+      ...widgetState,
+      currentStep: mergedConfig.render.currentStep,
+    };
+  }
+
+  // По умолчанию делаем notify
+  if (options?.rerender === false) return;
   notifyStateChange();
 }

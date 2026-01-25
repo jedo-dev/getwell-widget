@@ -1,13 +1,15 @@
 /* Импорт шрифтов */
 @import '../../../styles/fonts.css';
+/* Импорт темы */
+@import '../../../styles/theme.css';
 
 .getwell-widget-drawer {
   z-index: 10000;
   padding-right: 10px;
   font-family: 'Onest-regular';
-  background: #ffffff00 !important;
+  background: transparent !important;
   .ant-drawer-content {
-    background: #ffffff00 !important;
+    background: transparent !important;
   }
   @media (max-width: 768px) {
     padding-right: 2px !important;
@@ -24,6 +26,16 @@
   letter-spacing: -2%;
   display: flex;
   gap: 12px;
+  @media  (max-width: 768px) {
+    font-family: Onest;
+font-weight: 500;
+font-style: Medium;
+font-size: 20px;
+leading-trim: NONE;
+line-height: 24px;
+letter-spacing: -2%;
+
+  }
 }
 .ant-modal-root .ant-modal-wrap {
   position: absolute !important;
@@ -49,13 +61,18 @@
     height: auto !important;
     top: 10px;
     @media (max-width: 768px) {
-     
     }
   }
 }
 .image-header {
   padding: 0 !important;
   border-bottom: unset !important;
+}
+.ant-tabs-content{
+  height: -webkit-fill-available!important;
+}
+.ant-tabs-tabpane{
+  height: -webkit-fill-available!important;
 }
 .ant-drawer-body {
   padding: unset !important;
@@ -67,20 +84,20 @@
   font-family: Onest;
 }
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 0;
 }
 ::-webkit-scrollbar-track {
-  background: #ffffff00;
+  background: transparent;
   border-radius: 2px;
 }
 
 :-webkit-scrollbar-thumb {
-  background: #344054;
+  background: var(--widget-scrollbar-color);
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffffff00;
+  background: transparent;
 }
 
 .ant-drawer-footer {
@@ -88,7 +105,7 @@
   border-radius: 0 0 16px 16px;
   margin-bottom: 10px;
   @media (max-width: 768px) {
-    margin-bottom:0;
+    margin-bottom: 0;
   }
 }
 .getwell-widget-footer {
@@ -117,7 +134,7 @@
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  background: #f5f5f5;
+  background: var(--widget-background-secondary);
   font-family: Onest;
 }
 
@@ -184,8 +201,18 @@
   line-height: 24px;
   letter-spacing: 0%;
   text-align: center;
-  color: #344054;
-  background: #1c29360d;
+  color: var(--widget-text-secondary);
+  background: var(--widget-tag-background);
   border: none;
   border-radius: 6px;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  height: -webkit-fill-available;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  align-items: center;
 }

@@ -11,10 +11,18 @@
   align-items: center;
   gap: 12px;
   padding: 20px;
-  background-color: #ffffff;
+  
+    background: linear-gradient(180deg, var(--widget-primary-color) 30%, var(--widget-background-color) 30%);
+
   border-radius: 16px;
 }
-
+.next-steps-branch-image{
+  border-radius:50%
+}
+.next-step-branch-wallpaper{
+  height: 50px;
+  width: 100%;
+}
 .next-steps-branch-icon {
   font-size: 20px;
   color: rgba(0, 0, 0, 0.45);

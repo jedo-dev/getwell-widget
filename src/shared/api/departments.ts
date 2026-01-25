@@ -1,72 +1,6 @@
 import { Department } from '../../types';
 import { DepartmentsResponse } from '../types/api';
-import { apiClient } from './instance';
-
-/**
- * Моковые данные отделений
- */
-const MOCK_DEPARTMENTS: Department[] = [
-  {
-    id: 1,
-    name: 'Анестезиология',
-    showInWidget: true,
-  },
-  {
-    id: 2,
-    name: 'Визуальная диагностика',
-    showInWidget: true,
-  },
-  {
-    id: 3,
-    name: 'Гастроэнтерология',
-    showInWidget: true,
-  },
-  {
-    id: 4,
-    name: 'Гематология',
-    showInWidget: true,
-  },
-  {
-    id: 5,
-    name: 'Дерматология',
-    showInWidget: true,
-  },
-  {
-    id: 6,
-    name: 'Диетология',
-    showInWidget: true,
-  },
-  {
-    id: 7,
-    name: 'Зоопсихология',
-    showInWidget: true,
-  },
-  {
-    id: 8,
-    name: 'Инфекционное отделение',
-    showInWidget: true,
-  },
-  {
-    id: 9,
-    name: 'Кардиология',
-    showInWidget: true,
-  },
-  {
-    id: 10,
-    name: 'Неврология',
-    showInWidget: true,
-  },
-  {
-    id: 11,
-    name: 'Нефрология',
-    showInWidget: true,
-  },
-  {
-    id: 12,
-    name: 'Онкология',
-    showInWidget: true,
-  },
-];
+import { getWidgetSettings } from './widget-settings-cache';
 
 /**
  * API для работы с отделениями
@@ -76,27 +10,71 @@ export const departmentsApi = {
    * Получить список отделений филиала
    */
   async getByBranch(branchId?: number): Promise<DepartmentsResponse> {
-    // В реальной реализации:
-    // const url = branchId ? `/branches/${branchId}/departments` : '/departments';
-    // return await apiClient.get<DepartmentsResponse>(url);
+    try {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
+        return {
+          data: [],
+          success: false,
+          message: settings.reason || 'Failed to fetch departments',
+        };
+      }
 
-    // Моковая реализация
-    return {
-      data: MOCK_DEPARTMENTS.filter((dept) => dept.showInWidget),
-      success: true,
-    };
+      let departments = (settings.data.departments || []).map((dept) => ({
+        id: dept.id,
+        name: dept.name,
+        showInWidget: true,
+      }));
+
+      // Если указан branchId, фильтруем по филиалу
+      if (branchId) {
+        departments = departments.filter((dept) => {
+          const departmentData = settings.data.departments.find((d) => d.id === dept.id);
+          return departmentData?.filial.id === branchId;
+        });
+      }
+
+      return {
+        data: departments,
+        success: true,
+      };
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+      return {
+        data: [],
+        success: false,
+        message:
+          error && typeof error === 'object' && 'message' in error
+            ? String(error.message)
+            : 'Failed to fetch departments',
+      };
+    }
   },
 
   /**
    * Получить отделение по ID
    */
   async getById(id: number): Promise<Department | null> {
-    // В реальной реализации:
-    // return await apiClient.get<Department>(`/departments/${id}`);
+    try {
+      const settings = await getWidgetSettings();
+      if (settings.status !== 'ok') {
+        return null;
+      }
 
-    // Моковая реализация
-    const department = MOCK_DEPARTMENTS.find((d) => d.id === id);
-    return department || null;
+      const departmentData = (settings.data.departments || []).find((d) => d.id === id);
+      if (!departmentData) {
+        return null;
+      }
+
+      return {
+        id: departmentData.id,
+        name: departmentData.name,
+        showInWidget: true,
+      };
+    } catch (error) {
+      console.error(`Error fetching department ${id}:`, error);
+      return null;
+    }
   },
 };
 
