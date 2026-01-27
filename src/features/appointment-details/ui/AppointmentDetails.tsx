@@ -76,8 +76,44 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
 
   useEffect(() => {
-    // Загружаем питомцев при наличии телефона (только для существующих пользователей)
-    if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+    const state = getWidgetState();
+    const ownerData = state.ownerData;
+
+    // Если есть данные владельца, используем их
+    if (ownerData && ownerData.patients) {
+      if (ownerData.patients.length > 0) {
+        // Преобразуем patients в формат Pet
+        const petsFromOwner: Pet[] = ownerData.patients.map((patient) => {
+          // Преобразуем gender из API формата в Gender enum
+          const patientGender =
+            patient.gender.name.toLowerCase() === 'male' ? Gender.MALE : Gender.FEMALE;
+
+          return {
+            id: patient.id,
+            name: patient.nickname,
+            species: patient.breed.patient_type.name,
+            breed: patient.breed.name,
+            gender: patientGender,
+            birthDate: patient.birth_date,
+          };
+        });
+
+        setPets(petsFromOwner);
+        if (petsFromOwner.length > 0 && !selectedPetId) {
+          const firstPetId = petsFromOwner[0].id || null;
+          setSelectedPetId(firstPetId);
+          if (firstPetId) {
+            selectPet(firstPetId);
+          }
+        }
+      } else {
+        // Если массив пустой, очищаем список питомцев
+        setPets([]);
+        setSelectedPetId(null);
+      }
+      setLoadingPets(false);
+    } else if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+      // Fallback: загружаем питомцев через API, если нет данных владельца
       const loadPets = async () => {
         setLoadingPets(true);
         try {
@@ -109,6 +145,31 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       setPhone(initialPhone);
     }
   }, [initialPhone]);
+
+  useEffect(() => {
+    // Заполняем данные пользователя из ownerData, если они есть
+    const state = getWidgetState();
+    const ownerData = state.ownerData;
+
+    if (ownerData && !isNewUser) {
+      // Заполняем поля пользователя из ownerData
+      if (ownerData.name && !firstName) {
+        setFirstName(ownerData.name);
+      }
+      if (ownerData.surname && !lastName) {
+        setLastName(ownerData.surname);
+      }
+      if (ownerData.patronymic && !patronymic) {
+        setPatronymic(ownerData.patronymic);
+      }
+      if (ownerData.gender && !gender) {
+        // Преобразуем 'male'/'female' в Gender enum
+        const ownerGender = ownerData.gender === 'male' ? Gender.MALE : Gender.FEMALE;
+        setGender(ownerGender);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNewUser]);
 
   const handlePhoneEdit = () => {
     setIsPhoneEditing(true);

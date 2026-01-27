@@ -362,12 +362,17 @@ export function goToPhoneInput(): void {
 /**
  * Сохранение телефона и переход к деталям записи
  */
-export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = false): void {
+export function savePhoneAndGoToDetails(
+  phone: string,
+  isNewUser: boolean = false,
+  ownerData?: WidgetState['ownerData'],
+): void {
   if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     phone,
     isNewUser,
+    ownerData,
     currentStep: WidgetStep.APPOINTMENT_DETAILS,
   };
 
