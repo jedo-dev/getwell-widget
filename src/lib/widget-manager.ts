@@ -13,6 +13,7 @@ let widgetState: WidgetState = {
   selectedEmployeeId: null,
   selectedDepartmentId: null,
   selectedTimeSlot: null,
+  selectedTimeSlotTo: null,
   phone: null,
   selectedPetId: null,
 };
@@ -95,7 +96,6 @@ export function getWidgetState(): WidgetState {
  */
 export async function initGetWellWidget(config?: WidgetConfig): Promise<void> {
   // 1) Берём конфиг из аргумента или из window.GetWellWidgetConfig
-  console.log(`initGetWellWidget`,config)
   const windowConfig =
     typeof window !== 'undefined' ? (window as any).GetWellWidgetConfig : undefined;
 
@@ -197,6 +197,7 @@ export function openGetWellWidget(): void {
     selectedDepartmentId: null,
     selectionMode: undefined,
     selectedTimeSlot: null,
+    selectedTimeSlotTo: null,
     phone: null,
     selectedPetId: null,
   };
@@ -230,6 +231,7 @@ export function resetGetWellWidget(): void {
     selectedDepartmentId: null,
     selectionMode: undefined,
     selectedTimeSlot: null,
+    selectedTimeSlotTo: null,
     phone: null,
     selectedPetId: null,
   };
@@ -334,10 +336,11 @@ export function goToDateTimeSelection(): void {
 /**
  * Выбор даты и времени
  */
-export function selectDateTime(dateTime: string): void {
+export function selectDateTime(dateTime: string, dateTimeTo?: string): void {
   widgetState = {
     ...widgetState,
     selectedTimeSlot: dateTime,
+    selectedTimeSlotTo: dateTimeTo ?? widgetState.selectedTimeSlotTo,
   };
 
   notifyStateChange();
@@ -540,6 +543,7 @@ export function applyConfig(
       selectedDepartmentId: null,
       selectionMode: undefined,
       selectedTimeSlot: null,
+      selectedTimeSlotTo: null,
       phone: null,
       selectedPetId: null,
     };

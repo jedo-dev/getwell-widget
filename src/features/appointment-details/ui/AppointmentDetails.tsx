@@ -7,6 +7,7 @@ import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectPet } from '../../../lib/widget-manager';
+import { recordsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
@@ -143,7 +144,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validatePhone()) {
       message.error('Пожалуйста, введите корректный номер телефона');
       return;
@@ -229,6 +230,44 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       consentPersonalData,
       consentMarketing,
     });
+
+    // Создание записи в онлайн-режиме (минимальный payload)
+    const state = getWidgetState();
+    const apiUrl = state.config?.apiUrl;
+    const toIso = state.selectedTimeSlotTo;
+    const departmentId = state.selectedDepartmentId;
+
+    if (!state.config?.offlineMode && apiUrl && selectedEmployee && selectedDateTime && toIso && departmentId) {
+      try {
+        // backend ожидает "YYYY-MM-DD HH:mm:ss" в локальной TZ браузера
+        const isoToLocal = async (iso: string): Promise<string> => {
+          const d = new Date(iso);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const hh = String(d.getHours()).padStart(2, '0');
+          const mm = String(d.getMinutes()).padStart(2, '0');
+          const ss = String(d.getSeconds()).padStart(2, '0');
+          return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
+        };
+
+        await recordsApi.createRecord({
+          apiUrl,
+          payload: {
+            appointment: {
+              department_id: departmentId,
+              employee_id: selectedEmployee.id,
+              from: await isoToLocal(selectedDateTime),
+              to: await isoToLocal(toIso),
+              comment: symptoms || undefined,
+            },
+          },
+        });
+      } catch (e) {
+        // Не блокируем UX: показываем подтверждение даже если запись не сохранилась.
+        console.error('Ошибка создания записи:', e);
+      }
+    }
 
     // Переход к экрану подтверждения
     goToAppointmentConfirmation();

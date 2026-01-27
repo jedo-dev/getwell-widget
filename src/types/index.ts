@@ -160,7 +160,13 @@ export interface WidgetState {
   selectedEmployeeId: number | null;
   selectedDepartmentId: number | null;
   selectionMode?: SelectionMode; // режим выбора: специалист или отделение
+  /**
+   * Выбранный временной слот.
+   * `selectedTimeSlot` хранит время начала (from) в ISO-формате (для UI и Date()).
+   * `selectedTimeSlotTo` хранит время окончания (to) в ISO-формате.
+   */
   selectedTimeSlot: string | null;
+  selectedTimeSlotTo: string | null;
   phone: string | null;
   selectedPetId: number | null;
   isNewUser?: boolean; // новый пользователь

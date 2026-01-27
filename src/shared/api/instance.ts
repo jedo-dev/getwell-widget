@@ -73,8 +73,12 @@ class ApiClient {
    * Построить полный URL с параметрами запроса
    */
   private buildURL(endpoint: string, params?: RequestParams): string {
-    const baseURL = this.getBaseURL();
-    let url = `${baseURL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    // Если пришёл абсолютный URL — используем как есть
+    let url = endpoint;
+    if (!/^https?:\/\//i.test(endpoint)) {
+      const baseURL = this.getBaseURL();
+      url = `${baseURL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    }
 
     if (params) {
       const searchParams = new URLSearchParams();

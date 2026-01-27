@@ -1,7 +1,8 @@
 import { CalendarOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
-import React, { useMemo, useState } from 'react';
+import { Button, Spin } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
 import { getWidgetState, goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
+import { schedulesApi } from '../../../shared/api/schedules';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
@@ -22,6 +23,9 @@ export interface DateTimeSelectionProps {
 interface TimeSlot {
   time: string;
   period: TimePeriod;
+  fromIso: string;
+  toIso: string;
+  isLimited?: boolean;
 }
 
 export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee }) => {
@@ -30,6 +34,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
+  const [apiSlots, setApiSlots] = useState<TimeSlot[]>([]);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -38,8 +44,10 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
-    const dateTime = `${selectedDate.toISOString().split('T')[0]}T${time}:00`;
-    selectDateTime(dateTime);
+    const slot = apiSlots.find((s) => s.time === time);
+    if (slot) {
+      selectDateTime(slot.fromIso, slot.toIso);
+    }
   };
 
   const handleNextMonth = () => {
@@ -91,20 +99,96 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
     return date.toDateString() === selectedDate.toDateString();
   };
 
-  // Временные слоты (заглушка, в будущем из API)
+  const toLocalYmd = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
+  const localDateTimeToIso = (dt: string): string => {
+    const [datePart, timePart] = dt.split(' ');
+    const [y, m, d] = datePart.split('-').map(Number);
+    const [hh, mm, ss] = timePart.split(':').map(Number);
+    const local = new Date(y, m - 1, d, hh, mm, ss || 0, 0);
+    return local.toISOString();
+  };
+
+  const getPeriod = (hours: number): TimePeriod => {
+    if (hours < 12) return TimePeriod.MORNING;
+    if (hours < 18) return TimePeriod.DAY;
+    return TimePeriod.EVENING;
+  };
+
+  // Загружаем слоты из API
+  useEffect(() => {
+    const load = async () => {
+      // Офлайн режим: здесь можно будет брать слоты из конфига,
+      // но в текущей задаче подключаем только новые ендпоинты.
+      if (widgetState.config?.offlineMode) {
+        setApiSlots([]);
+        return;
+      }
+
+      if (!widgetState.config?.apiUrl) {
+        setApiSlots([]);
+        return;
+      }
+
+      if (!widgetState.selectedBranchId) {
+        setApiSlots([]);
+        return;
+      }
+
+      // По сваггеру date обязателен в формате "YYYY-MM-DD HH:mm:ss"
+      const date = `${toLocalYmd(selectedDate)} 00:00:00`;
+
+      setLoadingSlots(true);
+      try {
+        const timechips = await schedulesApi.getAvailableTimechips({
+          apiUrl: widgetState.config.apiUrl,
+          filialId: widgetState.selectedBranchId,
+          appointmentTypeId: 8,
+          date,
+          doctorId: selectedEmployee?.id || undefined,
+          departmentId: widgetState.selectedDepartmentId || undefined,
+        });
+
+        const slots: TimeSlot[] = (timechips || []).map((t) => {
+          // from: "YYYY-MM-DD HH:mm:ss"
+          const isoFrom = localDateTimeToIso(t.from);
+          const isoTo = localDateTimeToIso(t.to);
+          const fromDate = new Date(isoFrom);
+          const hh = String(fromDate.getHours()).padStart(2, '0');
+          const mm = String(fromDate.getMinutes()).padStart(2, '0');
+          return {
+            time: `${hh}:${mm}`,
+            period: getPeriod(fromDate.getHours()),
+            fromIso: isoFrom,
+            toIso: isoTo,
+            isLimited: t.is_limited,
+          };
+        });
+
+        // Сортировка по времени
+        slots.sort((a, b) => a.fromIso.localeCompare(b.fromIso));
+        setApiSlots(slots);
+      } catch (e) {
+        console.error('Ошибка загрузки слотов времени:', e);
+        setApiSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate, selectedEmployee?.id, widgetState.selectedBranchId, widgetState.selectedDepartmentId, widgetState.config?.apiUrl, widgetState.config?.offlineMode]);
+
   const timeSlots: TimeSlot[] = useMemo(() => {
-    // TODO: В будущем здесь будет запрос к API для получения доступных слотов
-    return [
-      { time: '11:00', period: TimePeriod.MORNING },
-      { time: '12:30', period: TimePeriod.DAY },
-      { time: '14:00', period: TimePeriod.DAY },
-      { time: '15:30', period: TimePeriod.DAY },
-      { time: '17:30', period: TimePeriod.DAY },
-      { time: '18:00', period: TimePeriod.EVENING },
-      { time: '18:30', period: TimePeriod.EVENING },
-      { time: '20:00', period: TimePeriod.EVENING },
-    ];
-  }, [selectedDate]);
+    return apiSlots;
+  }, [apiSlots]);
 
   const groupedTimeSlots = useMemo(() => {
     const grouped: Record<TimePeriod, TimeSlot[]> = {
@@ -208,6 +292,12 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
         </div>
 
         <div className='date-time-selection-times'>
+          {loadingSlots && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
+              <Spin size='large' />
+            </div>
+          )}
+
           {(Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
             if (groupedTimeSlots[period].length === 0) return null;
 
@@ -221,7 +311,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
                     <button
                       key={slot.time}
                       className={`date-time-selection-time-slot 
-                        ${selectedTime === slot.time ? 'selected' : ''}`}
+                        ${selectedTime === slot.time ? 'selected' : ''}
+                        ${slot.isLimited ? 'disabled' : ''}`}
+                      disabled={slot.isLimited}
                       onClick={() => handleTimeSelect(slot.time)}>
                       {slot.time}
                     </button>

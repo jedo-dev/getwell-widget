@@ -12,7 +12,6 @@ export interface BranchSelectionProps {
 }
 
 export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yandexMapFrameCode }) => {
-  console.log(`ff`)
   const [activeTab, setActiveTab] = useState<string>('list');
   const iframe = yandexMapFrameCode || `<iframe
                     src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
