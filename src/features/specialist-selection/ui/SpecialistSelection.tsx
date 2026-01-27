@@ -1,16 +1,19 @@
 import { RightOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Input, List, Radio, Segmented, Tabs, Tag } from 'antd';
+import { Button, Input, List, Radio, Segmented, Skeleton, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   getWidgetState,
   goToDateTimeSelection,
   goToDepartmentSelection,
   goToDoctorInfo,
+  goToPhoneInput,
   goToSpecialistSelection,
+  selectDateTime,
   selectDepartment,
   selectEmployee,
 } from '../../../lib/widget-manager';
-import { SELECTION_MODE_LABELS } from '../../../shared/constants';
+import { SELECTION_MODE_LABELS, WidgetStep } from '../../../shared/constants';
+import { useTimechips } from '../../../shared/hooks/useTimechips';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Avatar, EmptyState } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
@@ -102,30 +105,47 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     ? departments.find((dept) => dept.id === selectedDepartmentId)
     : null;
 
-  // Временные данные для ближайшего времени приёма (заглушка)
-  const getNearestAppointment = (employeeId: number): string => {
-    // TODO: В будущем здесь будет запрос к API
-    return 'сегодня';
+  // Загружаем timechips для выбранного врача
+  const isOnSpecialistSelectionStep = widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION;
+  const { timechips, loading: loadingTimechips, error: timechipsError } = useTimechips(
+    selectedEmployeeId,
+    isOnSpecialistSelectionStep && selectionMode === SelectionMode.EMPLOYEE,
+  );
+
+  // Преобразуем "YYYY-MM-DD HH:mm:ss" в "HH:mm"
+  const formatTimeFromDateTime = (dateTime: string): string => {
+    const [datePart, timePart] = dateTime.split(' ');
+    const [hh, mm] = timePart.split(':');
+    return `${hh}:${mm}`;
   };
 
-  // Временные данные для слотов времени (заглушка)
-  const getTimeSlots = (employeeId: number): string[] => {
-    // TODO: В будущем здесь будет запрос к API
-    // Возвращаем примерные слоты как на макете
-    return [
-      '12:00',
-      '12:30',
-      '13:00',
-      '13:00',
-      '13:30',
-      '15:00',
-      '15:30',
-      '16:00',
-      '16:30',
-      '17:30',
-      '17:30',
-    ];
+  // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
+  const localDateTimeToIso = (dt: string): string => {
+    const [datePart, timePart] = dt.split(' ');
+    const [y, m, d] = datePart.split('-').map(Number);
+    const [hh, mm, ss] = timePart.split(':').map(Number);
+    const local = new Date(y, m - 1, d, hh, mm, ss || 0, 0);
+    return local.toISOString();
   };
+
+  // Обработка клика на time-chip
+  const handleTimeChipClick = (from: string, to: string) => {
+    if (!selectedEmployeeId) return;
+
+    // Сохраняем выбранного врача (уже выбран)
+    // Сохраняем слот from/to
+    const fromIso = localDateTimeToIso(from);
+    const toIso = localDateTimeToIso(to);
+    selectDateTime(fromIso, toIso);
+
+    // Пропускаем календарь и переходим на phone-input
+    goToPhoneInput();
+  };
+
+  // Показываем первые N слотов (8-12)
+  const MAX_VISIBLE_SLOTS = 10;
+  const visibleTimechips = timechips.slice(0, MAX_VISIBLE_SLOTS);
+  const hasTimechips = visibleTimechips.length > 0;
 
   const options = [
     { label: SELECTION_MODE_LABELS[SelectionMode.EMPLOYEE], value: 'name' },
@@ -179,8 +199,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                       renderItem={(employee) => {
                         const isSelected = selectedEmployeeId === employee.id;
                         const fullName = formatEmployeeFullName(employee);
-
-                        const timeSlots = isSelected ? getTimeSlots(employee.id) : [];
+                        const isCurrentEmployee = isSelected && employee.id === selectedEmployeeId;
 
                         return (
                           <List.Item
@@ -204,25 +223,73 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                     )}
                                   </div>
                                 </div>
-                                <div className='specialist-selection-item-appointment'>
-                                  Ближайшее время приёма:{' '}
-                                  <Tag>{getNearestAppointment(employee.id)}</Tag>
-                                </div>
-                                {isSelected && timeSlots.length > 0 && (
-                                  <div className='specialist-selection-time-slots'>
-                                    {timeSlots.map((slot, index) => (
-                                      <button
-                                        key={`${slot}-${index}`}
-                                        className='specialist-selection-time-slot'
-                                        type='button'
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          // TODO: Обработка выбора слота времени
-                                        }}>
-                                        {slot}
-                                      </button>
-                                    ))}
-                                  </div>
+                                {isCurrentEmployee && (
+                                  <>
+                                    <div className='specialist-selection-item-appointment'>
+                                      Ближайшее время приёма: <Tag>сегодня</Tag>
+                                    </div>
+                                    {loadingTimechips && (
+                                      <div className='specialist-selection-time-slots'>
+                                        <Skeleton.Button active size='small' block={false} />
+                                        <Skeleton.Button active size='small' block={false} />
+                                        <Skeleton.Button active size='small' block={false} />
+                                      </div>
+                                    )}
+                                    {!loadingTimechips && hasTimechips && (
+                                      <div className='specialist-selection-time-slots'>
+                                        {visibleTimechips.map((timechip, index) => {
+                                          const timeStr = formatTimeFromDateTime(timechip.from);
+                                          const isDisabled = timechip.is_limited;
+                                          return (
+                                            <button
+                                              key={`${timechip.from}-${index}`}
+                                              className={`specialist-selection-time-slot ${
+                                                isDisabled ? 'disabled' : ''
+                                              }`}
+                                              type='button'
+                                              disabled={isDisabled}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (!isDisabled) {
+                                                  handleTimeChipClick(timechip.from, timechip.to);
+                                                }
+                                              }}>
+                                              {timeStr}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                    {!loadingTimechips && !hasTimechips && !timechipsError && (
+                                      <div className='specialist-selection-no-slots'>
+                                        <div className='specialist-selection-no-slots-text'>
+                                          Нет слотов на сегодня
+                                        </div>
+                                        <Button
+                                          type='link'
+                                          className='specialist-selection-select-date-btn'
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSelectDateTime();
+                                          }}>
+                                          Выбрать дату и время
+                                        </Button>
+                                      </div>
+                                    )}
+                                    {!loadingTimechips && timechipsError && (
+                                      <div className='specialist-selection-no-slots'>
+                                        <Button
+                                          type='link'
+                                          className='specialist-selection-select-date-btn'
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSelectDateTime();
+                                          }}>
+                                          Выбрать дату и время
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                               </div>
                               <Radio checked={isSelected} />

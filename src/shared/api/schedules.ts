@@ -103,8 +103,8 @@ export const schedulesApi = {
       appointment_type_id: params.appointmentTypeId,
       date: params.date,
       filial_id: params.filialId,
-      ...(params.doctorId ? { 'filter[doctor_id]': params.doctorId } : {}),
-      ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
+      // ...(params.doctorId ? { 'filter[doctor_id]': params.doctorId } : {}),
+      // ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
     };
 
     const res = await apiClient.get<ExternalApiResponse<AvailableTimechip[]>>(endpoint, query);

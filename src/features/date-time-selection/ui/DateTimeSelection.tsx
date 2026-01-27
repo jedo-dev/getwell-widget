@@ -7,6 +7,7 @@ import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../sha
 import {
   formatDate,
   formatEmployeeFullName,
+  formatLocalMidnight,
   formatMonthYear,
   isCurrentMonth,
   isPastDate,
@@ -99,13 +100,6 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
     return date.toDateString() === selectedDate.toDateString();
   };
 
-  const toLocalYmd = (d: Date): string => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-
   // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
   const localDateTimeToIso = (dt: string): string => {
     const [datePart, timePart] = dt.split(' ');
@@ -142,7 +136,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
       }
 
       // По сваггеру date обязателен в формате "YYYY-MM-DD HH:mm:ss"
-      const date = `${toLocalYmd(selectedDate)} 00:00:00`;
+      // Используем formatLocalMidnight для форматирования полночи выбранной даты в локальной таймзоне
+      const date = formatLocalMidnight(selectedDate);
 
       setLoadingSlots(true);
       try {
