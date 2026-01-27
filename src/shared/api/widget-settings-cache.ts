@@ -1,3 +1,4 @@
+import { normalizeExternalBaseUrl } from './external-base-url';
 /**
  * Интерфейс расписания филиала из API
  */
@@ -193,8 +194,10 @@ export async function getWidgetSettings(apiUrl?: string): Promise<WidgetSettings
     );
   }
 
-  // Формируем полный URL
-  const fullUrl = `${baseUrl}/api/v1/tenant/external/widgets/online-appointment/settings`;
+  // Формируем полный URL.
+  // В config.apiUrl допускаем как base (.../api/v1/tenant/external), так и полный URL settings.
+  const normalizedBase = normalizeExternalBaseUrl(baseUrl);
+  const fullUrl = `${normalizedBase}/widgets/online-appointment/settings`;
 
   // Выполняем новый запрос
   cachePromise = fetch(fullUrl, {

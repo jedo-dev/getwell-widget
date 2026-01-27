@@ -57,7 +57,7 @@ const WidgetProvider: React.FC = () => {
     'dark': theme
   }
 
-  const currentTheme = getTheme?.[widgetState?.config?.theme?.primaryColor as keyof typeof getTheme]
+  const currentTheme = theme
 
 
   useEffect(() => {
@@ -102,7 +102,6 @@ const WidgetProvider: React.FC = () => {
   const handleClose = () => {
     closeGetWellWidget();
   };
-  console.log(`stickyBtnEnabled`, widgetState.config?.stickyBtnEnable)
 
   const stickyBtnEnabled = widgetState.config?.stickyBtnEnable ?? false;
 
@@ -114,7 +113,7 @@ const WidgetProvider: React.FC = () => {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: currentTheme.dark.default,
+          colorPrimary: currentTheme.dark?.default,
           colorInfo: primaryColor,
         },
         components: {

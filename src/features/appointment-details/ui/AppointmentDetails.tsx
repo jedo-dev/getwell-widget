@@ -7,6 +7,7 @@ import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectPet } from '../../../lib/widget-manager';
+import { recordsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
@@ -75,8 +76,44 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
 
   useEffect(() => {
-    // Загружаем питомцев при наличии телефона (только для существующих пользователей)
-    if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+    const state = getWidgetState();
+    const ownerData = state.ownerData;
+
+    // Если есть данные владельца, используем их
+    if (ownerData && ownerData.patients) {
+      if (ownerData.patients.length > 0) {
+        // Преобразуем patients в формат Pet
+        const petsFromOwner: Pet[] = ownerData.patients.map((patient) => {
+          // Преобразуем gender из API формата в Gender enum
+          const patientGender =
+            patient.gender.name.toLowerCase() === 'male' ? Gender.MALE : Gender.FEMALE;
+
+          return {
+            id: patient.id,
+            name: patient.nickname,
+            species: patient.breed.patient_type.name,
+            breed: patient.breed.name,
+            gender: patientGender,
+            birthDate: patient.birth_date,
+          };
+        });
+
+        setPets(petsFromOwner);
+        if (petsFromOwner.length > 0 && !selectedPetId) {
+          const firstPetId = petsFromOwner[0].id || null;
+          setSelectedPetId(firstPetId);
+          if (firstPetId) {
+            selectPet(firstPetId);
+          }
+        }
+      } else {
+        // Если массив пустой, очищаем список питомцев
+        setPets([]);
+        setSelectedPetId(null);
+      }
+      setLoadingPets(false);
+    } else if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+      // Fallback: загружаем питомцев через API, если нет данных владельца
       const loadPets = async () => {
         setLoadingPets(true);
         try {
@@ -108,6 +145,31 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       setPhone(initialPhone);
     }
   }, [initialPhone]);
+
+  useEffect(() => {
+    // Заполняем данные пользователя из ownerData, если они есть
+    const state = getWidgetState();
+    const ownerData = state.ownerData;
+
+    if (ownerData && !isNewUser) {
+      // Заполняем поля пользователя из ownerData
+      if (ownerData.name && !firstName) {
+        setFirstName(ownerData.name);
+      }
+      if (ownerData.surname && !lastName) {
+        setLastName(ownerData.surname);
+      }
+      if (ownerData.patronymic && !patronymic) {
+        setPatronymic(ownerData.patronymic);
+      }
+      if (ownerData.gender && !gender) {
+        // Преобразуем 'male'/'female' в Gender enum
+        const ownerGender = ownerData.gender === 'male' ? Gender.MALE : Gender.FEMALE;
+        setGender(ownerGender);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNewUser]);
 
   const handlePhoneEdit = () => {
     setIsPhoneEditing(true);
@@ -143,7 +205,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validatePhone()) {
       message.error('Пожалуйста, введите корректный номер телефона');
       return;
@@ -229,6 +291,44 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       consentPersonalData,
       consentMarketing,
     });
+
+    // Создание записи в онлайн-режиме (минимальный payload)
+    const state = getWidgetState();
+    const apiUrl = state.config?.apiUrl;
+    const toIso = state.selectedTimeSlotTo;
+    const departmentId = state.selectedDepartmentId;
+
+    if (!state.config?.offlineMode && apiUrl && selectedEmployee && selectedDateTime && toIso && departmentId) {
+      try {
+        // backend ожидает "YYYY-MM-DD HH:mm:ss" в локальной TZ браузера
+        const isoToLocal = async (iso: string): Promise<string> => {
+          const d = new Date(iso);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const hh = String(d.getHours()).padStart(2, '0');
+          const mm = String(d.getMinutes()).padStart(2, '0');
+          const ss = String(d.getSeconds()).padStart(2, '0');
+          return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
+        };
+
+        await recordsApi.createRecord({
+          apiUrl,
+          payload: {
+            appointment: {
+              department_id: departmentId,
+              employee_id: selectedEmployee.id,
+              from: await isoToLocal(selectedDateTime),
+              to: await isoToLocal(toIso),
+              comment: symptoms || undefined,
+            },
+          },
+        });
+      } catch (e) {
+        // Не блокируем UX: показываем подтверждение даже если запись не сохранилась.
+        console.error('Ошибка создания записи:', e);
+      }
+    }
 
     // Переход к экрану подтверждения
     goToAppointmentConfirmation();

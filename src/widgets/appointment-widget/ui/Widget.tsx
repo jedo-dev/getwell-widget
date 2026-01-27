@@ -13,7 +13,8 @@ import { PrivacyPolicy } from '../../../features/privacy-policy';
 import { SpecialistSelection } from '../../../features/specialist-selection';
 import defaultImage from '../../../img/default.png';
 import { goBack } from '../../../lib/widget-manager';
-import { branchesApi, departmentsApi, employeesApi } from '../../../shared/api';
+import { branchesApi, departmentsApi } from '../../../shared/api';
+import { schedulesApi } from '../../../shared/api/schedules';
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
@@ -61,174 +62,186 @@ export const Widget: React.FC<WidgetProps> = ({
   }, []);
 
   useEffect(() => {
-  // Загружаем филиалы при открытии виджета или в режиме без Drawer
-  if (open || withoutDrawer) {
-    // Если филиалы переданы в конфиге, используем их
-    if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
-      setBranches(widgetState.config.branches);
-      setLoadingBranches(false);
-      return;
-    }
+    // Загружаем филиалы при открытии виджета или в режиме без Drawer
+    if (open || withoutDrawer) {
+      // Если филиалы переданы в конфиге, используем их
+      if (widgetState.config?.branches && widgetState.config.branches.length > 0) {
+        setBranches(widgetState.config.branches);
+        setLoadingBranches(false);
+        return;
+      }
 
-    // В офлайн-режиме не ходим в API
-    if (isOffline) {
-      setBranches([]);
-      setLoadingBranches(false);
-      return;
-    }
+      // В офлайн-режиме не ходим в API
+      if (isOffline) {
+        setBranches([]);
+        setLoadingBranches(false);
+        return;
+      }
 
-    // Онлайн-режим: пробуем загрузить из API (если apiUrl задан)
-    if (widgetState.config?.apiUrl) {
-      const loadBranches = async () => {
-        setLoadingBranches(true);
-        try {
-          const response = await branchesApi.getAll();
-          if (response.success && response.data) {
-            setBranches(response.data);
+      // Онлайн-режим: пробуем загрузить из API (если apiUrl задан)
+      if (widgetState.config?.apiUrl) {
+        const loadBranches = async () => {
+          setLoadingBranches(true);
+          try {
+            const response = await branchesApi.getAll();
+            if (response.success && response.data) {
+              setBranches(response.data);
+            }
+          } catch (error) {
+            console.error('Ошибка загрузки филиалов:', error);
+          } finally {
+            setLoadingBranches(false);
           }
+        };
+
+        loadBranches();
+      }
+    }
+  }, [open, withoutDrawer, isOffline, widgetState.config?.apiUrl, widgetState.config?.branches]);
+
+  useEffect(() => {
+    // Загружаем специалистов при переходе к выбору специалиста
+    if (
+      open &&
+      widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION &&
+      widgetState.selectedBranchId
+    ) {
+      // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
+      if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
+        setEmployees(widgetState.config.employees);
+        setLoadingEmployees(false);
+        return;
+      }
+
+      if (isOffline) {
+        setEmployees([]);
+        setLoadingEmployees(false);
+        return;
+      }
+
+      const loadEmployees = async () => {
+        setLoadingEmployees(true);
+        try {
+          if (!widgetState.config?.apiUrl) {
+            setEmployees([]);
+            return;
+          }
+
+          const doctors = await schedulesApi.getAvailableDoctors({
+            apiUrl: widgetState.config.apiUrl,
+            filialId: widgetState.selectedBranchId!,
+          });
+          setEmployees(doctors);
         } catch (error) {
-          console.error('Ошибка загрузки филиалов:', error);
+          console.error('Ошибка загрузки доступных врачей:', error);
+          setEmployees([]);
         } finally {
-          setLoadingBranches(false);
+          setLoadingEmployees(false);
         }
       };
 
-      loadBranches();
+      loadEmployees();
     }
-  }
-}, [open, withoutDrawer, isOffline, widgetState.config?.apiUrl, widgetState.config?.branches]);
+  }, [open, isOffline, widgetState.currentStep, widgetState.selectedBranchId, widgetState.config?.employees]);
 
   useEffect(() => {
-  // Загружаем специалистов при переходе к выбору специалиста
-  if (
-    open &&
-    widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION &&
-    widgetState.selectedBranchId
-  ) {
-    // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
-    if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
-      setEmployees(widgetState.config.employees);
-      setLoadingEmployees(false);
-      return;
-    }
-
-    if (isOffline) {
-      setEmployees([]);
-      setLoadingEmployees(false);
-      return;
-    }
-
-    const loadEmployees = async () => {
-      setLoadingEmployees(true);
-      try {
-        const response = await employeesApi.getByBranch(widgetState.selectedBranchId!);
-        if (response.success && response.data) {
-          setEmployees(response.data);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки сотрудников:', error);
-      } finally {
+    // Загружаем специалистов отделения при переходе к списку врачей отделения
+    if (
+      open &&
+      widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION &&
+      widgetState.selectedBranchId &&
+      widgetState.selectedDepartmentId
+    ) {
+      // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
+      if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
+        setEmployees(widgetState.config.employees);
         setLoadingEmployees(false);
+        return;
       }
-    };
 
-    loadEmployees();
-  }
-}, [open, isOffline, widgetState.currentStep, widgetState.selectedBranchId, widgetState.config?.employees]);
-
-  useEffect(() => {
-  // Загружаем специалистов отделения при переходе к списку врачей отделения
-  if (
-    open &&
-    widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION &&
-    widgetState.selectedBranchId &&
-    widgetState.selectedDepartmentId
-  ) {
-    // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
-    if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
-      setEmployees(widgetState.config.employees);
-      setLoadingEmployees(false);
-      return;
-    }
-
-    if (isOffline) {
-      setEmployees([]);
-      setLoadingEmployees(false);
-      return;
-    }
-
-    const loadEmployees = async () => {
-      setLoadingEmployees(true);
-      try {
-        const response = await employeesApi.getByDepartment(
-          widgetState.selectedBranchId!,
-          widgetState.selectedDepartmentId!,
-        );
-        if (response.success && response.data) {
-          setEmployees(response.data);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки сотрудников отделения:', error);
-      } finally {
+      if (isOffline) {
+        setEmployees([]);
         setLoadingEmployees(false);
+        return;
       }
-    };
 
-    loadEmployees();
-  }
-}, [
-  open,
-  isOffline,
-  widgetState.currentStep,
-  widgetState.selectedBranchId,
-  widgetState.selectedDepartmentId,
-  widgetState.config?.employees,
-]);
+      const loadEmployees = async () => {
+        setLoadingEmployees(true);
+        try {
+          if (!widgetState.config?.apiUrl) {
+            setEmployees([]);
+            return;
+          }
+
+          const doctors = await schedulesApi.getAvailableDoctors({
+            apiUrl: widgetState.config.apiUrl,
+            filialId: widgetState.selectedBranchId!,
+            departmentId: widgetState.selectedDepartmentId!,
+          });
+          setEmployees(doctors);
+        } catch (error) {
+          console.error('Ошибка загрузки врачей отделения:', error);
+          setEmployees([]);
+        } finally {
+          setLoadingEmployees(false);
+        }
+      };
+
+      loadEmployees();
+    }
+  }, [
+    open,
+    isOffline,
+    widgetState.currentStep,
+    widgetState.selectedBranchId,
+    widgetState.selectedDepartmentId,
+    widgetState.config?.employees,
+  ]);
 
   useEffect(() => {
-  // Загружаем отделения при переходе к выбору специалиста/отделения
-  if (
-    open &&
-    (widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION ||
-      widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION) &&
-    widgetState.selectedBranchId
-  ) {
-    // Офлайн: берём из конфига
-    if (widgetState.config?.departments && widgetState.config.departments.length > 0) {
-      setDepartments(widgetState.config.departments);
-      setLoadingDepartments(false);
-      return;
-    }
-
-    if (isOffline) {
-      setDepartments([]);
-      setLoadingDepartments(false);
-      return;
-    }
-
-    const loadDepartments = async () => {
-      setLoadingDepartments(true);
-      try {
-        const response = await departmentsApi.getByBranch(widgetState.selectedBranchId!);
-        if (response.success && response.data) {
-          setDepartments(response.data);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки отделений:', error);
-      } finally {
+    // Загружаем отделения при переходе к выбору специалиста/отделения
+    if (
+      open &&
+      (widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION ||
+        widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION) &&
+      widgetState.selectedBranchId
+    ) {
+      // Офлайн: берём из конфига
+      if (widgetState.config?.departments && widgetState.config.departments.length > 0) {
+        setDepartments(widgetState.config.departments);
         setLoadingDepartments(false);
+        return;
       }
-    };
 
-    loadDepartments();
-  }
-}, [
-  open,
-  isOffline,
-  widgetState.currentStep,
-  widgetState.selectedBranchId,
-  widgetState.config?.departments,
-]);
+      if (isOffline) {
+        setDepartments([]);
+        setLoadingDepartments(false);
+        return;
+      }
+
+      const loadDepartments = async () => {
+        setLoadingDepartments(true);
+        try {
+          const response = await departmentsApi.getByBranch(widgetState.selectedBranchId!);
+          if (response.success && response.data) {
+            setDepartments(response.data);
+          }
+        } catch (error) {
+          console.error('Ошибка загрузки отделений:', error);
+        } finally {
+          setLoadingDepartments(false);
+        }
+      };
+
+      loadDepartments();
+    }
+  }, [
+    open,
+    isOffline,
+    widgetState.currentStep,
+    widgetState.selectedBranchId,
+    widgetState.config?.departments,
+  ]);
 
   const getSelectedBranch = (): Branch | null => {
     if (!widgetState.selectedBranchId) {

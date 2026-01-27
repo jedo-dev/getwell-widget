@@ -70,20 +70,36 @@ class ApiClient {
   }
 
   /**
+   * Построить query string вручную через encodeURIComponent
+   * Это гарантирует, что пробелы будут %20, а не + (как в URLSearchParams)
+   * @param params - Параметры запроса
+   * @returns Query string без ведущего ?
+   */
+  private buildQuery(params: Record<string, string | number | boolean | undefined | null>): string {
+    const pairs: string[] = [];
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        const encodedKey = encodeURIComponent(key);
+        const encodedValue = encodeURIComponent(String(value));
+        pairs.push(`${encodedKey}=${encodedValue}`);
+      }
+    });
+    return pairs.join('&');
+  }
+
+  /**
    * Построить полный URL с параметрами запроса
    */
   private buildURL(endpoint: string, params?: RequestParams): string {
-    const baseURL = this.getBaseURL();
-    let url = `${baseURL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    // Если пришёл абсолютный URL — используем как есть
+    let url = endpoint;
+    if (!/^https?:\/\//i.test(endpoint)) {
+      const baseURL = this.getBaseURL();
+      url = `${baseURL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    }
 
     if (params) {
-      const searchParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
-        }
-      });
-      const queryString = searchParams.toString();
+      const queryString = this.buildQuery(params);
       if (queryString) {
         url += `?${queryString}`;
       }

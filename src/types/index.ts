@@ -77,38 +77,38 @@ export interface Appointment {
 
 // Widget Theme
 export interface WidgetTheme {
- 
-      
+
+
   // Основные цвета
   primaryColor?: string; // Основной цвет (#344054)
   secondaryColor?: string; // Вторичный цвет (#52c41a)
   backgroundColor?: string; // Фоновый цвет (#ffffff)
   backgroundSecondary?: string; // Вторичный фон (#f5f5f5)
   backgroundTertiary?: string; // Третичный фон (#fafafa)
-  
+
   // Цвета текста
   textColor?: string; // Основной текст (#101828)
   textSecondary?: string; // Вторичный текст (#344054)
   textTertiary?: string; // Третичный текст (#777777)
   textDisabled?: string; // Отключенный текст (#c9c9c9)
-  
+
   // Цвета границ
   borderColor?: string; // Основная граница (#f0f0f0)
   borderSecondary?: string; // Вторичная граница (#eaecf0)
   borderTertiary?: string; // Третичная граница (#d0d5dd)
-  
+
   // Цвета состояний
   errorColor?: string; // Цвет ошибки (#ff4d4f)
   successColor?: string; // Цвет успеха (#52c41a)
   linkColor?: string; // Цвет ссылки (#1890ff)
   linkHoverColor?: string; // Цвет ссылки при наведении (#40a9ff)
-  
+
   // Цвета кнопок
   buttonPrimary?: string; // Основная кнопка (#344054)
   buttonPrimaryHover?: string; // Основная кнопка при наведении (#1f2937)
   buttonSecondary?: string; // Вторичная кнопка (#d0d5dd)
   buttonText?: string; // Текст кнопки (#ffffff)
-  
+
   // Дополнительные цвета
   scrollbarColor?: string; // Цвет скроллбара (#344054)
   tagBackground?: string; // Фон тега (#1c29360d)
@@ -160,7 +160,13 @@ export interface WidgetState {
   selectedEmployeeId: number | null;
   selectedDepartmentId: number | null;
   selectionMode?: SelectionMode; // режим выбора: специалист или отделение
+  /**
+   * Выбранный временной слот.
+   * `selectedTimeSlot` хранит время начала (from) в ISO-формате (для UI и Date()).
+   * `selectedTimeSlotTo` хранит время окончания (to) в ISO-формате.
+   */
   selectedTimeSlot: string | null;
+  selectedTimeSlotTo: string | null;
   phone: string | null;
   selectedPetId: number | null;
   isNewUser?: boolean; // новый пользователь
@@ -169,6 +175,35 @@ export interface WidgetState {
     lastName?: string;
     patronymic?: string;
     gender?: Gender;
+  };
+  ownerData?: {
+    id: number;
+    surname: string;
+    name: string;
+    patronymic: string;
+    gender: 'male' | 'female';
+    phone_number: string;
+    patients: Array<{
+      id: number;
+      nickname: string;
+      gender: { id: number; name: string };
+      breed: {
+        id: number;
+        name: string;
+        patient_type: {
+          id: number;
+          name: string;
+          breeds_count: number;
+          created_at: string;
+          deleted_at: string | null;
+          deleted_by: number | null;
+        };
+        deleted_at: string | null;
+        deleted_by: number | null;
+      };
+      birth_date: string;
+      owner: number | null;
+    }>;
   };
 }
 
