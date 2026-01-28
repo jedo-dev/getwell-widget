@@ -25,9 +25,8 @@ export interface ExternalDoctorApiData {
 }
 
 export interface AvailableDoctorsData {
-  by_appointment: ExternalDoctorApiData[];
-  by_live_queue: ExternalDoctorApiData[];
-  by_online_appointment_widget: ExternalDoctorApiData[];
+  employee:ExternalDoctorApiData;
+  items:any[]
 }
 
 export interface AvailableTimechip {
@@ -36,7 +35,8 @@ export interface AvailableTimechip {
   is_limited: boolean;
 }
 
-function mapDoctorToEmployee(d: ExternalDoctorApiData): Employee {
+function mapDoctorToEmployee(a: {employee:ExternalDoctorApiData}): Employee {
+  const d = a.employee
   const position = d.job_position_for_documents?.name || '';
   return {
     id: d.id,
@@ -64,23 +64,23 @@ export const schedulesApi = {
   }): Promise<Employee[]> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
     // В docs путь содержит /widget/.. (singular)
-    const endpoint = `${base}/widget/online-appointment/schedules/available-doctors`;
+    const endpoint = `${base}/widgets/online-appointment/schedules/employees-and-schedules`;
 
     const query: Record<string, string | number | undefined> = {
       filial_id: params.filialId,
-      ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
+      ...(params.departmentId ? { 'filter[departments_id]': params.departmentId } : {}),
       ...(params.date ? { 'filter[date]': params.date } : {}),
       ...(params.search ? { 'filter[search]': params.search } : {}),
-      // Мы целимся в виджетный тип расписания
-      'filter[schedule_type]': 'online_appointment_widget',
+    
+      // 'filter[schedule_type]': 'online_appointment_widget',
     };
 
-    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData>>(endpoint, query);
+    const res = await apiClient.get<ExternalApiResponse<any>>(endpoint, query);
     if (res.status !== 'ok') {
       throw new Error(res.reason || 'Failed to fetch available doctors');
     }
 
-    const doctors = res.data?.by_online_appointment_widget || [];
+    const doctors = res.data;
     return doctors.map(mapDoctorToEmployee);
   },
 

@@ -152,7 +152,6 @@ function mapApiResponseToWidgetConfig(
     // Данные
     branches,
     departments,
-    employees,
 
     // Настройки отображения
     showDepartments: data.show_departments ,
