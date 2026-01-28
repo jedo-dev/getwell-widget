@@ -38,6 +38,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   const showDepartments = widgetState.config?.showDepartments ?? true;
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const selectedFilial = widgetState.selectedBranchId
   const [activeTab, setActiveTab] = useState<string>(
     selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name',
   );
@@ -70,12 +71,16 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   }, [employees, searchQuery]);
 
   const filteredDepartments = useMemo(() => {
+    let deps= departments
+    if(selectedFilial){
+      deps = departments.filter(department => department.filialId === selectedFilial)
+    }
     if (!searchQuery.trim()) {
-      return departments;
+      return deps;
     }
 
     const query = searchQuery.toLowerCase();
-    return departments.filter((dept) => {
+    return deps.filter((dept) => {
       return dept.name.toLowerCase().includes(query);
     });
   }, [departments, searchQuery]);
@@ -325,6 +330,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                         className='specialist-selection-list'
                         dataSource={filteredDepartments}
                         renderItem={(department) => {
+                          console.log(department);
                           const isSelected = selectedDepartmentId === department.id;
 
                           return (

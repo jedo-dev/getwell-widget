@@ -118,6 +118,7 @@ function mapApiResponseToWidgetConfig(
       departmentsMap.set(dept.id, {
         id: dept.id,
         name: dept.name,
+        filialId:dept.filial.id,
         showInWidget: true,
       });
     }

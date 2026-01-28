@@ -142,7 +142,13 @@ export const Widget: React.FC<WidgetProps> = ({
 
       loadEmployees();
     }
-  }, [open, isOffline, widgetState.currentStep, widgetState.selectedBranchId, widgetState.config?.employees]);
+  }, [
+    open,
+    isOffline,
+    widgetState.currentStep,
+    widgetState.selectedBranchId,
+    widgetState.config?.employees,
+  ]);
 
   useEffect(() => {
     // Загружаем специалистов отделения при переходе к списку врачей отделения

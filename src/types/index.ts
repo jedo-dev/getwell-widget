@@ -31,6 +31,7 @@ export interface Department {
   id: number;
   name: string;
   showInWidget: boolean;
+  filialId:number;
 }
 
 // TimeSlot (Слот времени)
