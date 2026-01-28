@@ -23,6 +23,8 @@
   </head>
 
   <body>
+  
+
     <h2>GetWell Widget — offline/config-only запуск</h2>
     <p class="hint">
       Этот HTML демонстрирует запуск виджета без apiUrl: все branches/employees/departments задаются вручную в конфиге.
@@ -74,7 +76,12 @@
 
     <div class="card">
       <b>Текущий конфиг (window.GetWellWidgetConfig)</b>
+     <div style="display:flex">
       <pre id="configView"></pre>
+      
+      <div id="widget-root"></div>
+     </div>
+      
     </div>
 
     <!-- 2) ВАЖНО: объявляем window.GetWellWidgetConfig ДО подключения JS -->
@@ -108,6 +115,7 @@
         showDoctorInfo: true,
         showEmployeePosition: true,
         stickyButtonPulse: true,
+        renderedAsPage:true,
         stickyButtonPosition: 'left',
         stickyButtonColor: '#782c2c',
         stickyBtnEnable: true,
@@ -176,6 +184,8 @@
     <script>
       const $ = (id) => document.getElementById(id);
 
+      let widgetRoot = null;
+
       function renderConfig() {
         $("configView").textContent = JSON.stringify(window.GetWellWidgetConfig, null, 2);
       }
@@ -188,21 +198,85 @@
         return window.GetWellWidget;
       }
 
+      // Монтирование виджета в DOM
+      function mountWidget() {
+        if (!window.GetWellWidget || !window.GetWellWidget.WidgetProvider) {
+          console.warn("WidgetProvider не доступен, попробуйте позже");
+          return false;
+        }
+
+        if (!window.React || !window.ReactDOM || !window.ReactDOM.createRoot) {
+          console.error("React или ReactDOM не доступны");
+          return false;
+        }
+
+        const rootElement = document.getElementById("widget-root");
+        if (!rootElement) {
+          console.error("Контейнер widget-root не найден");
+          return false;
+        }
+
+        // Если уже смонтирован, не монтируем повторно
+        if (rootElement._reactRootContainer) {
+          return true;
+        }
+
+        try {
+          const root = window.ReactDOM.createRoot(rootElement);
+          root.render(window.React.createElement(window.GetWellWidget.WidgetProvider));
+          rootElement._reactRootContainer = root;
+          return true;
+        } catch (error) {
+          console.error("Ошибка при монтировании виджета:", error);
+          return false;
+        }
+      }
+
       // Первичный рендер конфига
       renderConfig();
 
-      $("btnInit").addEventListener("click", () => {
+      // Пытаемся смонтировать виджет после загрузки скрипта
+      // Используем небольшую задержку, чтобы убедиться, что все загружено
+      setTimeout(() => {
+        if (mountWidget()) {
+          console.log("Виджет успешно смонтирован");
+        } else {
+          console.warn("Не удалось смонтировать виджет при загрузке, попробуйте нажать Init");
+        }
+      }, 100);
+
+      $("btnInit").addEventListener("click", async () => {
         const w = safeWidget();
         if (!w) return;
 
+        // Убеждаемся, что виджет смонтирован
+        if (!mountWidget()) {
+          alert("Ошибка: не удалось смонтировать виджет. Проверьте консоль.");
+          return;
+        }
+
         // init без аргументов — должен подхватить window.GetWellWidgetConfig
-        w.init();
+        await w.init();
         alert("init() выполнен (config из window.GetWellWidgetConfig)");
       });
 
       $("btnOpen").addEventListener("click", () => {
         const w = safeWidget();
         if (!w) return;
+
+        // Убеждаемся, что виджет смонтирован
+        if (!mountWidget()) {
+          alert("Ошибка: не удалось смонтировать виджет. Проверьте консоль.");
+          return;
+        }
+
+        // Проверяем, что виджет инициализирован
+        const state = w.getState();
+        if (!state.initialized) {
+          alert("Виджет не инициализирован. Сначала нажмите Init.");
+          return;
+        }
+
         w.open();
       });
 

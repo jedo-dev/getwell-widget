@@ -1,4 +1,4 @@
-import { CalendarOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getWidgetState, goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
@@ -16,6 +16,9 @@ import {
 import { Avatar } from '../../../shared/ui';
 import { Employee } from '../../../types';
 import './DateTimeSelection.css';
+
+import CalendarIcon from '../../../img/calendar.svg';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 
 export interface DateTimeSelectionProps {
   selectedEmployee: Employee | null;
@@ -225,7 +228,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
           {selectedDate && selectedTime && (
             <div className='date-time-selection-doctor-right'>
               <div className='date-time-selection-calendar-icon-wrapper'>
-                <CalendarOutlined className='date-time-selection-calendar-icon' />
+                <IconWrapper src={CalendarIcon} />
               </div>
               <div className='date-time-selection-selected-info'>
                 <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>

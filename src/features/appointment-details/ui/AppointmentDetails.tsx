@@ -1,11 +1,10 @@
 import {
-  CalendarOutlined,
-  DownOutlined,
-  EnvironmentOutlined
+  DownOutlined
 } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import CalendarIcon from '../../../img/calendar.svg';
 import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectPet } from '../../../lib/widget-manager';
 import { recordsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
@@ -29,9 +28,12 @@ import CustomDatepicker from '../../../shared/ui/CustomDatepicker';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
 import CustomTextArea from '../../../shared/ui/CustomTextArea';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
+
+import LocationIcon from  '../../../img/location.svg'
 
 
 export interface AppointmentDetailsProps {
@@ -376,7 +378,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {selectedBranch && (
             <div className='appointment-details-location'>
               <div className='appointment-details-icon-wrapper'>
-                <EnvironmentOutlined className='appointment-details-icon' />
+                <IconWrapper src={LocationIcon} />
               </div>
               <div className='appointment-details-location-info'>
                 <div className='appointment-details-location-name'>{selectedBranch.name}</div>
@@ -409,7 +411,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {dateTimeInfo && (
             <div className='appointment-details-date'>
               <div className='appointment-details-icon-wrapper'>
-                <CalendarOutlined className='appointment-details-icon' />
+                <IconWrapper src={CalendarIcon} />
               </div>
               <div className='appointment-details-date-info'>
                 <div className='appointment-details-date-text'>{formattedDate}</div>

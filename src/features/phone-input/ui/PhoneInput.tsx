@@ -1,6 +1,7 @@
-import { CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Button, message, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
+import CalendarIcon from '../../../img/calendar.svg';
+import LocationIcon from '../../../img/location.svg';
 import { getWidgetState, goBack, savePhoneAndGoToDetails } from '../../../lib/widget-manager';
 import { branchesApi } from '../../../shared/api/branches';
 import { employeesApi } from '../../../shared/api/employees';
@@ -14,6 +15,7 @@ import {
 } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
 import CustomInput from '../../../shared/ui/CustomInput';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, WidgetState } from '../../../types';
 import './PhoneInput.css';
 
@@ -200,7 +202,7 @@ export const PhoneInput: React.FC = () => {
         {branch && (
           <div className='phone-input-location'>
             <div className='phone-input-icon-wrapper'>
-              <EnvironmentOutlined className='phone-input-icon' />
+              <IconWrapper src={LocationIcon} />
             </div>
             <div className='phone-input-location-info'>
               <div className='phone-input-location-name'>{branch.name}</div>
@@ -231,7 +233,7 @@ export const PhoneInput: React.FC = () => {
         {dateTime && (
           <div className='phone-input-date'>
             <div className='phone-input-icon-wrapper'>
-              <CalendarOutlined className='phone-input-icon' />
+              <IconWrapper src={CalendarIcon} />
             </div>
             <div className='phone-input-date-info'>
               <div className='phone-input-date-text'>{formattedDate}</div>
