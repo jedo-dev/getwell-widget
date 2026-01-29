@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -12,76 +12,118 @@
     <!-- <link rel="stylesheet" href="https://your-cdn.example.com/getwell/dist/index.umd.css" /> -->
 
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 16px; }
-      .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-      button { padding: 10px 12px; cursor: pointer; }
-      select, input { padding: 8px 10px; }
-      pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
-      .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-top: 12px; }
-      .hint { color: #6b7280; font-size: 13px; }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        padding: 16px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      button {
+        padding: 10px 12px;
+        cursor: pointer;
+      }
+      select,
+      input {
+        padding: 8px 10px;
+      }
+      pre {
+        background: #f6f8fa;
+        padding: 12px;
+        border-radius: 8px;
+        overflow: auto;
+      }
+      .card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 12px;
+      }
+      .hint {
+        color: #6b7280;
+        font-size: 13px;
+      }
+      #widget-root {
+        width: 100%;
+      }
+      #configView {
+        min-width: 300px;
+      }
+      .flexible {
+        display: flex;
+      }
+      textarea {
+        min-height: 500px;
+      }
+      .widget-wrap {
+        min-width: 600px;
+      }
     </style>
   </head>
 
   <body>
-  
+    <div class="flexible">
+      <div>
+        <h2>GetWell Widget — offline/config-only запуск</h2>
 
-    <h2>GetWell Widget — offline/config-only запуск</h2>
-    <p class="hint">
-      Этот HTML демонстрирует запуск виджета без apiUrl: все branches/employees/departments задаются вручную в конфиге.
-      Можно менять currentStep на лету через applyConfig().
-    </p>
+        <div class="flexible">
+          <div class="row">
+            <button id="btnInit">Init (подхват window.GetWellWidgetConfig)</button>
+            <button id="btnOpen">Open</button>
+            <button id="btnReset">Reset</button>
+          </div>
 
-    <div class="row">
-      <button id="btnInit">Init (подхват window.GetWellWidgetConfig)</button>
-      <button id="btnOpen">Open</button>
-      <button id="btnClose">Close</button>
-      <button id="btnReset">Reset</button>
-    </div>
+          <div class="card">
+            <div class="row">
+              <label for="stepSelect"><b>currentStep:</b></label>
+              <select id="stepSelect">
+                <option value="branch-selection">branch-selection</option>
+                <option value="next-steps">next-steps</option>
+                <option value="specialist-selection">specialist-selection</option>
+                <option value="department-specialists-selection">
+                  department-specialists-selection
+                </option>
+                <option value="doctor-info">doctor-info</option>
+                <option value="date-time-selection">date-time-selection</option>
+                <option value="phone-input">phone-input</option>
+                <option value="appointment-details">appointment-details</option>
+                <option value="appointment-confirmation">appointment-confirmation</option>
+                <option value="privacy-policy">privacy-policy</option>
+              </select>
 
-    <div class="card">
-      <div class="row">
-        <label for="stepSelect"><b>currentStep:</b></label>
-        <select id="stepSelect">
-          <option value="branch-selection">branch-selection</option>
-          <option value="next-steps">next-steps</option>
-          <option value="specialist-selection">specialist-selection</option>
-          <option value="department-specialists-selection">department-specialists-selection</option>
-          <option value="doctor-info">doctor-info</option>
-          <option value="date-time-selection">date-time-selection</option>
-          <option value="phone-input">phone-input</option>
-          <option value="appointment-details">appointment-details</option>
-          <option value="appointment-confirmation">appointment-confirmation</option>
-          <option value="privacy-policy">privacy-policy</option>
-        </select>
+              <button id="btnApplyStep">applyConfig(currentStep)</button>
 
-        <button id="btnApplyStep">applyConfig(currentStep)</button>
+              <label style="margin-left: 8px">
+                <input type="checkbox" id="lockStep" />
+                lockStep
+              </label>
 
-        <label style="margin-left: 8px;">
-          <input type="checkbox" id="lockStep" />
-          lockStep
-        </label>
+              <label style="margin-left: 8px">
+                <input type="checkbox" id="preserveStepOnOpen" checked />
+                preserveStepOnOpen
+              </label>
+            </div>
 
-        <label style="margin-left: 8px;">
-          <input type="checkbox" id="preserveStepOnOpen" checked />
-          preserveStepOnOpen
-        </label>
+            <div class="row" style="margin-top: 10px">
+              <label for="primaryColor"><b>primaryColor:</b></label>
+              <input id="primaryColor" type="text" value="dark" placeholder="dark" />
+              <button id="btnApplyTheme">applyConfig(theme)</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display: flex; gap: 10px">
+            <textarea id="configView"></textarea>
+          </div>
+        </div>
       </div>
 
-      <div class="row" style="margin-top: 10px;">
-        <label for="primaryColor"><b>primaryColor:</b></label>
-        <input id="primaryColor" type="text" value="#6D28D9" placeholder="#6D28D9" />
-        <button id="btnApplyTheme">applyConfig(theme)</button>
+      <div class="card widget-wrap">
+        <div id="widget-root"></div>
       </div>
-    </div>
-
-    <div class="card">
-      <b>Текущий конфиг (window.GetWellWidgetConfig)</b>
-     <div style="display:flex">
-      <pre id="configView"></pre>
-      
-      <div id="widget-root"></div>
-     </div>
-      
     </div>
 
     <!-- 2) ВАЖНО: объявляем window.GetWellWidgetConfig ДО подключения JS -->
@@ -93,20 +135,20 @@
 
         // Превью-режим
         render: {
-          currentStep: "branch-selection",
+          currentStep: 'branch-selection',
           lockStep: false,
           preserveStepOnOpen: true,
         },
 
         // UI
         theme: {
-          primaryColor: "dark",
+          primaryColor: 'dark',
         },
 
         // (опционально) Картинки/брендирование
-        logo: "https://dummyimage.com/180x44/111827/ffffff&text=GetWell",
-        desktopImageUrl: "https://dummyimage.com/1200x700/e5e7eb/111827&text=Desktop+Banner",
-        mobileImageUrl: "https://dummyimage.com/700x900/e5e7eb/111827&text=Mobile+Banner",
+        logo: 'https://dummyimage.com/180x44/111827/ffffff&text=GetWell',
+        desktopImageUrl: 'https://dummyimage.com/1200x700/e5e7eb/111827&text=Desktop+Banner',
+        mobileImageUrl: 'https://dummyimage.com/700x900/e5e7eb/111827&text=Mobile+Banner',
 
         // Флаги отображения
         showBranches: true,
@@ -115,62 +157,61 @@
         showDoctorInfo: true,
         showEmployeePosition: true,
         stickyButtonPulse: true,
-        renderedAsPage:true,
+        renderedAsPage: true,
         stickyButtonPosition: 'left',
         stickyButtonColor: '#782c2c',
         stickyBtnEnable: true,
 
         // Политика (для примера)
         textPolicy: {
-          title: "Политика конфиденциальности",
+          title: 'Политика конфиденциальности',
           // Можно HTML/текст — как у вас принято
-          text:
-            "Пример текста политики. Здесь может быть ваш HTML или markdown-подобный текст.",
+          text: 'Пример текста политики. Здесь может быть ваш HTML или markdown-подобный текст.',
         },
 
         // Данные (пример)
         branches: [
           {
             id: 1,
-            name: "Клиника на Тверской",
-            address: "г. Москва, ул. Тверская, 1",
-            phone: "+7 (999) 111-22-33",
+            name: 'Клиника на Тверской',
+            address: 'г. Москва, ул. Тверская, 1',
+            phone: '+7 (999) 111-22-33',
           },
           {
             id: 2,
-            name: "Клиника на Арбате",
-            address: "г. Москва, ул. Арбат, 10",
-            phone: "+7 (999) 444-55-66",
+            name: 'Клиника на Арбате',
+            address: 'г. Москва, ул. Арбат, 10',
+            phone: '+7 (999) 444-55-66',
           },
         ],
 
         departments: [
-          { id: 10, name: "Терапия" },
-          { id: 11, name: "Хирургия" },
-          { id: 12, name: "Стоматология" },
+          { id: 10, name: 'Терапия' },
+          { id: 11, name: 'Хирургия' },
+          { id: 12, name: 'Стоматология' },
         ],
 
         employees: [
           {
             id: 100,
-            fullName: "Иванов Илья Сергеевич",
-            position: "Ветеринарный врач",
-            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=I",
-            description: "Опыт 8 лет. Терапия, диагностика.",
+            fullName: 'Иванов Илья Сергеевич',
+            position: 'Ветеринарный врач',
+            avatarUrl: 'https://dummyimage.com/120x120/111827/ffffff&text=I',
+            description: 'Опыт 8 лет. Терапия, диагностика.',
           },
           {
             id: 101,
-            fullName: "Петрова Анна Дмитриевна",
-            position: "Хирург",
-            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=A",
-            description: "Опыт 6 лет. Мягкотканная хирургия.",
+            fullName: 'Петрова Анна Дмитриевна',
+            position: 'Хирург',
+            avatarUrl: 'https://dummyimage.com/120x120/111827/ffffff&text=A',
+            description: 'Опыт 6 лет. Мягкотканная хирургия.',
           },
           {
             id: 102,
-            fullName: "Сидоров Максим Олегович",
-            position: "Стоматолог",
-            avatarUrl: "https://dummyimage.com/120x120/111827/ffffff&text=M",
-            description: "Ультразвуковая чистка, удаление зубов.",
+            fullName: 'Сидоров Максим Олегович',
+            position: 'Стоматолог',
+            avatarUrl: 'https://dummyimage.com/120x120/111827/ffffff&text=M',
+            description: 'Ультразвуковая чистка, удаление зубов.',
           },
         ],
       };
@@ -187,12 +228,12 @@
       let widgetRoot = null;
 
       function renderConfig() {
-        $("configView").textContent = JSON.stringify(window.GetWellWidgetConfig, null, 2);
+        $('configView').value = JSON.stringify(window.GetWellWidgetConfig, null, 2);
       }
 
       function safeWidget() {
         if (!window.GetWellWidget) {
-          alert("GetWellWidget не найден. Проверь подключение dist/index.umd.js");
+          alert('GetWellWidget не найден. Проверь подключение dist/index.umd.js');
           return null;
         }
         return window.GetWellWidget;
@@ -201,18 +242,18 @@
       // Монтирование виджета в DOM
       function mountWidget() {
         if (!window.GetWellWidget || !window.GetWellWidget.WidgetProvider) {
-          console.warn("WidgetProvider не доступен, попробуйте позже");
+          console.warn('WidgetProvider не доступен, попробуйте позже');
           return false;
         }
 
         if (!window.React || !window.ReactDOM || !window.ReactDOM.createRoot) {
-          console.error("React или ReactDOM не доступны");
+          console.error('React или ReactDOM не доступны');
           return false;
         }
 
-        const rootElement = document.getElementById("widget-root");
+        const rootElement = document.getElementById('widget-root');
         if (!rootElement) {
-          console.error("Контейнер widget-root не найден");
+          console.error('Контейнер widget-root не найден');
           return false;
         }
 
@@ -227,7 +268,7 @@
           rootElement._reactRootContainer = root;
           return true;
         } catch (error) {
-          console.error("Ошибка при монтировании виджета:", error);
+          console.error('Ошибка при монтировании виджета:', error);
           return false;
         }
       }
@@ -239,66 +280,60 @@
       // Используем небольшую задержку, чтобы убедиться, что все загружено
       setTimeout(() => {
         if (mountWidget()) {
-          console.log("Виджет успешно смонтирован");
+          console.log('Виджет успешно смонтирован');
         } else {
-          console.warn("Не удалось смонтировать виджет при загрузке, попробуйте нажать Init");
+          console.warn('Не удалось смонтировать виджет при загрузке, попробуйте нажать Init');
         }
       }, 100);
 
-      $("btnInit").addEventListener("click", async () => {
+      $('btnInit').addEventListener('click', async () => {
         const w = safeWidget();
         if (!w) return;
 
         // Убеждаемся, что виджет смонтирован
         if (!mountWidget()) {
-          alert("Ошибка: не удалось смонтировать виджет. Проверьте консоль.");
+          alert('Ошибка: не удалось смонтировать виджет. Проверьте консоль.');
           return;
         }
 
         // init без аргументов — должен подхватить window.GetWellWidgetConfig
         await w.init();
-        alert("init() выполнен (config из window.GetWellWidgetConfig)");
+        alert('init() выполнен (config из window.GetWellWidgetConfig)');
       });
 
-      $("btnOpen").addEventListener("click", () => {
+      $('btnOpen').addEventListener('click', () => {
         const w = safeWidget();
         if (!w) return;
 
         // Убеждаемся, что виджет смонтирован
         if (!mountWidget()) {
-          alert("Ошибка: не удалось смонтировать виджет. Проверьте консоль.");
+          alert('Ошибка: не удалось смонтировать виджет. Проверьте консоль.');
           return;
         }
 
         // Проверяем, что виджет инициализирован
         const state = w.getState();
         if (!state.initialized) {
-          alert("Виджет не инициализирован. Сначала нажмите Init.");
+          alert('Виджет не инициализирован. Сначала нажмите Init.');
           return;
         }
 
         w.open();
       });
 
-      $("btnClose").addEventListener("click", () => {
-        const w = safeWidget();
-        if (!w) return;
-        w.close();
-      });
-
-      $("btnReset").addEventListener("click", () => {
+      $('btnReset').addEventListener('click', () => {
         const w = safeWidget();
         if (!w) return;
         w.reset();
       });
 
-      $("btnApplyStep").addEventListener("click", () => {
+      $('btnApplyStep').addEventListener('click', () => {
         const w = safeWidget();
         if (!w) return;
 
-        const step = $("stepSelect").value;
-        const lockStep = $("lockStep").checked;
-        const preserveStepOnOpen = $("preserveStepOnOpen").checked;
+        const step = $('stepSelect').value;
+        const lockStep = $('lockStep').checked;
+        const preserveStepOnOpen = $('preserveStepOnOpen').checked;
 
         // Обновляем глобальный конфиг (как будто Flutter подменил на лету)
         window.GetWellWidgetConfig = {
@@ -316,17 +351,17 @@
           {
             render: { currentStep: step, lockStep, preserveStepOnOpen },
           },
-          { resetState: false, rerender: true }
+          { resetState: false, rerender: true },
         );
 
-        renderConfig();
+        // renderConfig();
       });
 
-      $("btnApplyTheme").addEventListener("click", () => {
+      $('btnApplyTheme').addEventListener('click', () => {
         const w = safeWidget();
         if (!w) return;
 
-        const color = $("primaryColor").value.trim() || "#6D28D9";
+        const color = $('primaryColor').value.trim() || 'dark';
 
         window.GetWellWidgetConfig = {
           ...window.GetWellWidgetConfig,
@@ -338,8 +373,8 @@
       });
 
       // Авто-init (опционально): если хочешь, чтобы сразу запускалось при открытии страницы
-      // window.GetWellWidget.init();
-      // window.GetWellWidget.open();
+      window.GetWellWidget.init();
+      window.GetWellWidget.open();
     </script>
   </body>
 </html>
