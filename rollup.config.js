@@ -80,6 +80,7 @@ const baseConfig = {
       targets: [
         { src: 'src/font/**/*', dest: 'dist/font' },
         { src: 'src/img/**/*', dest: 'dist/img' },
+        { src: 'init.js', dest: 'dist' },
       ],
       copyOnce: false, // Копировать при каждом изменении в watch режиме
       hook: 'buildStart', // Копировать в начале сборки
@@ -252,6 +253,7 @@ const umdConfig = {
       targets: [
         { src: 'src/font/**/*', dest: 'dist/font' },
         { src: 'src/img/**/*', dest: 'dist/img' },
+        { src: 'init.js', dest: 'dist' },
       ],
       copyOnce: false, // Копировать при каждом изменении в watch режиме
       hook: 'buildStart', // Копировать в начале сборки
