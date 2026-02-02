@@ -8,6 +8,7 @@ export * from './departments';
 export * from './employees';
 export * from './instance';
 export * from './owners';
+export * from './patients';
 export * from './pets';
 export * from './records';
 export * from './widget-settings-cache';

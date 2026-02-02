@@ -1,12 +1,12 @@
 import { Button, DatePicker, Modal, Radio, message } from 'antd';
 import { Dayjs } from 'dayjs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Gender,
-  PET_GENDER_LABELS,
   PET_SPECIES_OPTIONS,
   PetSpecies,
 } from '../../../shared/constants';
+import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
 import { Pet } from '../../../types';
@@ -19,12 +19,20 @@ export interface AddPetModalProps {
 }
 
 export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave }) => {
+  const { genders: petGenders } = usePetGenders();
   const [name, setName] = useState<string>('');
   const [species, setSpecies] = useState<PetSpecies | string>('');
   const [breed, setBreed] = useState<string>('');
-  const [gender, setGender] = useState<Gender>(Gender.MALE);
+  const [gender, setGender] = useState<string>(Gender.MALE);
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Инициализируем gender первым элементом из petGenders, когда они загрузятся
+  useEffect(() => {
+    if (petGenders.length > 0 && !petGenders.find((g) => g.code === gender)) {
+      setGender(petGenders[0].code);
+    }
+  }, [petGenders, gender]);
 
   const handleSave = () => {
     const newErrors: Record<string, string> = {};
@@ -54,7 +62,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       name: name.trim(),
       species: species as string,
       breed,
-      gender,
+      gender: gender as Gender,
       birthDate: birthDate?.format('YYYY-MM-DD'),
       age: birthDate
         ? Math.floor((Date.now() - birthDate.valueOf()) / (1000 * 60 * 60 * 24 * 365))
@@ -70,7 +78,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
     setName('');
     setSpecies('');
     setBreed('');
-    setGender(Gender.MALE);
+    setGender(petGenders[0]?.code || Gender.MALE);
     setBirthDate(null);
     setErrors({});
     onClose();
@@ -79,11 +87,11 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
   // Временные данные для пород (заглушка)
   const breedOptions = species
     ? [
-        { value: 'labrador', label: 'Лабрадор' },
-        { value: 'german-shepherd', label: 'Немецкая овчарка' },
-        { value: 'british', label: 'Британская' },
-        { value: 'persian', label: 'Персидская' },
-      ]
+      { value: 'labrador', label: 'Лабрадор' },
+      { value: 'german-shepherd', label: 'Немецкая овчарка' },
+      { value: 'british', label: 'Британская' },
+      { value: 'persian', label: 'Персидская' },
+    ]
     : [];
 
   return (
@@ -155,8 +163,11 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             value={gender}
             onChange={(e) => setGender(e.target.value)}
             className='appointment-details-gender-group'>
-            <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>
-            <Radio.Button value={Gender.FEMALE}>{PET_GENDER_LABELS[Gender.FEMALE]}</Radio.Button>
+            {petGenders.map((g) => (
+              <Radio.Button key={g.code} value={g.code}>
+                {g.name}
+              </Radio.Button>
+            ))}
           </Radio.Group>
         </div>
 

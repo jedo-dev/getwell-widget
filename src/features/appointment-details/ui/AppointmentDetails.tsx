@@ -11,10 +11,10 @@ import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
   GENDER_LABELS,
-  PET_GENDER_LABELS,
   PET_SPECIES_OPTIONS,
   PetSpecies,
 } from '../../../shared/constants';
+import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import {
   formatDate,
   formatDateTime,
@@ -33,7 +33,7 @@ import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
 
-import LocationIcon from  '../../../img/location.svg'
+import LocationIcon from '../../../img/location.svg';
 
 
 export interface AppointmentDetailsProps {
@@ -53,6 +53,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const { genders: petGenders, getLabel: getPetGenderLabel } = usePetGenders();
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
@@ -74,8 +75,15 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [petName, setPetName] = useState<string>('');
   const [petSpecies, setPetSpecies] = useState<PetSpecies | string>('');
   const [petBreed, setPetBreed] = useState<string>('');
-  const [petGender, setPetGender] = useState<Gender | undefined>(Gender.MALE);
+  const [petGender, setPetGender] = useState<string | undefined>(Gender.MALE);
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
+
+  // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
+  useEffect(() => {
+    if (petGenders.length > 0 && !petGender) {
+      setPetGender(petGenders[0].code);
+    }
+  }, [petGenders, petGender]);
 
   useEffect(() => {
     const state = getWidgetState();
@@ -574,13 +582,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               <div className='appointment-details-gender-section'>
                 <Radio.Group
                   value={petGender}
-
                   onChange={(e) => setPetGender(e.target.value)}
                   className='appointment-details-gender-group'>
-                  <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>
-                  <Radio.Button value={Gender.FEMALE}>
-                    {PET_GENDER_LABELS[Gender.FEMALE]}
-                  </Radio.Button>
+                  {petGenders.map((gender) => (
+                    <Radio.Button key={gender.code} value={gender.code}>
+                      {gender.name}
+                    </Radio.Button>
+                  ))}
                 </Radio.Group>
               </div>
               <div className='appointment-details-field'>
