@@ -8,8 +8,17 @@ export interface ExternalApiResponse<T> {
   status: ExternalStatus;
   reason: string | null;
   data: T;
-  validation_errors?: unknown[];
+  validation_errors?: Record<string, unknown>;
   meta?: unknown;
+}
+
+export interface JobPositionForDocuments {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: number | null;
 }
 
 export interface ExternalDoctorApiData {
@@ -18,15 +27,34 @@ export interface ExternalDoctorApiData {
   surname: string;
   patronymic?: string | null;
   phone_number?: string | null;
-  job_position_for_documents?: { id: number; name: string } | null;
+  is_owner_tenant: boolean;
+  job_position_for_documents: JobPositionForDocuments | null;
+  roles: unknown[];
   photo?: string | null;
   email?: string | null;
   info?: string | null;
+  date_of_dismissal?: string | null;
+}
+
+export interface NearestAvailableTimeslot {
+  record: unknown | null;
+  from: string; // YYYY-MM-DD HH:mm:ss
+  to: string;   // YYYY-MM-DD HH:mm:ss
+  type: string;
+}
+
+export interface ScheduleItem {
+  id: number;
+  from: string; // YYYY-MM-DD HH:mm:ss
+  to: string;   // YYYY-MM-DD HH:mm:ss
+  type: string;
+  breaks: unknown[];
+  nearest_available_timeslot: NearestAvailableTimeslot;
 }
 
 export interface AvailableDoctorsData {
-  employee:ExternalDoctorApiData;
-  items:any[]
+  employee: ExternalDoctorApiData;
+  items: ScheduleItem[];
 }
 
 export interface AvailableTimechip {
@@ -35,7 +63,7 @@ export interface AvailableTimechip {
   is_limited: boolean;
 }
 
-function mapDoctorToEmployee(a: {employee:ExternalDoctorApiData}): Employee {
+function mapDoctorToEmployee(a: { employee: ExternalDoctorApiData }): Employee {
   const d = a.employee
   const position = d.job_position_for_documents?.name || '';
   return {
@@ -71,17 +99,45 @@ export const schedulesApi = {
       ...(params.departmentId ? { 'filter[departments_id]': params.departmentId } : {}),
       ...(params.date ? { 'filter[date]': params.date } : {}),
       ...(params.search ? { 'filter[search]': params.search } : {}),
-    
+
       // 'filter[schedule_type]': 'online_appointment_widget',
     };
 
-    const res = await apiClient.get<ExternalApiResponse<any>>(endpoint, query);
+    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query);
     if (res.status !== 'ok') {
       throw new Error(res.reason || 'Failed to fetch available doctors');
     }
 
     const doctors = res.data;
     return doctors.map(mapDoctorToEmployee);
+  },
+
+  /**
+   * Получить список доступных врачей с полными данными расписаний.
+   */
+  async getAvailableDoctorsWithSchedules(params: {
+    apiUrl: string;
+    filialId: number;
+    departmentId?: number;
+    date?: string; // YYYY-MM-DD HH:mm:ss
+    search?: string;
+  }): Promise<AvailableDoctorsData[]> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/schedules/employees-and-schedules`;
+
+    const query: Record<string, string | number | undefined> = {
+      filial_id: params.filialId,
+      ...(params.departmentId ? { 'filter[departments_id]': params.departmentId } : {}),
+      ...(params.date ? { 'filter[date]': params.date } : {}),
+      ...(params.search ? { 'filter[search]': params.search } : {}),
+    };
+
+    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query);
+    if (res.status !== 'ok') {
+      throw new Error(res.reason || 'Failed to fetch available doctors');
+    }
+
+    return res.data;
   },
 
   /**
@@ -103,8 +159,8 @@ export const schedulesApi = {
       appointment_type_id: params.appointmentTypeId,
       date: params.date,
       filial_id: params.filialId,
-      // ...(params.doctorId ? { 'filter[doctor_id]': params.doctorId } : {}),
-      // ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
+      ...(params.doctorId ? { 'filter[doctor_id]': params.doctorId } : {}),
+      ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
     };
 
     const res = await apiClient.get<ExternalApiResponse<AvailableTimechip[]>>(endpoint, query);

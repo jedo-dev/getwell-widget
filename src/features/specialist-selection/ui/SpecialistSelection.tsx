@@ -12,9 +12,10 @@ import {
   selectDepartment,
   selectEmployee,
 } from '../../../lib/widget-manager';
+import { AvailableDoctorsData } from '../../../shared/api/schedules';
 import { SELECTION_MODE_LABELS, WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
-import { formatEmployeeFullName } from '../../../shared/lib';
+import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
 import { Avatar, EmptyState } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
 import './SpecialistSelection.css';
@@ -25,6 +26,7 @@ export interface SpecialistSelectionProps {
   selectedEmployeeId: number | null;
   selectedDepartmentId: number | null;
   selectionMode?: SelectionMode;
+  doctorsWithSchedules?: AvailableDoctorsData[];
 }
 
 export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
@@ -33,6 +35,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   selectedEmployeeId,
   selectedDepartmentId,
   selectionMode = SelectionMode.EMPLOYEE,
+  doctorsWithSchedules = [],
 }) => {
   const widgetState = getWidgetState();
   const showDepartments = widgetState.config?.showDepartments ?? true;
@@ -71,8 +74,8 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   }, [employees, searchQuery]);
 
   const filteredDepartments = useMemo(() => {
-    let deps= departments
-    if(selectedFilial){
+    let deps = departments
+    if (selectedFilial) {
       deps = departments.filter(department => department.filialId === selectedFilial)
     }
     if (!searchQuery.trim()) {
@@ -228,11 +231,23 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                     )}
                                   </div>
                                 </div>
+                                <div className='specialist-selection-item-appointment'>
+                                  Ближайшее время приёма:{' '}
+                                  <Tag>
+                                    {(() => {
+                                      const doctorData = doctorsWithSchedules.find(
+                                        (d) => d.employee.id === employee.id,
+                                      );
+                                      const nearestTimeslot = findNearestTimeslot(doctorData);
+                                      return formatNearestAppointmentDate(
+                                        nearestTimeslot?.from || null,
+                                      );
+                                    })()}
+                                  </Tag>
+                                </div>
                                 {isCurrentEmployee && (
                                   <>
-                                    <div className='specialist-selection-item-appointment'>
-                                      Ближайшее время приёма: <Tag>сегодня</Tag>
-                                    </div>
+
                                     {loadingTimechips && (
                                       <div className='specialist-selection-time-slots'>
                                         <Skeleton.Button active size='small' block={false} />
@@ -248,9 +263,8 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                           return (
                                             <button
                                               key={`${timechip.from}-${index}`}
-                                              className={`specialist-selection-time-slot ${
-                                                isDisabled ? 'disabled' : ''
-                                              }`}
+                                              className={`specialist-selection-time-slot ${isDisabled ? 'disabled' : ''
+                                                }`}
                                               type='button'
                                               disabled={isDisabled}
                                               onClick={(e) => {

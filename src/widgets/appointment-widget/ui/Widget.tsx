@@ -14,7 +14,7 @@ import { SpecialistSelection } from '../../../features/specialist-selection';
 import defaultImage from '../../../img/default.png';
 import { goBack } from '../../../lib/widget-manager';
 import { branchesApi, departmentsApi } from '../../../shared/api';
-import { schedulesApi } from '../../../shared/api/schedules';
+import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
@@ -37,6 +37,7 @@ export const Widget: React.FC<WidgetProps> = ({
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [doctorsWithSchedules, setDoctorsWithSchedules] = useState<AvailableDoctorsData[]>([]);
   const [loadingBranches, setLoadingBranches] = useState<boolean>(false);
   const [loadingEmployees, setLoadingEmployees] = useState<boolean>(false);
   const [loadingDepartments, setLoadingDepartments] = useState<boolean>(false);
@@ -109,12 +110,14 @@ export const Widget: React.FC<WidgetProps> = ({
       // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
       if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
         setEmployees(widgetState.config.employees);
+        setDoctorsWithSchedules([]);
         setLoadingEmployees(false);
         return;
       }
 
       if (isOffline) {
         setEmployees([]);
+        setDoctorsWithSchedules([]);
         setLoadingEmployees(false);
         return;
       }
@@ -124,6 +127,7 @@ export const Widget: React.FC<WidgetProps> = ({
         try {
           if (!widgetState.config?.apiUrl) {
             setEmployees([]);
+            setDoctorsWithSchedules([]);
             return;
           }
 
@@ -131,10 +135,16 @@ export const Widget: React.FC<WidgetProps> = ({
             apiUrl: widgetState.config.apiUrl,
             filialId: widgetState.selectedBranchId!,
           });
+          const doctorsWithSchedulesData = await schedulesApi.getAvailableDoctorsWithSchedules({
+            apiUrl: widgetState.config.apiUrl,
+            filialId: widgetState.selectedBranchId!,
+          });
           setEmployees(doctors);
+          setDoctorsWithSchedules(doctorsWithSchedulesData);
         } catch (error) {
           console.error('Ошибка загрузки доступных врачей:', error);
           setEmployees([]);
+          setDoctorsWithSchedules([]);
         } finally {
           setLoadingEmployees(false);
         }
@@ -161,12 +171,14 @@ export const Widget: React.FC<WidgetProps> = ({
       // Офлайн: берём из конфига (без фильтрации связей, пока не нужно)
       if (widgetState.config?.employees && widgetState.config.employees.length > 0) {
         setEmployees(widgetState.config.employees);
+        setDoctorsWithSchedules([]);
         setLoadingEmployees(false);
         return;
       }
 
       if (isOffline) {
         setEmployees([]);
+        setDoctorsWithSchedules([]);
         setLoadingEmployees(false);
         return;
       }
@@ -176,6 +188,7 @@ export const Widget: React.FC<WidgetProps> = ({
         try {
           if (!widgetState.config?.apiUrl) {
             setEmployees([]);
+            setDoctorsWithSchedules([]);
             return;
           }
 
@@ -184,10 +197,17 @@ export const Widget: React.FC<WidgetProps> = ({
             filialId: widgetState.selectedBranchId!,
             departmentId: widgetState.selectedDepartmentId!,
           });
+          const doctorsWithSchedulesData = await schedulesApi.getAvailableDoctorsWithSchedules({
+            apiUrl: widgetState.config.apiUrl,
+            filialId: widgetState.selectedBranchId!,
+            departmentId: widgetState.selectedDepartmentId!,
+          });
           setEmployees(doctors);
+          setDoctorsWithSchedules(doctorsWithSchedulesData);
         } catch (error) {
           console.error('Ошибка загрузки врачей отделения:', error);
           setEmployees([]);
+          setDoctorsWithSchedules([]);
         } finally {
           setLoadingEmployees(false);
         }
@@ -383,6 +403,7 @@ export const Widget: React.FC<WidgetProps> = ({
           selectedEmployeeId={widgetState.selectedEmployeeId}
           selectedDepartmentId={widgetState.selectedDepartmentId}
           selectionMode={widgetState.selectionMode}
+          doctorsWithSchedules={doctorsWithSchedules}
         />
       );
     }
@@ -401,6 +422,7 @@ export const Widget: React.FC<WidgetProps> = ({
           employees={employees}
           selectedDepartment={selectedDepartment}
           selectedEmployeeId={widgetState.selectedEmployeeId}
+          doctorsWithSchedules={doctorsWithSchedules}
         />
       );
     }

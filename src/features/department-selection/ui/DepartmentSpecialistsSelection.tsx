@@ -9,9 +9,10 @@ import {
   selectDateTime,
   selectEmployee,
 } from '../../../lib/widget-manager';
+import { AvailableDoctorsData } from '../../../shared/api/schedules';
 import { WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
-import { formatEmployeeFullName } from '../../../shared/lib';
+import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
 import { Avatar, EmptyState } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
 import './DepartmentSpecialistsSelection.css';
@@ -20,12 +21,14 @@ export interface DepartmentSpecialistsSelectionProps {
   employees: Employee[];
   selectedDepartment: Department | null;
   selectedEmployeeId: number | null;
+  doctorsWithSchedules?: AvailableDoctorsData[];
 }
 
 export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelectionProps> = ({
   employees,
   selectedDepartment,
   selectedEmployeeId,
+  doctorsWithSchedules = [],
 }) => {
   const widgetState = getWidgetState();
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
@@ -129,9 +132,8 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
 
               return (
                 <List.Item
-                  className={`department-specialists-selection-item ${
-                    isSelected ? 'selected' : ''
-                  }`}
+                  className={`department-specialists-selection-item ${isSelected ? 'selected' : ''
+                    }`}
                   onClick={() => handleEmployeeSelect(employee.id)}>
                   <div className='department-specialists-selection-item-content'>
                     <div className='department-specialists-selection-item-content-left'>
@@ -153,11 +155,21 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                           )}
                         </div>
                       </div>
+                      <div className='department-specialists-selection-item-appointment'>
+                        Ближайшее время приёма:{' '}
+                        <Tag>
+                          {(() => {
+                            const doctorData = doctorsWithSchedules.find(
+                              (d) => d.employee.id === employee.id,
+                            );
+                            const nearestTimeslot = findNearestTimeslot(doctorData);
+                            return formatNearestAppointmentDate(nearestTimeslot?.from || null);
+                          })()}
+                        </Tag>
+                      </div>
                       {isCurrentEmployee && (
                         <>
-                          <div className='department-specialists-selection-item-appointment'>
-                            Ближайшее время приёма: <Tag>сегодня</Tag>
-                          </div>
+
                           {loadingTimechips && (
                             <div className='department-specialists-selection-time-slots'>
                               <Skeleton.Button active size='small' block={false} />
@@ -173,9 +185,8 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                                 return (
                                   <button
                                     key={`${timechip.from}-${index}`}
-                                    className={`department-specialists-selection-time-slot ${
-                                      isDisabled ? 'disabled' : ''
-                                    }`}
+                                    className={`department-specialists-selection-time-slot ${isDisabled ? 'disabled' : ''
+                                      }`}
                                     type='button'
                                     disabled={isDisabled}
                                     onClick={(e) => {
