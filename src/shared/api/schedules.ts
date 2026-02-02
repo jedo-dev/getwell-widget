@@ -169,4 +169,35 @@ export const schedulesApi = {
     }
     return res.data || [];
   },
+
+  /**
+   * Забронировать временной слот на 5 минут.
+   */
+  async reserveTimeslot(params: {
+    apiUrl: string;
+    timeslot: {
+      from: string; // YYYY-MM-DD HH:mm:ss
+      to: string;   // YYYY-MM-DD HH:mm:ss
+    };
+    departmentId: number;
+    employeeId: number;
+  }): Promise<unknown> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/reserve_timeslot`;
+
+    const payload = {
+      timeslot: {
+        from: params.timeslot.from,
+        to: params.timeslot.to,
+      },
+      department_id: params.departmentId,
+      employee_id: params.employeeId,
+    };
+
+    const res = await apiClient.post<ExternalApiResponse<unknown>>(endpoint, payload);
+    if (res.status !== 'ok') {
+      throw new Error(res.reason || 'Failed to reserve timeslot');
+    }
+    return res.data;
+  },
 };

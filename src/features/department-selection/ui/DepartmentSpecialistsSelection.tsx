@@ -9,7 +9,7 @@ import {
   selectDateTime,
   selectEmployee,
 } from '../../../lib/widget-manager';
-import { AvailableDoctorsData } from '../../../shared/api/schedules';
+import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
 import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
@@ -92,7 +92,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   };
 
   // Обработка клика на time-chip
-  const handleTimeChipClick = (from: string, to: string) => {
+  const handleTimeChipClick = async (from: string, to: string) => {
     if (!selectedEmployeeId) return;
 
     // Сохраняем выбранного врача (уже выбран)
@@ -100,6 +100,24 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
     const fromIso = localDateTimeToIso(from);
     const toIso = localDateTimeToIso(to);
     selectDateTime(fromIso, toIso);
+
+    // Резервируем слот на 5 минут
+    if (widgetState.config?.apiUrl && selectedDepartment?.id) {
+      try {
+        await schedulesApi.reserveTimeslot({
+          apiUrl: widgetState.config.apiUrl,
+          timeslot: {
+            from,
+            to,
+          },
+          departmentId: selectedDepartment.id,
+          employeeId: selectedEmployeeId,
+        });
+      } catch (error) {
+        console.error('Ошибка резервирования слота:', error);
+        // Продолжаем выполнение даже при ошибке резервирования
+      }
+    }
 
     // Пропускаем календарь и переходим на phone-input
     goToPhoneInput();

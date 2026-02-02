@@ -3,6 +3,7 @@ import { Button, Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getWidgetState, goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
 import { schedulesApi } from '../../../shared/api/schedules';
+import { formatLocalDateTime } from '../../../shared/lib';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
@@ -46,11 +47,33 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
     setSelectedTime(null);
   };
 
-  const handleTimeSelect = (time: string) => {
+  const handleTimeSelect = async (time: string) => {
     setSelectedTime(time);
     const slot = apiSlots.find((s) => s.time === time);
     if (slot) {
       selectDateTime(slot.fromIso, slot.toIso);
+
+      // Резервируем слот на 5 минут
+      if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId && selectedEmployee?.id) {
+        try {
+          // Преобразуем ISO строки обратно в локальный формат "YYYY-MM-DD HH:mm:ss"
+          const fromLocal = formatLocalDateTime(new Date(slot.fromIso));
+          const toLocal = formatLocalDateTime(new Date(slot.toIso));
+
+          await schedulesApi.reserveTimeslot({
+            apiUrl: widgetState.config.apiUrl,
+            timeslot: {
+              from: fromLocal,
+              to: toLocal,
+            },
+            departmentId: widgetState.selectedDepartmentId,
+            employeeId: selectedEmployee.id,
+          });
+        } catch (error) {
+          console.error('Ошибка резервирования слота:', error);
+          // Продолжаем выполнение даже при ошибке резервирования
+        }
+      }
     }
   };
 
