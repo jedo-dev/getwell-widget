@@ -1,21 +1,20 @@
 import {
-  CalendarOutlined,
-  DownOutlined,
-  EnvironmentOutlined
+  DownOutlined
 } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import CalendarIcon from '../../../img/calendar.svg';
 import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectPet } from '../../../lib/widget-manager';
 import { recordsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
   GENDER_LABELS,
-  PET_GENDER_LABELS,
   PET_SPECIES_OPTIONS,
   PetSpecies,
 } from '../../../shared/constants';
+import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import {
   formatDate,
   formatDateTime,
@@ -29,9 +28,12 @@ import CustomDatepicker from '../../../shared/ui/CustomDatepicker';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
 import CustomTextArea from '../../../shared/ui/CustomTextArea';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
+
+import LocationIcon from '../../../img/location.svg';
 
 
 export interface AppointmentDetailsProps {
@@ -51,6 +53,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const { genders: petGenders, getLabel: getPetGenderLabel } = usePetGenders();
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
@@ -72,12 +75,55 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [petName, setPetName] = useState<string>('');
   const [petSpecies, setPetSpecies] = useState<PetSpecies | string>('');
   const [petBreed, setPetBreed] = useState<string>('');
-  const [petGender, setPetGender] = useState<Gender | undefined>(Gender.MALE);
+  const [petGender, setPetGender] = useState<string | undefined>(Gender.MALE);
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
 
+  // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
   useEffect(() => {
-    // Загружаем питомцев при наличии телефона (только для существующих пользователей)
-    if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+    if (petGenders.length > 0 && !petGender) {
+      setPetGender(petGenders[0].code);
+    }
+  }, [petGenders, petGender]);
+
+  useEffect(() => {
+    const state = getWidgetState();
+    const ownerData = state.ownerData;
+
+    // Если есть данные владельца, используем их
+    if (ownerData && ownerData.patients) {
+      if (ownerData.patients.length > 0) {
+        // Преобразуем patients в формат Pet
+        const petsFromOwner: Pet[] = ownerData.patients.map((patient) => {
+          // Преобразуем gender из API формата в Gender enum
+          const patientGender =
+            patient.gender.name.toLowerCase() === 'male' ? Gender.MALE : Gender.FEMALE;
+
+          return {
+            id: patient.id,
+            name: patient.nickname,
+            species: patient.breed.patient_type.name,
+            breed: patient.breed.name,
+            gender: patientGender,
+            birthDate: patient.birth_date,
+          };
+        });
+
+        setPets(petsFromOwner);
+        if (petsFromOwner.length > 0 && !selectedPetId) {
+          const firstPetId = petsFromOwner[0].id || null;
+          setSelectedPetId(firstPetId);
+          if (firstPetId) {
+            selectPet(firstPetId);
+          }
+        }
+      } else {
+        // Если массив пустой, очищаем список питомцев
+        setPets([]);
+        setSelectedPetId(null);
+      }
+      setLoadingPets(false);
+    } else if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+      // Fallback: загружаем питомцев через API, если нет данных владельца
       const loadPets = async () => {
         setLoadingPets(true);
         try {
@@ -109,6 +155,31 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       setPhone(initialPhone);
     }
   }, [initialPhone]);
+
+  useEffect(() => {
+    // Заполняем данные пользователя из ownerData, если они есть
+    const state = getWidgetState();
+    const ownerData = state.ownerData;
+
+    if (ownerData && !isNewUser) {
+      // Заполняем поля пользователя из ownerData
+      if (ownerData.name && !firstName) {
+        setFirstName(ownerData.name);
+      }
+      if (ownerData.surname && !lastName) {
+        setLastName(ownerData.surname);
+      }
+      if (ownerData.patronymic && !patronymic) {
+        setPatronymic(ownerData.patronymic);
+      }
+      if (ownerData.gender && !gender) {
+        // Преобразуем 'male'/'female' в Gender enum
+        const ownerGender = ownerData.gender === 'male' ? Gender.MALE : Gender.FEMALE;
+        setGender(ownerGender);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNewUser]);
 
   const handlePhoneEdit = () => {
     setIsPhoneEditing(true);
@@ -144,7 +215,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validatePhone()) {
       message.error('Пожалуйста, введите корректный номер телефона');
       return;
@@ -240,7 +311,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     if (!state.config?.offlineMode && apiUrl && selectedEmployee && selectedDateTime && toIso && departmentId) {
       try {
         // backend ожидает "YYYY-MM-DD HH:mm:ss" в локальной TZ браузера
-        const isoToLocal = (iso: string): string => {
+        const isoToLocal = async (iso: string): Promise<string> => {
           const d = new Date(iso);
           const y = d.getFullYear();
           const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -251,14 +322,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
         };
 
-         recordsApi.createRecord({
+        await recordsApi.createRecord({
           apiUrl,
           payload: {
             appointment: {
               department_id: departmentId,
               employee_id: selectedEmployee.id,
-              from: isoToLocal(selectedDateTime),
-              to: isoToLocal(toIso),
+              from: await isoToLocal(selectedDateTime),
+              to: await isoToLocal(toIso),
               comment: symptoms || undefined,
             },
           },
@@ -315,7 +386,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {selectedBranch && (
             <div className='appointment-details-location'>
               <div className='appointment-details-icon-wrapper'>
-                <EnvironmentOutlined className='appointment-details-icon' />
+                <IconWrapper src={LocationIcon} />
               </div>
               <div className='appointment-details-location-info'>
                 <div className='appointment-details-location-name'>{selectedBranch.name}</div>
@@ -348,7 +419,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {dateTimeInfo && (
             <div className='appointment-details-date'>
               <div className='appointment-details-icon-wrapper'>
-                <CalendarOutlined className='appointment-details-icon' />
+                <IconWrapper src={CalendarIcon} />
               </div>
               <div className='appointment-details-date-info'>
                 <div className='appointment-details-date-text'>{formattedDate}</div>
@@ -511,13 +582,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               <div className='appointment-details-gender-section'>
                 <Radio.Group
                   value={petGender}
-
                   onChange={(e) => setPetGender(e.target.value)}
                   className='appointment-details-gender-group'>
-                  <Radio.Button value={Gender.MALE}>{PET_GENDER_LABELS[Gender.MALE]}</Radio.Button>
-                  <Radio.Button value={Gender.FEMALE}>
-                    {PET_GENDER_LABELS[Gender.FEMALE]}
-                  </Radio.Button>
+                  {petGenders.map((gender) => (
+                    <Radio.Button key={gender.code} value={gender.code}>
+                      {gender.name}
+                    </Radio.Button>
+                  ))}
                 </Radio.Group>
               </div>
               <div className='appointment-details-field'>

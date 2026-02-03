@@ -1,4 +1,3 @@
-import { Department } from '../../types';
 import { DepartmentsResponse } from '../types/api';
 import { getWidgetSettings } from './widget-settings-cache';
 
@@ -23,6 +22,7 @@ export const departmentsApi = {
       let departments = (settings.data.departments || []).map((dept) => ({
         id: dept.id,
         name: dept.name,
+        filialId: dept.filial.id,
         showInWidget: true,
       }));
 
@@ -54,27 +54,4 @@ export const departmentsApi = {
   /**
    * Получить отделение по ID
    */
-  async getById(id: number): Promise<Department | null> {
-    try {
-      const settings = await getWidgetSettings();
-      if (settings.status !== 'ok') {
-        return null;
-      }
-
-      const departmentData = (settings.data.departments || []).find((d) => d.id === id);
-      if (!departmentData) {
-        return null;
-      }
-
-      return {
-        id: departmentData.id,
-        name: departmentData.name,
-        showInWidget: true,
-      };
-    } catch (error) {
-      console.error(`Error fetching department ${id}:`, error);
-      return null;
-    }
-  },
 };
-

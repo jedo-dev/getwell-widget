@@ -118,6 +118,7 @@ function mapApiResponseToWidgetConfig(
       departmentsMap.set(dept.id, {
         id: dept.id,
         name: dept.name,
+        filialId:dept.filial.id,
         showInWidget: true,
       });
     }
@@ -151,7 +152,6 @@ function mapApiResponseToWidgetConfig(
     // Данные
     branches,
     departments,
-    employees,
 
     // Настройки отображения
     showDepartments: data.show_departments ,

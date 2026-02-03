@@ -183,8 +183,8 @@ export async function getWidgetSettings(apiUrl?: string): Promise<WidgetSettings
 
   // Если apiUrl не передан, пытаемся получить из глобального состояния
   let baseUrl = apiUrl;
-  if (!baseUrl && typeof window !== 'undefined' && window.GetWellWidget) {
-    const state = window.GetWellWidget.getState?.();
+  if (!baseUrl && typeof window !== 'undefined' && (window as any).GetWellWidget) {
+    const state = (window as any).GetWellWidget.getState?.();
     baseUrl = state?.config?.apiUrl;
   }
 

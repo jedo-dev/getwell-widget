@@ -40,8 +40,10 @@ class ApiClient {
    */
   private getBaseURL(): string {
     // Пытаемся получить apiUrl из глобального состояния виджета
-    if (typeof window !== 'undefined' && window.GetWellWidget) {
+    if (typeof window !== 'undefined' && (window as any).GetWellWidget) {
+      console.log('*** penis***', window.GetWellWidget.getState());
       const state = window.GetWellWidget.getState();
+      console.log('*** here we are thart***', state);
       if (state?.config?.apiUrl) {
         const apiUrl = state.config.apiUrl;
         // Если URL уже содержит /api/v1, используем как есть
@@ -68,6 +70,24 @@ class ApiClient {
   }
 
   /**
+   * Построить query string вручную через encodeURIComponent
+   * Это гарантирует, что пробелы будут %20, а не + (как в URLSearchParams)
+   * @param params - Параметры запроса
+   * @returns Query string без ведущего ?
+   */
+  private buildQuery(params: Record<string, string | number | boolean | undefined | null>): string {
+    const pairs: string[] = [];
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        const encodedKey = encodeURIComponent(key);
+        const encodedValue = encodeURIComponent(String(value));
+        pairs.push(`${encodedKey}=${encodedValue}`);
+      }
+    });
+    return pairs.join('&');
+  }
+
+  /**
    * Построить полный URL с параметрами запроса
    */
   private buildURL(endpoint: string, params?: RequestParams): string {
@@ -79,13 +99,7 @@ class ApiClient {
     }
 
     if (params) {
-      const searchParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value));
-        }
-      });
-      const queryString = searchParams.toString();
+      const queryString = this.buildQuery(params);
       if (queryString) {
         url += `?${queryString}`;
       }
@@ -97,15 +111,30 @@ class ApiClient {
   /**
    * Обработка ошибок
    */
-  private async handleError(response: Response): Promise<never> {
+  private async handleError(response: Response, jsonData?: any): Promise<never> {
     let errorData: ApiError;
-    try {
-      errorData = await response.json();
-    } catch {
-      errorData = {
-        message: `HTTP error! status: ${response.status} ${response.statusText}`,
-        code: `HTTP_${response.status}`,
-      };
+
+    if (jsonData) {
+      // Используем уже распарсенные данные
+      errorData = jsonData;
+    } else {
+      // Пытаемся распарсить JSON из ответа
+      try {
+        const text = await response.text();
+        if (text) {
+          errorData = JSON.parse(text);
+        } else {
+          errorData = {
+            message: `HTTP error! status: ${response.status} ${response.statusText}`,
+            code: `HTTP_${response.status}`,
+          };
+        }
+      } catch {
+        errorData = {
+          message: `HTTP error! status: ${response.status} ${response.statusText}`,
+          code: `HTTP_${response.status}`,
+        };
+      }
     }
 
     const error: ApiError = {
@@ -194,11 +223,43 @@ class ApiClient {
         ...config,
       });
 
-      if (!response.ok) {
-        await this.handleError(response);
+      // Пытаемся распарсить JSON, даже если статус не OK
+      let jsonData: any;
+      try {
+        const text = await response.text();
+        if (!text) {
+          if (!response.ok) {
+            await this.handleError(response);
+          }
+          throw {
+            message: 'Empty response',
+            code: 'EMPTY_RESPONSE',
+          } as ApiError;
+        }
+        jsonData = JSON.parse(text);
+      } catch (parseError) {
+        // Если не удалось распарсить JSON, обрабатываем как обычную ошибку
+        if (!response.ok) {
+          await this.handleError(response);
+        }
+        throw {
+          message: 'Invalid JSON response',
+          code: 'INVALID_JSON',
+        } as ApiError;
       }
 
-      return await response.json();
+      // Если статус не OK, но это может быть ExternalApiResponse со status: "error"
+      if (!response.ok) {
+        // Проверяем, является ли это ExternalApiResponse с status: "error"
+        if (jsonData && typeof jsonData === 'object' && 'status' in jsonData && jsonData.status === 'error') {
+          // Возвращаем данные как есть, пусть вызывающий код обработает status: "error"
+          return jsonData as T;
+        }
+        // Иначе обрабатываем как обычную ошибку
+        await this.handleError(response, jsonData);
+      }
+
+      return jsonData;
     } catch (error) {
       if (error && typeof error === 'object' && 'code' in error) {
         throw error;

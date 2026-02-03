@@ -1,9 +1,11 @@
-import { CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons';
-import { Button, Checkbox, message, Spin } from 'antd';
+import { Button, message, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
+import CalendarIcon from '../../../img/calendar.svg';
+import LocationIcon from '../../../img/location.svg';
 import { getWidgetState, goBack, savePhoneAndGoToDetails } from '../../../lib/widget-manager';
 import { branchesApi } from '../../../shared/api/branches';
 import { employeesApi } from '../../../shared/api/employees';
+import { ownersApi } from '../../../shared/api/owners';
 import {
   formatDate,
   formatEmployeeFullName,
@@ -13,7 +15,8 @@ import {
 } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
 import CustomInput from '../../../shared/ui/CustomInput';
-import { Branch, Employee } from '../../../types';
+import IconWrapper from '../../../shared/ui/IconWrapper';
+import { Branch, Employee, WidgetState } from '../../../types';
 import './PhoneInput.css';
 
 export const PhoneInput: React.FC = () => {
@@ -25,6 +28,8 @@ export const PhoneInput: React.FC = () => {
   const [branch, setBranch] = useState<Branch | null>(null);
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [checkingOwner, setCheckingOwner] = useState<boolean>(false);
+  const [ownerData, setOwnerData] = useState<WidgetState['ownerData'] | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -65,21 +70,68 @@ export const PhoneInput: React.FC = () => {
     goBack();
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const formatted = formatPhone(value);
     setPhone(formatted);
+    // Сбрасываем данные владельца при изменении телефона
+    setOwnerData(null);
 
     // Валидация
     const validation = validatePhoneUtil(formatted);
     if (!validation.isValid) {
       setPhoneError(validation.error || '');
+      setIsNewUser(false);
+      return;
+    }
+
+    setPhoneError('');
+
+    // Если телефон валиден и полностью введен, проверяем владельца
+    const phoneDigits = formatted.replace(/[^\d]/g, '');
+    if (phoneDigits.length === 11) {
+      await checkOwner(formatted);
     } else {
-      setPhoneError('');
+      setIsNewUser(false);
     }
   };
 
-  const handleSubmit = () => {
+  const checkOwner = async (phoneNumber: string) => {
+    const state = getWidgetState();
+    const apiUrl = state.config?.apiUrl;
+
+    if (!apiUrl) {
+      console.warn('API URL не настроен, пропускаем проверку владельца');
+      setIsNewUser(true);
+      setOwnerData(null);
+      return;
+    }
+
+    setCheckingOwner(true);
+    try {
+      const response = await ownersApi.getByPhone({ apiUrl, phone: phoneNumber });
+
+      // Если данные пришли и массив не пустой - это зарегистрированный пользователь
+      if (response.data && response.data.length > 0) {
+        setIsNewUser(false);
+        // Сохраняем данные первого владельца
+        setOwnerData(response.data[0]);
+      } else {
+        // Пустой массив - новый пользователь
+        setIsNewUser(true);
+        setOwnerData(null);
+      }
+    } catch (error) {
+      console.error('Ошибка при проверке владельца:', error);
+      // В случае ошибки считаем новым пользователем
+      setIsNewUser(true);
+      setOwnerData(null);
+    } finally {
+      setCheckingOwner(false);
+    }
+  };
+
+  const handleSubmit = async () => {
     const validation = validatePhoneUtil(phone);
     if (!validation.isValid) {
       setPhoneError(validation.error || '');
@@ -87,7 +139,43 @@ export const PhoneInput: React.FC = () => {
       return;
     }
 
-    savePhoneAndGoToDetails(phone, isNewUser);
+    // Если данные владельца уже получены, используем их
+    // Если ownerData есть, значит это зарегистрированный пользователь (isNewUser = false)
+    if (ownerData !== null) {
+      savePhoneAndGoToDetails(phone, false, ownerData);
+      return;
+    }
+
+    // Если еще не проверяли владельца, проверяем сейчас
+    if (!checkingOwner) {
+      const state = getWidgetState();
+      const apiUrl = state.config?.apiUrl;
+
+      if (apiUrl) {
+        setCheckingOwner(true);
+        try {
+          const response = await ownersApi.getByPhone({ apiUrl, phone });
+
+          if (response.data && response.data.length > 0) {
+            // Зарегистрированный пользователь - сохраняем данные первого владельца
+            const owner = response.data[0];
+            savePhoneAndGoToDetails(phone, false, owner);
+          } else {
+            // Новый пользователь
+            savePhoneAndGoToDetails(phone, true);
+          }
+        } catch (error) {
+          console.error('Ошибка при проверке владельца:', error);
+          // В случае ошибки считаем новым пользователем
+          savePhoneAndGoToDetails(phone, true);
+        } finally {
+          setCheckingOwner(false);
+        }
+      } else {
+        // Если API URL не настроен, просто сохраняем как новый пользователь
+        savePhoneAndGoToDetails(phone, isNewUser);
+      }
+    }
   };
 
   const state = getWidgetState();
@@ -114,7 +202,7 @@ export const PhoneInput: React.FC = () => {
         {branch && (
           <div className='phone-input-location'>
             <div className='phone-input-icon-wrapper'>
-              <EnvironmentOutlined className='phone-input-icon' />
+              <IconWrapper src={LocationIcon} />
             </div>
             <div className='phone-input-location-info'>
               <div className='phone-input-location-name'>{branch.name}</div>
@@ -145,7 +233,7 @@ export const PhoneInput: React.FC = () => {
         {dateTime && (
           <div className='phone-input-date'>
             <div className='phone-input-icon-wrapper'>
-              <CalendarOutlined className='phone-input-icon' />
+              <IconWrapper src={CalendarIcon} />
             </div>
             <div className='phone-input-date-info'>
               <div className='phone-input-date-text'>{formattedDate}</div>
@@ -174,9 +262,12 @@ export const PhoneInput: React.FC = () => {
           />
           {phoneError && <div className='phone-input-error'>{phoneError}</div>}
         </div>
-        <Checkbox checked={isNewUser} onChange={(e) => setIsNewUser(e.target.checked)}>
+        {/* <Checkbox
+          checked={isNewUser}
+          onChange={(e) => setIsNewUser(e.target.checked)}
+          disabled={checkingOwner}>
           Новый пользователь
-        </Checkbox>
+        </Checkbox> */}
       </div>
 
       {/* Footer */}
@@ -186,7 +277,8 @@ export const PhoneInput: React.FC = () => {
           className='phone-input-submit-btn'
           block
           onClick={handleSubmit}
-          disabled={!phone || phoneError !== ''}
+          disabled={!phone || phoneError !== '' || checkingOwner}
+          loading={checkingOwner}
           size='large'>
           Далее
         </Button>

@@ -15,7 +15,7 @@ export const GENDER_LABELS: Record<Gender, string> = {
 };
 
 /**
- * Лейблы для пола питомца
+ * Лейблы для пола питомца (дефолтные значения, используются только в офлайн режиме)
  */
 export const PET_GENDER_LABELS: Record<Gender, string> = {
   [Gender.MALE]: 'Самец',

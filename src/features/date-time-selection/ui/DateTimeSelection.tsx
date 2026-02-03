@@ -1,20 +1,23 @@
-import { CalendarOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { getWidgetState, goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
-import { schedulesApi } from '../../../shared/api';
+import { getWidgetState, goToPhoneInput, selectDateTime, setReservedTimeslotHash } from '../../../lib/widget-manager';
+import { schedulesApi } from '../../../shared/api/schedules';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
-  formatEmployeeFullName,
+  formatEmployeeFullName, formatLocalDateTime, formatLocalMidnight,
   formatMonthYear,
   isCurrentMonth,
   isPastDate,
-  isToday,
+  isToday
 } from '../../../shared/lib';
-import { Avatar } from '../../../shared/ui';
+import { Avatar, Notification } from '../../../shared/ui';
 import { Employee } from '../../../types';
 import './DateTimeSelection.css';
+
+import CalendarIcon from '../../../img/calendar.svg';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 
 export interface DateTimeSelectionProps {
   selectedEmployee: Employee | null;
@@ -36,17 +39,61 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
   const [apiSlots, setApiSlots] = useState<TimeSlot[]>([]);
+  const [notification, setNotification] = useState<{ message: string } | null>(null);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
     setSelectedTime(null);
   };
 
-  const handleTimeSelect = (time: string) => {
+  const handleTimeSelect = async (time: string) => {
     setSelectedTime(time);
     const slot = apiSlots.find((s) => s.time === time);
     if (slot) {
       selectDateTime(slot.fromIso, slot.toIso);
+
+      // Резервируем слот на 5 минут
+      if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId && selectedEmployee?.id) {
+        try {
+          // Преобразуем ISO строки обратно в локальный формат "YYYY-MM-DD HH:mm:ss"
+          const fromLocal = formatLocalDateTime(new Date(slot.fromIso));
+          const toLocal = formatLocalDateTime(new Date(slot.toIso));
+
+          const result = await schedulesApi.reserveTimeslot({
+            apiUrl: widgetState.config.apiUrl,
+            timeslot: {
+              from: fromLocal,
+              to: toLocal,
+            },
+            departmentId: widgetState.selectedDepartmentId,
+            employeeId: selectedEmployee.id,
+            uniqueHash: widgetState.reservedTimeslotHash || undefined,
+          });
+
+          // Сохраняем unique_hash
+          if (result.unique_hash) {
+            setReservedTimeslotHash(result.unique_hash);
+          }
+        } catch (error: any) {
+          console.error('Ошибка резервирования слота:', error);
+          // Проверяем различные варианты ошибки duplicate_entry
+          const isDuplicate =
+            error.code === 'DUPLICATE_ENTRY' ||
+            error.message === 'duplicate_entry' ||
+            error.message?.includes('duplicate_entry') ||
+            (error.details && typeof error.details === 'object' && error.details.reason === 'duplicate_entry');
+
+          if (isDuplicate) {
+            setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
+            setSelectedTime(null);
+            // Отменяем выбор времени в состоянии виджета
+            selectDateTime(null, null);
+            return;
+          }
+          // Продолжаем выполнение даже при другой ошибке резервирования
+          return;
+        }
+      }
     }
   };
 
@@ -99,13 +146,6 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
     return date.toDateString() === selectedDate.toDateString();
   };
 
-  const toLocalYmd = (d: Date): string => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-
   // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
   const localDateTimeToIso = (dt: string): string => {
     const [datePart, timePart] = dt.split(' ');
@@ -142,7 +182,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
       }
 
       // По сваггеру date обязателен в формате "YYYY-MM-DD HH:mm:ss"
-      const date = `${toLocalYmd(selectedDate)} 00:00:00`;
+      // Используем formatLocalMidnight для форматирования полночи выбранной даты в локальной таймзоне
+      const date = formatLocalMidnight(selectedDate);
 
       setLoadingSlots(true);
       try {
@@ -208,6 +249,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
 
   return (
     <div className='date-time-selection'>
+      {notification && (
+        <Notification
+          message={notification.message}
+          type="error"
+          duration={5000}
+          onClose={() => setNotification(null)}
+        />
+      )}
       {/* Specialist Info Card */}
       {selectedEmployee && (
         <div className='date-time-selection-doctor-card'>
@@ -230,7 +279,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
           {selectedDate && selectedTime && (
             <div className='date-time-selection-doctor-right'>
               <div className='date-time-selection-calendar-icon-wrapper'>
-                <CalendarOutlined className='date-time-selection-calendar-icon' />
+                <IconWrapper src={CalendarIcon} />
               </div>
               <div className='date-time-selection-selected-info'>
                 <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>

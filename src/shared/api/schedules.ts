@@ -1,6 +1,6 @@
 import { Employee } from '../../types';
-import { apiClient } from './instance';
 import { normalizeExternalBaseUrl } from './external-base-url';
+import { apiClient } from './instance';
 
 type ExternalStatus = 'ok' | 'error';
 
@@ -8,8 +8,17 @@ export interface ExternalApiResponse<T> {
   status: ExternalStatus;
   reason: string | null;
   data: T;
-  validation_errors?: unknown[];
+  validation_errors?: Record<string, unknown>;
   meta?: unknown;
+}
+
+export interface JobPositionForDocuments {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  deleted_by: number | null;
 }
 
 export interface ExternalDoctorApiData {
@@ -18,16 +27,34 @@ export interface ExternalDoctorApiData {
   surname: string;
   patronymic?: string | null;
   phone_number?: string | null;
-  job_position_for_documents?: { id: number; name: string } | null;
+  is_owner_tenant: boolean;
+  job_position_for_documents: JobPositionForDocuments | null;
+  roles: unknown[];
   photo?: string | null;
   email?: string | null;
   info?: string | null;
+  date_of_dismissal?: string | null;
+}
+
+export interface NearestAvailableTimeslot {
+  record: unknown | null;
+  from: string; // YYYY-MM-DD HH:mm:ss
+  to: string;   // YYYY-MM-DD HH:mm:ss
+  type: string;
+}
+
+export interface ScheduleItem {
+  id: number;
+  from: string; // YYYY-MM-DD HH:mm:ss
+  to: string;   // YYYY-MM-DD HH:mm:ss
+  type: string;
+  breaks: unknown[];
+  nearest_available_timeslot: NearestAvailableTimeslot;
 }
 
 export interface AvailableDoctorsData {
-  by_appointment: ExternalDoctorApiData[];
-  by_live_queue: ExternalDoctorApiData[];
-  by_online_appointment_widget: ExternalDoctorApiData[];
+  employee: ExternalDoctorApiData;
+  items: ScheduleItem[];
 }
 
 export interface AvailableTimechip {
@@ -36,7 +63,8 @@ export interface AvailableTimechip {
   is_limited: boolean;
 }
 
-function mapDoctorToEmployee(d: ExternalDoctorApiData): Employee {
+function mapDoctorToEmployee(a: { employee: ExternalDoctorApiData }): Employee {
+  const d = a.employee
   const position = d.job_position_for_documents?.name || '';
   return {
     id: d.id,
@@ -64,24 +92,52 @@ export const schedulesApi = {
   }): Promise<Employee[]> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
     // В docs путь содержит /widget/.. (singular)
-    const endpoint = `${base}/widget/online-appointment/schedules/available-doctors`;
+    const endpoint = `${base}/widgets/online-appointment/schedules/employees-and-schedules`;
 
     const query: Record<string, string | number | undefined> = {
       filial_id: params.filialId,
-      ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
+      ...(params.departmentId ? { 'filter[departments_id]': params.departmentId } : {}),
       ...(params.date ? { 'filter[date]': params.date } : {}),
       ...(params.search ? { 'filter[search]': params.search } : {}),
-      // Мы целимся в виджетный тип расписания
-      'filter[schedule_type]': 'online_appointment_widget',
+
+      // 'filter[schedule_type]': 'online_appointment_widget',
     };
 
-    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData>>(endpoint, query);
+    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query);
     if (res.status !== 'ok') {
       throw new Error(res.reason || 'Failed to fetch available doctors');
     }
 
-    const doctors = res.data?.by_online_appointment_widget || [];
+    const doctors = res.data;
     return doctors.map(mapDoctorToEmployee);
+  },
+
+  /**
+   * Получить список доступных врачей с полными данными расписаний.
+   */
+  async getAvailableDoctorsWithSchedules(params: {
+    apiUrl: string;
+    filialId: number;
+    departmentId?: number;
+    date?: string; // YYYY-MM-DD HH:mm:ss
+    search?: string;
+  }): Promise<AvailableDoctorsData[]> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/schedules/employees-and-schedules`;
+
+    const query: Record<string, string | number | undefined> = {
+      filial_id: params.filialId,
+      ...(params.departmentId ? { 'filter[departments_id]': params.departmentId } : {}),
+      ...(params.date ? { 'filter[date]': params.date } : {}),
+      ...(params.search ? { 'filter[search]': params.search } : {}),
+    };
+
+    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query);
+    if (res.status !== 'ok') {
+      throw new Error(res.reason || 'Failed to fetch available doctors');
+    }
+
+    return res.data;
   },
 
   /**
@@ -97,7 +153,7 @@ export const schedulesApi = {
     departmentId?: number;
   }): Promise<AvailableTimechip[]> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
-    const endpoint = `${base}/widget/online-appointment/schedules/available-timechips`;
+    const endpoint = `${base}/widgets/online-appointment/schedules/available-timechips`;
 
     const query: Record<string, string | number | undefined> = {
       appointment_type_id: params.appointmentTypeId,
@@ -112,5 +168,95 @@ export const schedulesApi = {
       throw new Error(res.reason || 'Failed to fetch timechips');
     }
     return res.data || [];
+  },
+
+  /**
+   * Забронировать временной слот на 5 минут.
+   */
+  async reserveTimeslot(params: {
+    apiUrl: string;
+    timeslot: {
+      from: string; // YYYY-MM-DD HH:mm:ss
+      to: string;   // YYYY-MM-DD HH:mm:ss
+    };
+    departmentId: number;
+    employeeId: number;
+    uniqueHash?: string; // для отмены резервирования
+  }): Promise<{ unique_hash: string }> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
+
+    const payload: {
+      timeslot: {
+        from: string;
+        to: string;
+      };
+      department_id: number;
+      employee_id: number;
+      unique_hash?: string;
+    } = {
+      timeslot: {
+        from: params.timeslot.from,
+        to: params.timeslot.to,
+      },
+      department_id: params.departmentId,
+      employee_id: params.employeeId,
+    };
+
+    if (params.uniqueHash) {
+      payload.unique_hash = params.uniqueHash;
+    }
+
+    let res: ExternalApiResponse<{ unique_hash: string }>;
+    try {
+      res = await apiClient.post<ExternalApiResponse<{ unique_hash: string }>>(endpoint, payload);
+    } catch (error: any) {
+      // Если ошибка пришла как HTTP 500, но с JSON, пытаемся извлечь данные
+      if (error && typeof error === 'object' && 'details' in error && error.details) {
+        const details = error.details;
+        if (typeof details === 'object' && 'status' in details && details.status === 'error') {
+          res = details as ExternalApiResponse<{ unique_hash: string }>;
+        } else {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
+    }
+
+    if (res.status === 'error') {
+      if (res.reason === 'duplicate_entry') {
+        const error = new Error(res.reason || 'Time slot is already reserved');
+        (error as any).code = 'DUPLICATE_ENTRY';
+        throw error;
+      }
+      throw new Error(res.reason || 'Failed to reserve timeslot');
+    }
+
+    if (!res.data || typeof res.data !== 'object' || !('unique_hash' in res.data)) {
+      throw new Error('Invalid response format');
+    }
+
+    return res.data;
+  },
+
+  /**
+   * Отменить резервирование временного слота.
+   */
+  async cancelTimeslotReservation(params: {
+    apiUrl: string;
+    uniqueHash: string;
+  }): Promise<void> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
+
+    const payload = {
+      unique_hash: params.uniqueHash,
+    };
+
+    const res = await apiClient.post<ExternalApiResponse<unknown>>(endpoint, payload);
+    if (res.status !== 'ok') {
+      throw new Error(res.reason || 'Failed to cancel timeslot reservation');
+    }
   },
 };

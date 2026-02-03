@@ -13,8 +13,5 @@ export type { EmptyStateProps } from './EmptyState';
 export { BackButton } from './BackButton';
 export type { BackButtonProps } from './BackButton';
 
-export { EmployeeListItem } from './EmployeeListItem/EmployeeListItem';
-export type { EmployeeListItemProps, EmployeeListItemClassPrefix } from './EmployeeListItem/EmployeeListItem';
-
-export { StepFooter } from './StepFooter/StepFooter';
-export type { StepFooterProps, StepFooterAction } from './StepFooter/StepFooter';
+export { Notification } from './Notification';
+export type { NotificationProps } from './Notification';
