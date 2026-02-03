@@ -72,6 +72,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
         } catch (error) {
           console.error('Ошибка резервирования слота:', error);
           // Продолжаем выполнение даже при ошибке резервирования
+          return
         }
       }
     }

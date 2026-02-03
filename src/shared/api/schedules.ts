@@ -183,7 +183,7 @@ export const schedulesApi = {
     employeeId: number;
   }): Promise<unknown> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
-    const endpoint = `${base}/widgets/online-appointment/reserve_timeslot`;
+    const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
 
     const payload = {
       timeslot: {

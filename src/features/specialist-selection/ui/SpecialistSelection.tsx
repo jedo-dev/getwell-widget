@@ -159,7 +159,9 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           employeeId: selectedEmployeeId,
         });
       } catch (error) {
+        
         console.error('Ошибка резервирования слота:', error);
+        return
         // Продолжаем выполнение даже при ошибке резервирования
       }
     }
