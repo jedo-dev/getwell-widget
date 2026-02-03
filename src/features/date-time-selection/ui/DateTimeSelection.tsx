@@ -1,20 +1,18 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { getWidgetState, goToPhoneInput, selectDateTime } from '../../../lib/widget-manager';
+import { getWidgetState, goToPhoneInput, selectDateTime, setReservedTimeslotHash } from '../../../lib/widget-manager';
 import { schedulesApi } from '../../../shared/api/schedules';
-import { formatLocalDateTime } from '../../../shared/lib';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
-  formatEmployeeFullName,
-  formatLocalMidnight,
+  formatEmployeeFullName, formatLocalDateTime, formatLocalMidnight,
   formatMonthYear,
   isCurrentMonth,
   isPastDate,
-  isToday,
+  isToday
 } from '../../../shared/lib';
-import { Avatar } from '../../../shared/ui';
+import { Avatar, Notification } from '../../../shared/ui';
 import { Employee } from '../../../types';
 import './DateTimeSelection.css';
 
@@ -41,6 +39,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
   const [apiSlots, setApiSlots] = useState<TimeSlot[]>([]);
+  const [notification, setNotification] = useState<{ message: string } | null>(null);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -60,7 +59,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
           const fromLocal = formatLocalDateTime(new Date(slot.fromIso));
           const toLocal = formatLocalDateTime(new Date(slot.toIso));
 
-          await schedulesApi.reserveTimeslot({
+          const result = await schedulesApi.reserveTimeslot({
             apiUrl: widgetState.config.apiUrl,
             timeslot: {
               from: fromLocal,
@@ -68,11 +67,31 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             },
             departmentId: widgetState.selectedDepartmentId,
             employeeId: selectedEmployee.id,
+            uniqueHash: widgetState.reservedTimeslotHash || undefined,
           });
-        } catch (error) {
+
+          // Сохраняем unique_hash
+          if (result.unique_hash) {
+            setReservedTimeslotHash(result.unique_hash);
+          }
+        } catch (error: any) {
           console.error('Ошибка резервирования слота:', error);
-          // Продолжаем выполнение даже при ошибке резервирования
-          return
+          // Проверяем различные варианты ошибки duplicate_entry
+          const isDuplicate =
+            error.code === 'DUPLICATE_ENTRY' ||
+            error.message === 'duplicate_entry' ||
+            error.message?.includes('duplicate_entry') ||
+            (error.details && typeof error.details === 'object' && error.details.reason === 'duplicate_entry');
+
+          if (isDuplicate) {
+            setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
+            setSelectedTime(null);
+            // Отменяем выбор времени в состоянии виджета
+            selectDateTime(null, null);
+            return;
+          }
+          // Продолжаем выполнение даже при другой ошибке резервирования
+          return;
         }
       }
     }
@@ -230,6 +249,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
 
   return (
     <div className='date-time-selection'>
+      {notification && (
+        <Notification
+          message={notification.message}
+          type="error"
+          duration={5000}
+          onClose={() => setNotification(null)}
+        />
+      )}
       {/* Specialist Info Card */}
       {selectedEmployee && (
         <div className='date-time-selection-doctor-card'>

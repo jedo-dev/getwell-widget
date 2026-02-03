@@ -181,11 +181,20 @@ export const schedulesApi = {
     };
     departmentId: number;
     employeeId: number;
-  }): Promise<unknown> {
+    uniqueHash?: string; // для отмены резервирования
+  }): Promise<{ unique_hash: string }> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
     const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
 
-    const payload = {
+    const payload: {
+      timeslot: {
+        from: string;
+        to: string;
+      };
+      department_id: number;
+      employee_id: number;
+      unique_hash?: string;
+    } = {
       timeslot: {
         from: params.timeslot.from,
         to: params.timeslot.to,
@@ -194,10 +203,60 @@ export const schedulesApi = {
       employee_id: params.employeeId,
     };
 
-    const res = await apiClient.post<ExternalApiResponse<unknown>>(endpoint, payload);
-    if (res.status !== 'ok') {
+    if (params.uniqueHash) {
+      payload.unique_hash = params.uniqueHash;
+    }
+
+    let res: ExternalApiResponse<{ unique_hash: string }>;
+    try {
+      res = await apiClient.post<ExternalApiResponse<{ unique_hash: string }>>(endpoint, payload);
+    } catch (error: any) {
+      // Если ошибка пришла как HTTP 500, но с JSON, пытаемся извлечь данные
+      if (error && typeof error === 'object' && 'details' in error && error.details) {
+        const details = error.details;
+        if (typeof details === 'object' && 'status' in details && details.status === 'error') {
+          res = details as ExternalApiResponse<{ unique_hash: string }>;
+        } else {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
+    }
+
+    if (res.status === 'error') {
+      if (res.reason === 'duplicate_entry') {
+        const error = new Error(res.reason || 'Time slot is already reserved');
+        (error as any).code = 'DUPLICATE_ENTRY';
+        throw error;
+      }
       throw new Error(res.reason || 'Failed to reserve timeslot');
     }
+
+    if (!res.data || typeof res.data !== 'object' || !('unique_hash' in res.data)) {
+      throw new Error('Invalid response format');
+    }
+
     return res.data;
+  },
+
+  /**
+   * Отменить резервирование временного слота.
+   */
+  async cancelTimeslotReservation(params: {
+    apiUrl: string;
+    uniqueHash: string;
+  }): Promise<void> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
+
+    const payload = {
+      unique_hash: params.uniqueHash,
+    };
+
+    const res = await apiClient.post<ExternalApiResponse<unknown>>(endpoint, payload);
+    if (res.status !== 'ok') {
+      throw new Error(res.reason || 'Failed to cancel timeslot reservation');
+    }
   },
 };

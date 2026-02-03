@@ -12,3 +12,6 @@ export type { EmptyStateProps } from './EmptyState';
 
 export { BackButton } from './BackButton';
 export type { BackButtonProps } from './BackButton';
+
+export { Notification } from './Notification';
+export type { NotificationProps } from './Notification';

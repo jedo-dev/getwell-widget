@@ -170,6 +170,7 @@ export interface WidgetState {
   selectedTimeSlotTo: string | null;
   phone: string | null;
   selectedPetId: number | null;
+  reservedTimeslotHash: string | null; // unique_hash для отмены резервирования
   isNewUser?: boolean; // новый пользователь
   clientData?: {
     firstName?: string;

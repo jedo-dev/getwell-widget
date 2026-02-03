@@ -8,12 +8,13 @@ import {
   goToPhoneInput,
   selectDateTime,
   selectEmployee,
+  setReservedTimeslotHash,
 } from '../../../lib/widget-manager';
 import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
 import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
-import { Avatar, EmptyState } from '../../../shared/ui';
+import { Avatar, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
 import './DepartmentSpecialistsSelection.css';
 
@@ -34,6 +35,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [notification, setNotification] = useState<{ message: string } | null>(null);
 
   const filteredEmployees = useMemo(() => {
     let result = employees;
@@ -104,7 +106,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
     // Резервируем слот на 5 минут
     if (widgetState.config?.apiUrl && selectedDepartment?.id) {
       try {
-        await schedulesApi.reserveTimeslot({
+        const result = await schedulesApi.reserveTimeslot({
           apiUrl: widgetState.config.apiUrl,
           timeslot: {
             from,
@@ -112,11 +114,21 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
           },
           departmentId: selectedDepartment.id,
           employeeId: selectedEmployeeId,
+          uniqueHash: widgetState.reservedTimeslotHash || undefined,
         });
-      } catch (error) {
+
+        // Сохраняем unique_hash
+        if (result.unique_hash) {
+          setReservedTimeslotHash(result.unique_hash);
+        }
+      } catch (error: any) {
         console.error('Ошибка резервирования слота:', error);
-        // Продолжаем выполнение даже при ошибке резервирования
-        return
+        if (error.code === 'DUPLICATE_ENTRY' || error.message === 'duplicate_entry') {
+          setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
+          return;
+        }
+        // Продолжаем выполнение даже при другой ошибке резервирования
+        return;
       }
     }
 
@@ -131,6 +143,14 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
 
   return (
     <div className='department-specialists-selection'>
+      {notification && (
+        <Notification
+          message={notification.message}
+          type="error"
+          duration={5000}
+          onClose={() => setNotification(null)}
+        />
+      )}
       <div className='department-specialists-selection-content'>
         <Input
           placeholder='Поиск'
