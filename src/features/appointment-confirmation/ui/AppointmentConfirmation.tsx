@@ -1,3 +1,10 @@
+import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  EnvironmentOutlined,
+  IdcardOutlined,
+  PhoneOutlined,
+} from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getWidgetState, openGetWellWidget } from '../../../lib/widget-manager';
@@ -8,16 +15,8 @@ import {
   formatEmployeeFullName,
   formatTime,
 } from '../../../shared/lib';
-import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, Pet } from '../../../types';
 import './AppointmentConfirmation.css';
-
-
-import LocationIcon from '../../../img/confirmation-icon/addres.svg';
-import CalendarIcon from '../../../img/confirmation-icon/calendar.svg';
-import UserIcon from '../../../img/confirmation-icon/doctor.svg';
-import mobileIcon from '../../../img/confirmation-icon/mobile.svg';
-import watchIcon from '../../../img/confirmation-icon/watch.svg';
 export interface AppointmentConfirmationProps {
   selectedBranch: Branch | null;
   selectedEmployee: Employee | null;
@@ -104,7 +103,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedEmployee && {
       key: 'employee',
-      icon: <IconWrapper src={UserIcon} />,
+      icon: <IdcardOutlined />,
       title: fullName,
       description: null,
       action: showDoctorInfo ? {
@@ -117,7 +116,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     dateTimeInfo && {
       key: 'datetime',
-      icon: <IconWrapper src={CalendarIcon} />,
+      icon: <CalendarOutlined />,
       title: `${formattedDate}`,
       description: null,
       action: {
@@ -127,7 +126,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedBranch && {
       key: 'address',
-      icon: <IconWrapper src={LocationIcon} />,
+      icon: <EnvironmentOutlined />,
       title: selectedBranch.address,
       description: null,
       action: {
@@ -137,7 +136,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedBranch && {
       key: 'phone',
-      icon: <IconWrapper src={mobileIcon} />,
+      icon: <PhoneOutlined />,
       title: selectedBranch.phone,
       description: null,
       action: {
@@ -147,7 +146,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedBranch && {
       key: 'schedule',
-      icon: <IconWrapper src={watchIcon} />,
+      icon: <ClockCircleOutlined />,
       title: selectedBranch.schedule || 'Рабочие часы',
       description: null,
       action: null,

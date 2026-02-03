@@ -1,9 +1,9 @@
-import { normalizeExternalBaseUrl } from './external-base-url';
 import { apiClient } from './instance';
+import { normalizeExternalBaseUrl } from './external-base-url';
 
 type ExternalStatus = 'ok' | 'error';
 
-interface ExternalApiResponse<T> {
+export interface ExternalApiResponse<T> {
   status: ExternalStatus;
   reason: string | null;
   data: T;

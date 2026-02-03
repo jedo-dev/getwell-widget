@@ -1,15 +1,13 @@
 /**
  * Централизованный экспорт всех API методов
  */
-export * from './appointments';
-export * from './branches';
-export * from './clients';
-export * from './departments';
-export * from './employees';
 export * from './instance';
-export * from './owners';
-export * from './patients';
+export * from './branches';
+export * from './employees';
+export * from './departments';
 export * from './pets';
+export * from './clients';
+export * from './appointments';
+export * from './schedules';
 export * from './records';
-export * from './widget-settings-cache';
 

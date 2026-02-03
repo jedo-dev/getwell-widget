@@ -57,7 +57,7 @@ const WidgetProvider: React.FC = () => {
     'dark': theme
   }
 
-  const currentTheme = theme
+  const currentTheme = getTheme?.[widgetState?.config?.theme?.primaryColor as keyof typeof getTheme]
 
 
   useEffect(() => {
@@ -113,7 +113,7 @@ const WidgetProvider: React.FC = () => {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: currentTheme.dark?.default,
+          colorPrimary: currentTheme.dark.default,
           colorInfo: primaryColor,
         },
         components: {
