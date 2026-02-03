@@ -41,6 +41,19 @@ export interface TimeSlot {
   appointmentType: AppointmentType; // тип приёма
 }
 
+// PatientType (Тип животного)
+export interface PatientType {
+  id: number;
+  name: string;
+}
+
+// Breed (Порода)
+export interface Breed {
+  id: number;
+  name: string;
+  patient_type: PatientType;
+}
+
 // Pet (Питомец)
 export interface Pet {
   id?: number;
@@ -170,6 +183,8 @@ export interface WidgetState {
   selectedTimeSlotTo: string | null;
   phone: string | null;
   selectedPetId: number | null;
+  selectedPatientTypeId?: number; // выбранный тип животного
+  selectedBreedId?: number; // выбранная порода
   reservedTimeslotHash: string | null; // unique_hash для отмены резервирования
   isNewUser?: boolean; // новый пользователь
   clientData?: {

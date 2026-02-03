@@ -16,6 +16,8 @@ let widgetState: WidgetState = {
   selectedTimeSlotTo: null,
   phone: null,
   selectedPetId: null,
+  selectedPatientTypeId: undefined,
+  selectedBreedId: undefined,
   reservedTimeslotHash: null,
 };
 
@@ -201,6 +203,8 @@ export function openGetWellWidget(): void {
     selectedTimeSlotTo: null,
     phone: null,
     selectedPetId: null,
+    selectedPatientTypeId: undefined,
+    selectedBreedId: undefined,
     reservedTimeslotHash: null,
   };
 
@@ -236,6 +240,8 @@ export function resetGetWellWidget(): void {
     selectedTimeSlotTo: null,
     phone: null,
     selectedPetId: null,
+    selectedPatientTypeId: undefined,
+    selectedBreedId: undefined,
     reservedTimeslotHash: null,
   };
 
@@ -459,6 +465,31 @@ export function goToPrivacyPolicy(): void {
 }
 
 /**
+ * Выбор типа животного
+ */
+export function selectPatientType(typeId: number): void {
+  widgetState = {
+    ...widgetState,
+    selectedPatientTypeId: typeId,
+    selectedBreedId: undefined, // сбрасываем породу при смене типа
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Выбор породы
+ */
+export function selectBreed(breedId: number): void {
+  widgetState = {
+    ...widgetState,
+    selectedBreedId: breedId,
+  };
+
+  notifyStateChange();
+}
+
+/**
  * Возврат к предыдущему шагу
  */
 export async function goBack(): Promise<void> {
@@ -589,6 +620,8 @@ export function applyConfig(
       selectedTimeSlotTo: null,
       phone: null,
       selectedPetId: null,
+      selectedPatientTypeId: undefined,
+      selectedBreedId: undefined,
       reservedTimeslotHash: null,
     };
   }

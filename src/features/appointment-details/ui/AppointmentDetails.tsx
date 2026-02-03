@@ -3,16 +3,15 @@ import {
 } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CalendarIcon from '../../../img/calendar.svg';
-import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectPet } from '../../../lib/widget-manager';
-import { recordsApi } from '../../../shared/api';
+import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectBreed, selectPatientType, selectPet, subscribeToStateChange } from '../../../lib/widget-manager';
+import { patientsApi, recordsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import {
   Gender,
   GENDER_LABELS,
-  PET_SPECIES_OPTIONS,
-  PetSpecies,
+  PetSpecies
 } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import {
@@ -29,7 +28,7 @@ import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
 import CustomTextArea from '../../../shared/ui/CustomTextArea';
 import IconWrapper from '../../../shared/ui/IconWrapper';
-import { Branch, Employee, Pet } from '../../../types';
+import { Branch, Breed, Employee, PatientType, Pet } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
 
@@ -75,12 +74,61 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [petName, setPetName] = useState<string>('');
   const [petSpecies, setPetSpecies] = useState<PetSpecies | string>('');
   const [petBreed, setPetBreed] = useState<string>('');
-  const [petGender, setPetGender] = useState<string | undefined>(Gender.MALE);
+  const [petGender, setPetGender] = useState<string | undefined>(undefined);
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
+
+  // Состояние для пород и типов животных
+  const [breeds, setBreeds] = useState<Breed[]>([]);
+  const [loadingBreeds, setLoadingBreeds] = useState<boolean>(false);
+  const [breedsError, setBreedsError] = useState<string | null>(null);
+
+  // Локальное состояние для синхронизации с виджетом
+  const [selectedPatientTypeId, setSelectedPatientTypeId] = useState<number | undefined>(
+    getWidgetState().selectedPatientTypeId,
+  );
+  const [selectedBreedId, setSelectedBreedId] = useState<number | undefined>(
+    getWidgetState().selectedBreedId,
+  );
+
+  // Синхронизация с состоянием виджета
+  useEffect(() => {
+    const unsubscribe = subscribeToStateChange((state) => {
+      setSelectedPatientTypeId(state.selectedPatientTypeId);
+      setSelectedBreedId(state.selectedBreedId);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Строим списки типов животных и пород
+  const patientTypes = useMemo<PatientType[]>(() => {
+    const typeMap = new Map<number, PatientType>();
+    breeds.forEach((breed) => {
+      if (!typeMap.has(breed.patient_type.id)) {
+        typeMap.set(breed.patient_type.id, breed.patient_type);
+      }
+    });
+    return Array.from(typeMap.values());
+  }, [breeds]);
+
+  const breedsByTypeId = useMemo<Record<number, Breed[]>>(() => {
+    const result: Record<number, Breed[]> = {};
+    breeds.forEach((breed) => {
+      const typeId = breed.patient_type.id;
+      if (!result[typeId]) {
+        result[typeId] = [];
+      }
+      result[typeId].push(breed);
+    });
+    return result;
+  }, [breeds]);
+
+  const availableBreeds = selectedPatientTypeId
+    ? breedsByTypeId[selectedPatientTypeId] || []
+    : [];
 
   // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
   useEffect(() => {
-    if (petGenders.length > 0 && !petGender) {
+    if (petGenders.length > 0 && petGender === undefined) {
       setPetGender(petGenders[0].code);
     }
   }, [petGenders, petGender]);
@@ -181,6 +229,46 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNewUser]);
 
+  // Загрузка пород при входе на шаг (только для нового пользователя и в online режиме)
+  useEffect(() => {
+    if (!isNewUser) return;
+
+    const state = getWidgetState();
+    const config = state.config;
+    const isOffline = config?.offlineMode === true;
+
+    // В offline режиме используем данные из конфига, если они есть
+    if (isOffline) {
+      // TODO: поддержка config.patientTypes и config.breeds в будущем
+      setBreeds([]);
+      return;
+    }
+
+    // В online режиме загружаем породы
+    const apiUrl = config?.apiUrl;
+    if (!apiUrl) {
+      setBreeds([]);
+      return;
+    }
+
+    const loadBreeds = async () => {
+      setLoadingBreeds(true);
+      setBreedsError(null);
+      try {
+        const breedsData = await patientsApi.getBreeds(apiUrl);
+        setBreeds(breedsData);
+      } catch (error) {
+        console.error('Ошибка загрузки пород:', error);
+        setBreedsError('Не удалось загрузить породы');
+        setBreeds([]);
+      } finally {
+        setLoadingBreeds(false);
+      }
+    };
+
+    loadBreeds();
+  }, [isNewUser]);
+
   const handlePhoneEdit = () => {
     setIsPhoneEditing(true);
   };
@@ -243,12 +331,12 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         message.error('Пожалуйста, введите кличку питомца');
         return;
       }
-      if (!petSpecies) {
-        message.error('Пожалуйста, выберите вид питомца');
+      if (!selectedPatientTypeId) {
+        message.error('Пожалуйста, выберите тип животного');
         return;
       }
-      if (!petBreed) {
-        message.error('Пожалуйста, выберите породу питомца');
+      if (!selectedBreedId) {
+        message.error('Пожалуйста, выберите породу');
         return;
       }
       if (!petGender) {
@@ -557,26 +645,55 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 />
               </div>
               <div className='appointment-details-field'>
-                <CustomSelector
-                  text='Вид'
-                  value={petSpecies}
-                  onChange={setPetSpecies}
-                  options={PET_SPECIES_OPTIONS}
-                  suffixIcon={<DownOutlined />}
-                />
+                {loadingBreeds ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                    <Spin />
+                  </div>
+                ) : (
+                  <CustomSelector
+                    text='Тип животного'
+                    value={selectedPatientTypeId}
+                    onChange={(value) => {
+                      if (value) {
+                        selectPatientType(value);
+                        setSelectedPatientTypeId(value);
+                        // Сбрасываем породу при смене типа
+                        setSelectedBreedId(undefined);
+                        setPetBreed('');
+                      }
+                    }}
+                    options={patientTypes.map((type) => ({
+                      value: type.id,
+                      label: type.name,
+                    }))}
+                    suffixIcon={<DownOutlined />}
+                    disabled={patientTypes.length === 0}
+                  />
+                )}
               </div>
 
               <div className='appointment-details-field'>
                 <CustomSelector
                   text='Порода'
-                  value={petBreed}
-                  onChange={setPetBreed}
+                  value={selectedBreedId}
+                  onChange={(value) => {
+                    if (value) {
+                      selectBreed(value);
+                      setSelectedBreedId(value);
+                      // Сохраняем название породы для обратной совместимости
+                      const breed = availableBreeds.find((b) => b.id === value);
+                      if (breed) {
+                        setPetBreed(breed.name);
+                      }
+                    }
+                  }}
                   suffixIcon={<DownOutlined />}
-                  options={[
-                    { value: 'breed1', label: 'Порода 1' },
-                    { value: 'breed2', label: 'Порода 2' },
-                    { value: 'breed3', label: 'Порода 3' },
-                  ]}
+                  options={availableBreeds.map((breed) => ({
+                    value: breed.id,
+                    label: breed.name,
+                  }))}
+
+                  disabled={!selectedPatientTypeId || availableBreeds.length === 0}
                 />
               </div>
               <div className='appointment-details-gender-section'>
@@ -657,8 +774,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   !patronymic ||
                   !gender ||
                   !petName ||
-                  !petSpecies ||
-                  !petBreed ||
+                  !selectedPatientTypeId ||
+                  !selectedBreedId ||
                   !petGender ||
                   !petBirthDate
                   : !selectedPetId)
