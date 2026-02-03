@@ -1,7 +1,6 @@
 import { Employee } from '../../types';
 import { EmployeesResponse } from '../types/api';
-import { apiClient } from './instance';
-import { getWidgetSettings, EmployeeApiData } from './widget-settings-cache';
+import { EmployeeApiData, getWidgetSettings } from './widget-settings-cache';
 
 /**
  * Интерфейс должности из API
@@ -24,7 +23,6 @@ interface UserType {
   name: string;
   has_access: boolean;
 }
-
 
 /**
  * Преобразование данных сотрудника из API в формат приложения
@@ -126,10 +124,7 @@ export const employeesApi = {
   /**
    * Получить список сотрудников отделения
    */
-  async getByDepartment(
-    branchId: number,
-    departmentId: number,
-  ): Promise<EmployeesResponse> {
+  async getByDepartment(branchId: number, departmentId: number): Promise<EmployeesResponse> {
     try {
       const settings = await getWidgetSettings();
       if (settings.status !== 'ok') {
@@ -196,4 +191,3 @@ export const employeesApi = {
     }
   },
 };
-

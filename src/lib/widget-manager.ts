@@ -16,6 +16,7 @@ let widgetState: WidgetState = {
   selectedTimeSlotTo: null,
   phone: null,
   selectedPetId: null,
+  reservedTimeslotHash: null,
 };
 
 // let widgetState: WidgetState = {
@@ -97,7 +98,7 @@ export function getWidgetState(): WidgetState {
 export async function initGetWellWidget(config?: WidgetConfig): Promise<void> {
   // 1) Берём конфиг из аргумента или из window.GetWellWidgetConfig
   const windowConfig =
-    typeof window !== 'undefined' ? window.GetWellWidgetConfig : undefined;
+    typeof window !== 'undefined' ? (window as any).GetWellWidgetConfig : undefined;
 
   const inputConfig: WidgetConfig = (config ?? windowConfig ?? {}) as WidgetConfig;
 
@@ -158,6 +159,7 @@ export async function initGetWellWidget(config?: WidgetConfig): Promise<void> {
 /**
  * Открытие виджета
  */
+
 export function openGetWellWidget(): void {
   if (!widgetState.initialized) {
     console.warn('GetWell Widget: Widget is not initialized. Call initGetWellWidget() first.');
@@ -199,6 +201,7 @@ export function openGetWellWidget(): void {
     selectedTimeSlotTo: null,
     phone: null,
     selectedPetId: null,
+    reservedTimeslotHash: null,
   };
 
   notifyStateChange();
@@ -233,6 +236,7 @@ export function resetGetWellWidget(): void {
     selectedTimeSlotTo: null,
     phone: null,
     selectedPetId: null,
+    reservedTimeslotHash: null,
   };
 
   notifyStateChange();
@@ -335,11 +339,23 @@ export function goToDateTimeSelection(): void {
 /**
  * Выбор даты и времени
  */
-export function selectDateTime(dateTime: string, dateTimeTo?: string): void {
+export function selectDateTime(dateTime: string | null, dateTimeTo?: string | null): void {
   widgetState = {
     ...widgetState,
     selectedTimeSlot: dateTime,
     selectedTimeSlotTo: dateTimeTo ?? widgetState.selectedTimeSlotTo,
+  };
+
+  notifyStateChange();
+}
+
+/**
+ * Сохранение unique_hash резервирования временного слота
+ */
+export function setReservedTimeslotHash(hash: string | null): void {
+  widgetState = {
+    ...widgetState,
+    reservedTimeslotHash: hash,
   };
 
   notifyStateChange();
@@ -361,12 +377,17 @@ export function goToPhoneInput(): void {
 /**
  * Сохранение телефона и переход к деталям записи
  */
-export function savePhoneAndGoToDetails(phone: string, isNewUser: boolean = false): void {
+export function savePhoneAndGoToDetails(
+  phone: string,
+  isNewUser: boolean = false,
+  ownerData?: WidgetState['ownerData'],
+): void {
   if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     phone,
     isNewUser,
+    ownerData,
     currentStep: WidgetStep.APPOINTMENT_DETAILS,
   };
 
@@ -440,9 +461,32 @@ export function goToPrivacyPolicy(): void {
 /**
  * Возврат к предыдущему шагу
  */
-export function goBack(): void {
+export async function goBack(): Promise<void> {
   if (widgetState.config?.render?.lockStep) return;
   const { currentStep } = widgetState;
+
+  // Если возвращаемся назад с экрана ввода телефона, отменяем резервирование
+  if (
+    currentStep === WidgetStep.PHONE_INPUT &&
+    widgetState.reservedTimeslotHash &&
+    widgetState.config?.apiUrl
+  ) {
+    try {
+      const { schedulesApi } = await import('../shared/api/schedules');
+      await schedulesApi.cancelTimeslotReservation({
+        apiUrl: widgetState.config.apiUrl,
+        uniqueHash: widgetState.reservedTimeslotHash,
+      });
+      // Очищаем unique_hash после успешной отмены
+      widgetState = {
+        ...widgetState,
+        reservedTimeslotHash: null,
+      };
+    } catch (error) {
+      console.error('Ошибка отмены резервирования:', error);
+      // Продолжаем выполнение даже при ошибке отмены
+    }
+  }
 
   if (currentStep === WidgetStep.PRIVACY_POLICY) {
     widgetState = {
@@ -545,6 +589,7 @@ export function applyConfig(
       selectedTimeSlotTo: null,
       phone: null,
       selectedPetId: null,
+      reservedTimeslotHash: null,
     };
   }
 

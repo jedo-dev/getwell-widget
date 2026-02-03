@@ -30,34 +30,34 @@ import { registerGlobalWidget } from './lib/global';
 
 if (typeof window !== 'undefined') {
   // Полифилл для process (для зависимостей, которые его используют)
-  if (typeof window.process === 'undefined') {
-    window.process = { env: {} };
+  if (typeof (window as any).process === 'undefined') {
+    (window as any).process = { env: {} };
   }
 
   registerGlobalWidget(WidgetProvider);
 
   // Экспортируем React глобально
   if (!window.React) {
-    window.React = React;
+    (window as any).React = React;
   }
 
   // Экспортируем ReactDOM глобально
   if (!window.ReactDOM) {
-    window.ReactDOM = ReactDOM || {};
+    (window as any).ReactDOM = ReactDOM || {};
   }
 
   // Добавляем createRoot из react-dom/client (React 18+)
   if (ReactDOMClient && typeof ReactDOMClient.createRoot === 'function') {
     if (!window.ReactDOM) {
-      window.ReactDOM = {};
+      (window as any).ReactDOM = {};
     }
-    window.ReactDOM.createRoot = ReactDOMClient.createRoot;
+    (window as any).ReactDOM.createRoot = ReactDOMClient.createRoot;
   }
 
   // Экспортируем старый render для совместимости (React < 18)
   // if (ReactDOM && typeof ReactDOM.render === 'function') {
   //   if (!window.ReactDOM) {
-  //     window.ReactDOM = {};
+  //     (window as any).ReactDOM = {};
   //   }
   //   (window as any).ReactDOM.render = ReactDOM.render;
   // }
