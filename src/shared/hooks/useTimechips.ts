@@ -29,6 +29,7 @@ interface UseTimechipsResult {
 export function useTimechips(
   doctorId: number | null,
   enabled: boolean = true,
+  date?: string | null, // YYYY-MM-DD HH:mm:ss - опциональная дата для запроса
 ): UseTimechipsResult {
   const [timechips, setTimechips] = useState<AvailableTimechip[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -52,16 +53,15 @@ export function useTimechips(
       return;
     }
 
-    // Формируем дату на сегодня в 00:00:00
-    const today = new Date();
-    const date = formatLocalMidnight(today);
+    // Используем переданную дату или формируем дату на сегодня в 00:00:00
+    const requestDate = date || formatLocalMidnight(new Date());
 
     // Проверяем кэш
     const cacheKey: TimechipCacheKey = {
       filialId,
       doctorId,
       departmentId,
-      date,
+      date: requestDate,
     };
     const key = getCacheKey(cacheKey);
     const cached = timechipCache.get(key);
@@ -81,7 +81,7 @@ export function useTimechips(
         apiUrl,
         filialId,
         appointmentTypeId: 8,
-        date,
+        date: requestDate,
         doctorId,
         departmentId,
       })
@@ -99,7 +99,7 @@ export function useTimechips(
       .finally(() => {
         setLoading(false);
       });
-  }, [doctorId, enabled]);
+  }, [doctorId, enabled, date]);
 
   return { timechips, loading, error };
 }

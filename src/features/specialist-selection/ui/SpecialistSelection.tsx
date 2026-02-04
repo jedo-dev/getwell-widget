@@ -123,6 +123,13 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     ? departments.find((dept) => dept.id === selectedDepartmentId)
     : null;
 
+  // Находим ближайший timeslot для выбранного врача
+  const selectedEmployeeData = selectedEmployeeId
+    ? doctorsWithSchedules.find((d) => d.employee.id === selectedEmployeeId)
+    : undefined;
+  const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
+  const nearestAppointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
+
   // Загружаем timechips для выбранного врача
   const isOnSpecialistSelectionStep = widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION;
   const {
@@ -132,6 +139,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   } = useTimechips(
     selectedEmployeeId,
     isOnSpecialistSelectionStep && selectionMode === SelectionMode.EMPLOYEE,
+    nearestAppointmentDate.date,
   );
 
   // Преобразуем "YYYY-MM-DD HH:mm:ss" в "HH:mm"
@@ -268,11 +276,26 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                         const isSelected = selectedEmployeeId === employee.id;
                         const fullName = formatEmployeeFullName(employee);
                         const isCurrentEmployee = isSelected && employee.id === selectedEmployeeId;
+                        const doctorData = doctorsWithSchedules.find(
+                          (d) => d.employee.id === employee.id,
+                        );
+                        const nearestTimeslot = findNearestTimeslot(doctorData);
+                        const appointmentDate = formatNearestAppointmentDate(
+                          nearestTimeslot?.from || null,
+                        );
+                        const hasAppointment = !!appointmentDate.date;
 
                         return (
                           <List.Item
-                            className={`specialist-selection-item ${isSelected ? 'selected' : ''}`}
-                            onClick={() => handleEmployeeSelect(employee.id)}>
+                            className={`specialist-selection-item ${isSelected ? 'selected' : ''} ${
+                              !hasAppointment ? 'disabled' : ''
+                            }`}
+                            onClick={() => {
+                              // Отключаем клик, если нет ближайшей записи
+                              if (hasAppointment) {
+                                handleEmployeeSelect(employee.id);
+                              }
+                            }}>
                             <div className='specialist-selection-item-content'>
                               <div className='specialist-selection-item-content-left'>
                                 <div className='specialist-selection-item-left'>
@@ -292,18 +315,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                   </div>
                                 </div>
                                 <div className='specialist-selection-item-appointment'>
-                                  Ближайшее время приёма:{' '}
-                                  <Tag>
-                                    {(() => {
-                                      const doctorData = doctorsWithSchedules.find(
-                                        (d) => d.employee.id === employee.id,
-                                      );
-                                      const nearestTimeslot = findNearestTimeslot(doctorData);
-                                      return formatNearestAppointmentDate(
-                                        nearestTimeslot?.from || null,
-                                      );
-                                    })()}
-                                  </Tag>
+                                  Ближайшее время приёма: <Tag>{appointmentDate.text}</Tag>
                                 </div>
                                 {isCurrentEmployee && (
                                   <>

@@ -1,16 +1,24 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { getWidgetState, goToPhoneInput, selectDateTime, selectDepartment, selectDepartmentOnly, setReservedTimeslotHash } from '../../../lib/widget-manager';
+import {
+  getWidgetState,
+  goToPhoneInput,
+  selectDateTime,
+  selectDepartmentOnly,
+  setReservedTimeslotHash,
+} from '../../../lib/widget-manager';
 import { schedulesApi } from '../../../shared/api/schedules';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
-  formatEmployeeFullName, formatLocalDateTime, formatLocalMidnight,
+  formatEmployeeFullName,
+  formatLocalDateTime,
+  formatLocalMidnight,
   formatMonthYear,
   isCurrentMonth,
   isPastDate,
-  isToday
+  isToday,
 } from '../../../shared/lib';
 import { Avatar, Notification } from '../../../shared/ui';
 import { Employee } from '../../../types';
@@ -88,7 +96,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             error.code === 'DUPLICATE_ENTRY' ||
             error.message === 'duplicate_entry' ||
             error.message?.includes('duplicate_entry') ||
-            (error.details && typeof error.details === 'object' && error.details.reason === 'duplicate_entry');
+            (error.details &&
+              typeof error.details === 'object' &&
+              error.details.reason === 'duplicate_entry');
 
           if (isDuplicate) {
             setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
@@ -233,7 +243,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
 
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, selectedEmployee?.id, widgetState.selectedBranchId, widgetState.selectedDepartmentId, widgetState.config?.apiUrl, widgetState.config?.offlineMode]);
+  }, [
+    selectedDate,
+    selectedEmployee?.id,
+    widgetState.selectedBranchId,
+    widgetState.selectedDepartmentId,
+    widgetState.config?.apiUrl,
+    widgetState.config?.offlineMode,
+  ]);
 
   const timeSlots: TimeSlot[] = useMemo(() => {
     return apiSlots;
@@ -260,7 +277,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
       {notification && (
         <Notification
           message={notification.message}
-          type="error"
+          type='error'
           duration={5000}
           onClose={() => setNotification(null)}
         />

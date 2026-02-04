@@ -1,5 +1,6 @@
 import { AvailableDoctorsData, NearestAvailableTimeslot, ScheduleItem } from '../api/schedules';
 import { isToday } from './date-formatting';
+import { formatLocalMidnight } from './datetime';
 
 /**
  * Парсит строку даты в формате "YYYY-MM-DD HH:mm:ss" в объект Date
@@ -39,14 +40,28 @@ export function findNearestTimeslot(
 }
 
 /**
+ * Результат форматирования даты ближайшего времени приёма
+ */
+export interface NearestAppointmentDateResult {
+  text: string;
+  date: string | null; // YYYY-MM-DD 00:00:00 для использования в запросах
+}
+
+/**
  * Форматирует дату для отображения ближайшего времени приёма
  * - "сегодня" если это сегодня
  * - "завтра" если это завтра
  * - "ДД.ММ" если через пару дней
+ * Возвращает объект с текстом для отображения и датой для запросов
  */
-export function formatNearestAppointmentDate(dateTimeStr: string | null): string {
+export function formatNearestAppointmentDate(
+  dateTimeStr: string | null,
+): NearestAppointmentDateResult {
   if (!dateTimeStr) {
-    return 'нет ближайшей записи';
+    return {
+      text: 'нет ближайшей записи',
+      date: null,
+    };
   }
 
   const date = parseDateTime(dateTimeStr);
@@ -59,15 +74,27 @@ export function formatNearestAppointmentDate(dateTimeStr: string | null): string
   const targetDate = new Date(date);
   targetDate.setHours(0, 0, 0, 0);
 
+  // Форматируем дату для запроса (полночь выбранной даты)
+  const dateForRequest = formatLocalMidnight(date);
+
   if (isToday(date)) {
-    return 'сегодня';
+    return {
+      text: 'сегодня',
+      date: dateForRequest,
+    };
   }
 
   if (targetDate.getTime() === tomorrow.getTime()) {
-    return 'завтра';
+    return {
+      text: 'завтра',
+      date: dateForRequest,
+    };
   }
 
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${day}.${month}`;
+  return {
+    text: `${day}.${month}`,
+    date: dateForRequest,
+  };
 }

@@ -11,10 +11,18 @@ import {
   selectEmployee,
   setReservedTimeslotHash,
 } from '../../../lib/widget-manager';
-import { AvailableDoctorsData, AvailableTimechip, schedulesApi } from '../../../shared/api/schedules';
+import {
+  AvailableDoctorsData,
+  AvailableTimechip,
+  schedulesApi,
+} from '../../../shared/api/schedules';
 import { WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
-import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
+import {
+  findNearestTimeslot,
+  formatEmployeeFullName,
+  formatNearestAppointmentDate,
+} from '../../../shared/lib';
 import { Avatar, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
 import './DepartmentSpecialistsSelection.css';
@@ -70,13 +78,21 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
     ? employees.find((emp) => emp.id === selectedEmployeeId)
     : null;
 
+  // Находим ближайший timeslot для выбранного врача
+  const selectedEmployeeData = selectedEmployeeId
+    ? doctorsWithSchedules.find((d) => d.employee.id === selectedEmployeeId)
+    : undefined;
+  const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
+  const nearestAppointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
+
   // Загружаем timechips для выбранного врача
   const isOnDepartmentSpecialistsStep =
     widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION;
-  const { timechips, loading: loadingTimechips, error: timechipsError } = useTimechips(
-    selectedEmployeeId,
-    isOnDepartmentSpecialistsStep,
-  );
+  const {
+    timechips,
+    loading: loadingTimechips,
+    error: timechipsError,
+  } = useTimechips(selectedEmployeeId, isOnDepartmentSpecialistsStep, nearestAppointmentDate.date);
 
   // Преобразуем "YYYY-MM-DD HH:mm:ss" в "HH:mm"
   const formatTimeFromDateTime = (dateTime: string): string => {
@@ -153,7 +169,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
       {notification && (
         <Notification
           message={notification.message}
-          type="error"
+          type='error'
           duration={5000}
           onClose={() => setNotification(null)}
         />
@@ -175,12 +191,22 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
               const isSelected = selectedEmployeeId === employee.id;
               const fullName = formatEmployeeFullName(employee);
               const isCurrentEmployee = isSelected && employee.id === selectedEmployeeId;
+              const doctorData = doctorsWithSchedules.find((d) => d.employee.id === employee.id);
+              const nearestTimeslot = findNearestTimeslot(doctorData);
+              const appointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
+              const hasAppointment = !!appointmentDate.date;
 
               return (
                 <List.Item
-                  className={`department-specialists-selection-item ${isSelected ? 'selected' : ''
-                    }`}
-                  onClick={() => handleEmployeeSelect(employee.id)}>
+                  className={`department-specialists-selection-item ${
+                    isSelected ? 'selected' : ''
+                  } ${!hasAppointment ? 'disabled' : ''}`}
+                  onClick={() => {
+                    // Отключаем клик, если нет ближайшей записи
+                    if (hasAppointment) {
+                      handleEmployeeSelect(employee.id);
+                    }
+                  }}>
                   <div className='department-specialists-selection-item-content'>
                     <div className='department-specialists-selection-item-content-left'>
                       <div className='department-specialists-selection-item-left'>
@@ -202,20 +228,10 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                         </div>
                       </div>
                       <div className='department-specialists-selection-item-appointment'>
-                        Ближайшее время приёма:{' '}
-                        <Tag>
-                          {(() => {
-                            const doctorData = doctorsWithSchedules.find(
-                              (d) => d.employee.id === employee.id,
-                            );
-                            const nearestTimeslot = findNearestTimeslot(doctorData);
-                            return formatNearestAppointmentDate(nearestTimeslot?.from || null);
-                          })()}
-                        </Tag>
+                        Ближайшее время приёма: <Tag>{appointmentDate.text}</Tag>
                       </div>
                       {isCurrentEmployee && (
                         <>
-
                           {loadingTimechips && (
                             <div className='department-specialists-selection-time-slots'>
                               <Skeleton.Button active size='small' block={false} />
@@ -231,8 +247,9 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                                 return (
                                   <button
                                     key={`${timechip.from}-${index}`}
-                                    className={`department-specialists-selection-time-slot ${isDisabled ? 'disabled' : ''
-                                      }`}
+                                    className={`department-specialists-selection-time-slot ${
+                                      isDisabled ? 'disabled' : ''
+                                    }`}
                                     type='button'
                                     disabled={isDisabled}
                                     onClick={(e) => {
@@ -293,7 +310,9 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
       {selectedEmployee && (
         <div className='specialist-selection-footer'>
           {showDoctorInfo && (
-            <Button className='specialist-selection-footer-btn secondary' onClick={handleDoctorInfo}>
+            <Button
+              className='specialist-selection-footer-btn secondary'
+              onClick={handleDoctorInfo}>
               О враче
             </Button>
           )}
