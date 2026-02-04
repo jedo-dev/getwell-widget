@@ -1,18 +1,21 @@
-import {
-  DownOutlined
-} from '@ant-design/icons';
+import { DownOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import type { Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import CalendarIcon from '../../../img/calendar.svg';
-import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectBreed, selectPatientType, selectPet, subscribeToStateChange } from '../../../lib/widget-manager';
+import {
+  getWidgetState,
+  goBack,
+  goToAppointmentConfirmation,
+  goToPrivacyPolicy,
+  selectBreed,
+  selectPatientType,
+  selectPet,
+  subscribeToStateChange,
+} from '../../../lib/widget-manager';
 import { patientsApi, recordsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
-import {
-  Gender,
-  GENDER_LABELS,
-  PetSpecies
-} from '../../../shared/constants';
+import { Gender, GENDER_LABELS, PetSpecies } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import {
   formatDate,
@@ -33,7 +36,6 @@ import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
 
 import LocationIcon from '../../../img/location.svg';
-
 
 export interface AppointmentDetailsProps {
   selectedBranch: Branch | null;
@@ -122,16 +124,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     return result;
   }, [breeds]);
 
-  const availableBreeds = selectedPatientTypeId
-    ? breedsByTypeId[selectedPatientTypeId] || []
-    : [];
+  const availableBreeds = selectedPatientTypeId ? breedsByTypeId[selectedPatientTypeId] || [] : [];
 
   // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
   useEffect(() => {
-    if (petGenders.length > 0 && petGender === undefined) {
-      setPetGender(petGenders[0].code);
+    if (petGenders.length) {
+      setPetGender(petGenders[0].name);
     }
-  }, [petGenders, petGender]);
+  }, [petGenders.length]);
 
   useEffect(() => {
     const state = getWidgetState();
@@ -369,21 +369,21 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       isNewUser,
       clientData: isNewUser
         ? {
-          firstName,
-          lastName,
-          patronymic,
-          gender,
-        }
+            firstName,
+            lastName,
+            patronymic,
+            gender,
+          }
         : undefined,
       petId: selectedPetId,
       petData: isNewUser
         ? {
-          name: petName,
-          species: petSpecies,
-          breed: petBreed,
-          gender: petGender,
-          birthDate: petBirthDate?.format('YYYY-MM-DD'),
-        }
+            name: petName,
+            species: petSpecies,
+            breed: petBreed,
+            gender: petGender,
+            birthDate: petBirthDate?.format('YYYY-MM-DD'),
+          }
         : undefined,
       symptoms,
       consentPersonalData,
@@ -396,7 +396,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     const toIso = state.selectedTimeSlotTo;
     const departmentId = state.selectedDepartmentId;
 
-    if (!state.config?.offlineMode && apiUrl && selectedEmployee && selectedDateTime && toIso && departmentId) {
+    if (
+      !state.config?.offlineMode &&
+      apiUrl &&
+      selectedEmployee &&
+      selectedDateTime &&
+      toIso &&
+      departmentId
+    ) {
       try {
         // backend ожидает "YYYY-MM-DD HH:mm:ss" в локальной TZ браузера
         const isoToLocal = async (iso: string): Promise<string> => {
@@ -526,7 +533,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               <div className='appointment-details-phone-edit'>
                 <CustomInput
                   text='Телефон'
-
                   value={phone}
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneConfirm}
@@ -560,7 +566,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Имя'
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-
                   required
                 />
               </div>
@@ -569,7 +574,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Фамилия'
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-
                   required
                 />
               </div>
@@ -578,7 +582,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Отчество'
                   value={patronymic}
                   onChange={(e) => setPatronymic(e.target.value)}
-
                   required
                 />
               </div>
@@ -692,7 +695,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     value: breed.id,
                     label: breed.name,
                   }))}
-
                   disabled={!selectedPatientTypeId || availableBreeds.length === 0}
                 />
               </div>
@@ -702,7 +704,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   onChange={(e) => setPetGender(e.target.value)}
                   className='appointment-details-gender-group'>
                   {petGenders.map((gender) => (
-                    <Radio.Button key={gender.code} value={gender.code}>
+                    <Radio.Button key={gender.name} value={gender.name}>
                       {gender.name}
                     </Radio.Button>
                   ))}
@@ -736,7 +738,11 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               className='appointment-details-consent-checkbox'>
               Согласен на{' '}
               <a
-                href={widgetState.config?.isExternalLinkPolicy ? widgetState.config?.linkToExternalPolicy : '#'}
+                href={
+                  widgetState.config?.isExternalLinkPolicy
+                    ? widgetState.config?.linkToExternalPolicy
+                    : '#'
+                }
                 className='appointment-details-consent-link'
                 onClick={(e) => {
                   if (!widgetState.config?.isExternalLinkPolicy) {
@@ -770,14 +776,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 !consentPersonalData ||
                 (isNewUser
                   ? !firstName ||
-                  !lastName ||
-                  !patronymic ||
-                  !gender ||
-                  !petName ||
-                  !selectedPatientTypeId ||
-                  !selectedBreedId ||
-                  !petGender ||
-                  !petBirthDate
+                    !lastName ||
+                    !patronymic ||
+                    !gender ||
+                    !petName ||
+                    !selectedPatientTypeId ||
+                    !selectedBreedId ||
+                    !petGender ||
+                    !petBirthDate
                   : !selectedPetId)
               }>
               Записаться
