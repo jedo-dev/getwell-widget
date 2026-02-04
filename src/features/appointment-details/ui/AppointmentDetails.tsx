@@ -54,7 +54,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
-  const { genders: petGenders, getLabel: getPetGenderLabel } = usePetGenders();
+  const { genders: petGenders, getLabel: getPetGenderLabel, getId } = usePetGenders();
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
@@ -455,7 +455,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               nickname: petName,
               type_id: String(selectedPatientTypeId),
               breed_id: String(selectedBreedId),
-              gender_id: petGenderId,
+              gender_id: getId(petGenderId),
               birth_date: petBirthDate.format('YYYY-MM-DD'),
             },
             owner: {

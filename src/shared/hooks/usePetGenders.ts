@@ -11,6 +11,7 @@ interface UsePetGendersResult {
   loading: boolean;
   error: Error | null;
   getLabel: (code: string) => string;
+  getId: (code: string) => number;
 }
 
 /**
@@ -32,8 +33,8 @@ export function usePetGenders(enabled: boolean = true): UsePetGendersResult {
     if (!apiUrl || widgetState.config?.offlineMode) {
       // В офлайн режиме используем дефолтные значения из констант
       const defaultGenders: GenderItem[] = [
-        { code: Gender.MALE, name: PET_GENDER_LABELS[Gender.MALE] },
-        { code: Gender.FEMALE, name: PET_GENDER_LABELS[Gender.FEMALE] },
+        { code: Gender.MALE, name: PET_GENDER_LABELS[Gender.MALE], id: 1 },
+        { code: Gender.FEMALE, name: PET_GENDER_LABELS[Gender.FEMALE], id: 2 },
       ];
       setGenders(defaultGenders);
       setError(null);
@@ -65,8 +66,8 @@ export function usePetGenders(enabled: boolean = true): UsePetGendersResult {
         setError(err instanceof Error ? err : new Error('Failed to load pet genders'));
         // При ошибке используем дефолтные значения
         const defaultGenders: GenderItem[] = [
-          { code: Gender.MALE, name: PET_GENDER_LABELS[Gender.MALE] },
-          { code: Gender.FEMALE, name: PET_GENDER_LABELS[Gender.FEMALE] },
+          { code: Gender.MALE, name: PET_GENDER_LABELS[Gender.MALE], id: 1 },
+          { code: Gender.FEMALE, name: PET_GENDER_LABELS[Gender.FEMALE], id: 2 },
         ];
         setGenders(defaultGenders);
       })
@@ -90,6 +91,12 @@ export function usePetGenders(enabled: boolean = true): UsePetGendersResult {
     }
     return code;
   };
-
-  return { genders, loading, error, getLabel };
+  const getId = (code: string): number => {
+    const gender = genders.find((g) => g.code === code);
+    if (gender) {
+      return gender.id;
+    }
+    return 1;
+  };
+  return { genders, loading, error, getLabel, getId };
 }

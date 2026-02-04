@@ -5,6 +5,7 @@ import { apiClient } from './instance';
 export interface GenderItem {
   code: string;
   name: string;
+  id: number;
 }
 
 interface GendersResponse {

@@ -15,7 +15,7 @@ interface CreatePatientData {
   nickname: string;
   type_id: string;
   breed_id: string;
-  gender_id: string;
+  gender_id: number;
   birth_date: string;
 }
 
