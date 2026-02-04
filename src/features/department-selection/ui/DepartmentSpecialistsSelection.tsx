@@ -7,10 +7,11 @@ import {
   goToDoctorInfo,
   goToPhoneInput,
   selectDateTime,
+  selectDepartment,
   selectEmployee,
   setReservedTimeslotHash,
 } from '../../../lib/widget-manager';
-import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
+import { AvailableDoctorsData, AvailableTimechip, schedulesApi } from '../../../shared/api/schedules';
 import { WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
 import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
@@ -94,23 +95,29 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   };
 
   // Обработка клика на time-chip
-  const handleTimeChipClick = async (from: string, to: string) => {
+  const handleTimeChipClick = async (timechip: AvailableTimechip) => {
     if (!selectedEmployeeId) return;
+
+    // Сохраняем department_id из timechip, если он есть
+    if (timechip.department_id) {
+      selectDepartment(timechip.department_id);
+    }
 
     // Сохраняем выбранного врача (уже выбран)
     // Сохраняем слот from/to
-    const fromIso = localDateTimeToIso(from);
-    const toIso = localDateTimeToIso(to);
+    const fromIso = localDateTimeToIso(timechip.from);
+    const toIso = localDateTimeToIso(timechip.to);
     selectDateTime(fromIso, toIso);
 
     // Резервируем слот на 5 минут
+
     if (widgetState.config?.apiUrl && selectedDepartment?.id) {
       try {
         const result = await schedulesApi.reserveTimeslot({
           apiUrl: widgetState.config.apiUrl,
           timeslot: {
-            from,
-            to,
+            from: timechip.from,
+            to: timechip.to,
           },
           departmentId: selectedDepartment.id,
           employeeId: selectedEmployeeId,
@@ -231,7 +238,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (!isDisabled) {
-                                        handleTimeChipClick(timechip.from, timechip.to);
+                                        handleTimeChipClick(timechip);
                                       }
                                     }}>
                                     {timeStr}

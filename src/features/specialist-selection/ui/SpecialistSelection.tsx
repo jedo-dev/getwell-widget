@@ -13,10 +13,18 @@ import {
   selectEmployee,
   setReservedTimeslotHash,
 } from '../../../lib/widget-manager';
-import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
+import {
+  AvailableDoctorsData,
+  AvailableTimechip,
+  schedulesApi,
+} from '../../../shared/api/schedules';
 import { SELECTION_MODE_LABELS, WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
-import { findNearestTimeslot, formatEmployeeFullName, formatNearestAppointmentDate } from '../../../shared/lib';
+import {
+  findNearestTimeslot,
+  formatEmployeeFullName,
+  formatNearestAppointmentDate,
+} from '../../../shared/lib';
 import { Avatar, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
 import './SpecialistSelection.css';
@@ -42,7 +50,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   const showDepartments = widgetState.config?.showDepartments ?? true;
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
-  const selectedFilial = widgetState.selectedBranchId
+  const selectedFilial = widgetState.selectedBranchId;
   const [activeTab, setActiveTab] = useState<string>(
     selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name',
   );
@@ -76,9 +84,9 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   }, [employees, searchQuery]);
 
   const filteredDepartments = useMemo(() => {
-    let deps = departments
+    let deps = departments;
     if (selectedFilial) {
-      deps = departments.filter(department => department.filialId === selectedFilial)
+      deps = departments.filter((department) => department.filialId === selectedFilial);
     }
     if (!searchQuery.trim()) {
       return deps;
@@ -117,7 +125,11 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
 
   // Загружаем timechips для выбранного врача
   const isOnSpecialistSelectionStep = widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION;
-  const { timechips, loading: loadingTimechips, error: timechipsError } = useTimechips(
+  const {
+    timechips,
+    loading: loadingTimechips,
+    error: timechipsError,
+  } = useTimechips(
     selectedEmployeeId,
     isOnSpecialistSelectionStep && selectionMode === SelectionMode.EMPLOYEE,
   );
@@ -139,13 +151,18 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   };
 
   // Обработка клика на time-chip
-  const handleTimeChipClick = async (from: string, to: string) => {
+  const handleTimeChipClick = async (timechip: AvailableTimechip) => {
     if (!selectedEmployeeId) return;
+
+    // Сохраняем department_id из timechip, если он есть
+    if (timechip.department_id) {
+      selectDepartment(timechip.department_id);
+    }
 
     // Сохраняем выбранного врача (уже выбран)
     // Сохраняем слот from/to
-    const fromIso = localDateTimeToIso(from);
-    const toIso = localDateTimeToIso(to);
+    const fromIso = localDateTimeToIso(timechip.from);
+    const toIso = localDateTimeToIso(timechip.to);
     selectDateTime(fromIso, toIso);
 
     // Резервируем слот на 5 минут
@@ -154,8 +171,8 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
         const result = await schedulesApi.reserveTimeslot({
           apiUrl: widgetState.config.apiUrl,
           timeslot: {
-            from,
-            to,
+            from: timechip.from,
+            to: timechip.to,
           },
           departmentId: widgetState.selectedDepartmentId,
           employeeId: selectedEmployeeId,
@@ -198,7 +215,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       {notification && (
         <Notification
           message={notification.message}
-          type="error"
+          type='error'
           duration={5000}
           onClose={() => setNotification(null)}
         />
@@ -221,9 +238,13 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                 }
               }}
             />
-          ) : <></>
+          ) : (
+            <></>
+          )
         }
-        defaultValue={selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name'}
+        defaultValue={
+          selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name'
+        }
         className='specialist-selection-tabs'
         items={[
           {
@@ -286,7 +307,6 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                 </div>
                                 {isCurrentEmployee && (
                                   <>
-
                                     {loadingTimechips && (
                                       <div className='specialist-selection-time-slots'>
                                         <Skeleton.Button active size='small' block={false} />
@@ -302,14 +322,15 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                           return (
                                             <button
                                               key={`${timechip.from}-${index}`}
-                                              className={`specialist-selection-time-slot ${isDisabled ? 'disabled' : ''
-                                                }`}
+                                              className={`specialist-selection-time-slot ${
+                                                isDisabled ? 'disabled' : ''
+                                              }`}
                                               type='button'
                                               disabled={isDisabled}
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 if (!isDisabled) {
-                                                  handleTimeChipClick(timechip.from, timechip.to);
+                                                  handleTimeChipClick(timechip);
                                                 }
                                               }}>
                                               {timeStr}
@@ -365,52 +386,54 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           },
           ...(showDepartments
             ? [
-              {
-                key: 'department',
-                label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT],
-                children: (
-                  <div className='specialist-selection-content'>
-                    <Input
-                      placeholder='Поиск'
-                      prefix={<SearchOutlined />}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className='specialist-selection-search'
-                    />
+                {
+                  key: 'department',
+                  label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT],
+                  children: (
+                    <div className='specialist-selection-content'>
+                      <Input
+                        placeholder='Поиск'
+                        prefix={<SearchOutlined />}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className='specialist-selection-search'
+                      />
 
-                    {filteredDepartments.length > 0 ? (
-                      <List
-                        className='specialist-selection-list'
-                        dataSource={filteredDepartments}
-                        renderItem={(department) => {
-                          console.log(department);
-                          const isSelected = selectedDepartmentId === department.id;
+                      {filteredDepartments.length > 0 ? (
+                        <List
+                          className='specialist-selection-list'
+                          dataSource={filteredDepartments}
+                          renderItem={(department) => {
+                            console.log(department);
+                            const isSelected = selectedDepartmentId === department.id;
 
-                          return (
-                            <List.Item
-                              className={`specialist-selection-item ${isSelected ? 'selected' : ''}`}
-                              onClick={() => handleDepartmentSelect(department.id)}>
-                              <div className='specialist-selection-item-content'>
-                                <div className='specialist-selection-item-left'>
-                                  <div className='specialist-selection-item-info'>
-                                    <div className='specialist-selection-item-name'>
-                                      {department.name}
+                            return (
+                              <List.Item
+                                className={`specialist-selection-item ${
+                                  isSelected ? 'selected' : ''
+                                }`}
+                                onClick={() => handleDepartmentSelect(department.id)}>
+                                <div className='specialist-selection-item-content'>
+                                  <div className='specialist-selection-item-left'>
+                                    <div className='specialist-selection-item-info'>
+                                      <div className='specialist-selection-item-name'>
+                                        {department.name}
+                                      </div>
                                     </div>
                                   </div>
+                                  <RightOutlined className='specialist-selection-item-arrow' />
                                 </div>
-                                <RightOutlined className='specialist-selection-item-arrow' />
-                              </div>
-                            </List.Item>
-                          );
-                        }}
-                      />
-                    ) : (
-                      <EmptyState description='Отделения не найдены' />
-                    )}
-                  </div>
-                ),
-              },
-            ]
+                              </List.Item>
+                            );
+                          }}
+                        />
+                      ) : (
+                        <EmptyState description='Отделения не найдены' />
+                      )}
+                    </div>
+                  ),
+                },
+              ]
             : []),
         ]}
       />
@@ -418,7 +441,9 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       {selectedEmployee && selectionMode === SelectionMode.EMPLOYEE && (
         <div className='specialist-selection-footer'>
           {showDoctorInfo && (
-            <Button className='specialist-selection-footer-btn secondary' onClick={handleDoctorInfo}>
+            <Button
+              className='specialist-selection-footer-btn secondary'
+              onClick={handleDoctorInfo}>
               О враче
             </Button>
           )}

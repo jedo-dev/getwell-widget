@@ -39,14 +39,14 @@ export interface ExternalDoctorApiData {
 export interface NearestAvailableTimeslot {
   record: unknown | null;
   from: string; // YYYY-MM-DD HH:mm:ss
-  to: string;   // YYYY-MM-DD HH:mm:ss
+  to: string; // YYYY-MM-DD HH:mm:ss
   type: string;
 }
 
 export interface ScheduleItem {
   id: number;
   from: string; // YYYY-MM-DD HH:mm:ss
-  to: string;   // YYYY-MM-DD HH:mm:ss
+  to: string; // YYYY-MM-DD HH:mm:ss
   type: string;
   breaks: unknown[];
   nearest_available_timeslot: NearestAvailableTimeslot;
@@ -59,12 +59,13 @@ export interface AvailableDoctorsData {
 
 export interface AvailableTimechip {
   from: string; // YYYY-MM-DD HH:mm:ss
-  to: string;   // YYYY-MM-DD HH:mm:ss
+  to: string; // YYYY-MM-DD HH:mm:ss
   is_limited: boolean;
+  department_id?: number;
 }
 
 function mapDoctorToEmployee(a: { employee: ExternalDoctorApiData }): Employee {
-  const d = a.employee
+  const d = a.employee;
   const position = d.job_position_for_documents?.name || '';
   return {
     id: d.id,
@@ -177,7 +178,7 @@ export const schedulesApi = {
     apiUrl: string;
     timeslot: {
       from: string; // YYYY-MM-DD HH:mm:ss
-      to: string;   // YYYY-MM-DD HH:mm:ss
+      to: string; // YYYY-MM-DD HH:mm:ss
     };
     departmentId: number;
     employeeId: number;
@@ -243,10 +244,7 @@ export const schedulesApi = {
   /**
    * Отменить резервирование временного слота.
    */
-  async cancelTimeslotReservation(params: {
-    apiUrl: string;
-    uniqueHash: string;
-  }): Promise<void> {
+  async cancelTimeslotReservation(params: { apiUrl: string; uniqueHash: string }): Promise<void> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
     const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
 

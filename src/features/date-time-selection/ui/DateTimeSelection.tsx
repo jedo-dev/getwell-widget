@@ -1,7 +1,7 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { getWidgetState, goToPhoneInput, selectDateTime, setReservedTimeslotHash } from '../../../lib/widget-manager';
+import { getWidgetState, goToPhoneInput, selectDateTime, selectDepartment, selectDepartmentOnly, setReservedTimeslotHash } from '../../../lib/widget-manager';
 import { schedulesApi } from '../../../shared/api/schedules';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
@@ -29,6 +29,7 @@ interface TimeSlot {
   fromIso: string;
   toIso: string;
   isLimited?: boolean;
+  departmentId?: number;
 }
 
 export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee }) => {
@@ -50,9 +51,15 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
     setSelectedTime(time);
     const slot = apiSlots.find((s) => s.time === time);
     if (slot) {
+      // Сохраняем department_id из слота, если он есть
+      if (slot.departmentId) {
+        selectDepartmentOnly(slot.departmentId);
+      }
+
       selectDateTime(slot.fromIso, slot.toIso);
 
       // Резервируем слот на 5 минут
+
       if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId && selectedEmployee?.id) {
         try {
           // Преобразуем ISO строки обратно в локальный формат "YYYY-MM-DD HH:mm:ss"
@@ -209,6 +216,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             fromIso: isoFrom,
             toIso: isoTo,
             isLimited: t.is_limited,
+            departmentId: t.department_id,
           };
         });
 

@@ -317,6 +317,19 @@ export function selectDepartment(departmentId: number): void {
 }
 
 /**
+ * Выбор отделения и переход к списку врачей отделения
+ */
+export function selectDepartmentOnly(departmentId: number): void {
+  if (widgetState.config?.render?.lockStep) return;
+  widgetState = {
+    ...widgetState,
+    selectedDepartmentId: departmentId,
+  };
+
+  notifyStateChange();
+}
+
+/**
  * Переход к списку врачей отделения
  */
 export function goToDepartmentSpecialistsSelection(): void {
