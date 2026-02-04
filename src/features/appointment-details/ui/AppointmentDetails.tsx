@@ -390,7 +390,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       consentMarketing,
     });
 
-    // Создание записи в онлайн-режиме (минимальный payload)
+    // Создание записи в онлайн-режиме
     const state = getWidgetState();
     const apiUrl = state.config?.apiUrl;
     const toIso = state.selectedTimeSlotTo;
@@ -417,17 +417,62 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
         };
 
+        const appointmentData = {
+          department_id: departmentId,
+          employee_id: selectedEmployee.id,
+          from: await isoToLocal(selectedDateTime),
+          to: await isoToLocal(toIso),
+          comment: symptoms || undefined,
+          rsrv_timeslot_unq_hash: state.reservedTimeslotHash || undefined,
+        };
+
+        // Определяем, какой вариант запроса использовать
+        const ownerData = state.ownerData;
+        let payload;
+
+        if (!isNewUser && ownerData?.id && selectedPetId) {
+          // Вариант для авторизованного пользователя: используем ID
+          payload = {
+            appointment: appointmentData,
+            patient_id: selectedPetId,
+            owner_id: ownerData.id,
+          };
+        } else if (isNewUser) {
+          // Вариант для неавторизованного пользователя: используем полные данные
+          // Находим gender_id для питомца из petGenders
+          const petGenderItem = petGenders.find(
+            (g) => g.code === petGender || g.name === petGender,
+          );
+          const petGenderId = petGenderItem?.code || petGender || '';
+
+          if (!selectedPatientTypeId || !selectedBreedId || !petBirthDate) {
+            throw new Error('Не все данные питомца заполнены');
+          }
+
+          payload = {
+            appointment: appointmentData,
+            patient: {
+              nickname: petName,
+              type_id: String(selectedPatientTypeId),
+              breed_id: String(selectedBreedId),
+              gender_id: petGenderId,
+              birth_date: petBirthDate.format('YYYY-MM-DD'),
+            },
+            owner: {
+              name: firstName,
+              surname: lastName,
+              patronymic: patronymic,
+              phone_number: phone.replace(/[^\d]/g, ''),
+              gender: gender || Gender.MALE,
+            },
+          };
+        } else {
+          throw new Error('Недостаточно данных для создания записи');
+        }
+
         await recordsApi.createRecord({
           apiUrl,
-          payload: {
-            appointment: {
-              department_id: departmentId,
-              employee_id: selectedEmployee.id,
-              from: await isoToLocal(selectedDateTime),
-              to: await isoToLocal(toIso),
-              comment: symptoms || undefined,
-            },
-          },
+          payload,
         });
       } catch (e) {
         // Не блокируем UX: показываем подтверждение даже если запись не сохранилась.
