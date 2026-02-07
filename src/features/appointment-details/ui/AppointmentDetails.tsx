@@ -6,8 +6,9 @@ import type { Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import CalendarIcon from '../../../img/calendar.svg';
 import { getWidgetState, goBack, goToAppointmentConfirmation, goToPrivacyPolicy, selectBreed, selectPatientType, selectPet, subscribeToStateChange } from '../../../lib/widget-manager';
-import { patientsApi, recordsApi } from '../../../shared/api';
+import { patientsApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
+import { createRecord } from '../../../shared/api/records';
 import {
   Gender,
   GENDER_LABELS,
@@ -74,7 +75,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [petName, setPetName] = useState<string>('');
   const [petSpecies, setPetSpecies] = useState<PetSpecies | string>('');
   const [petBreed, setPetBreed] = useState<string>('');
-  const [petGender, setPetGender] = useState<string | undefined>(undefined);
+  const [petGender, setPetGender] = useState<string | undefined>();
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
 
   // Состояние для пород и типов животных
@@ -127,11 +128,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     : [];
 
   // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
-  useEffect(() => {
-    if (petGenders.length > 0 && petGender === undefined) {
-      setPetGender(petGenders[0].code);
-    }
-  }, [petGenders, petGender]);
+
 
   useEffect(() => {
     const state = getWidgetState();
@@ -339,10 +336,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         message.error('Пожалуйста, выберите породу');
         return;
       }
-      if (!petGender) {
-        message.error('Пожалуйста, выберите пол питомца');
-        return;
-      }
+    
       if (!petBirthDate) {
         message.error('Пожалуйста, выберите дату рождения питомца');
         return;
@@ -360,46 +354,25 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       return;
     }
 
-    // TODO: Отправка данных на сервер
-    console.log('Appointment data:', {
-      branch: selectedBranch,
-      employee: selectedEmployee,
-      dateTime: selectedDateTime,
-      phone: phone.replace(/[^\d]/g, ''),
-      isNewUser,
-      clientData: isNewUser
-        ? {
-          firstName,
-          lastName,
-          patronymic,
-          gender,
-        }
-        : undefined,
-      petId: selectedPetId,
-      petData: isNewUser
-        ? {
-          name: petName,
-          species: petSpecies,
-          breed: petBreed,
-          gender: petGender,
-          birthDate: petBirthDate?.format('YYYY-MM-DD'),
-        }
-        : undefined,
-      symptoms,
-      consentPersonalData,
-      consentMarketing,
-    });
-
-    // Создание записи в онлайн-режиме (минимальный payload)
+    // Валидация обязательных полей для создания записи
     const state = getWidgetState();
-    const apiUrl = state.config?.apiUrl;
-    const toIso = state.selectedTimeSlotTo;
     const departmentId = state.selectedDepartmentId;
+    const employeeId = state.selectedEmployeeId;
+    const fromIso = state.selectedTimeSlot || selectedDateTime;
+    const toIso = state.selectedTimeSlotTo;
 
-    if (!state.config?.offlineMode && apiUrl && selectedEmployee && selectedDateTime && toIso && departmentId) {
+    if (!departmentId || !employeeId || !fromIso || !toIso) {
+      message.error('Не все обязательные поля заполнены');
+      return;
+    }
+
+    // Проверка offline режима
+    const isOffline = state.config?.offlineMode === true || !state.config?.apiUrl;
+
+    if (!isOffline) {
       try {
-        // backend ожидает "YYYY-MM-DD HH:mm:ss" в локальной TZ браузера
-        const isoToLocal = async (iso: string): Promise<string> => {
+        // Преобразование ISO даты в формат YYYY-MM-DD HH:mm:ss (локальная таймзона браузера)
+        const formatToLocalDateTime = (iso: string): string => {
           const d = new Date(iso);
           const y = d.getFullYear();
           const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -410,20 +383,36 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
         };
 
-        await recordsApi.createRecord({
-          apiUrl,
-          payload: {
-            appointment: {
-              department_id: departmentId,
-              employee_id: selectedEmployee.id,
-              from: await isoToLocal(selectedDateTime),
-              to: await isoToLocal(toIso),
-              comment: symptoms || undefined,
-            },
+        // Сбор payload
+        const payload: {
+          appointment: {
+            department_id: number;
+            employee_id: number;
+            from: string;
+            to: string;
+          };
+          owner_id?: number;
+          patient_id?: number;
+        } = {
+          appointment: {
+            department_id: departmentId,
+            employee_id: employeeId,
+            from: formatToLocalDateTime(fromIso),
+            to: formatToLocalDateTime(toIso),
           },
-        });
+        };
+
+        // Добавляем owner_id и patient_id если они есть
+        if (state.ownerData?.id) {
+          payload.owner_id = state.ownerData.id;
+        }
+        if (state.selectedPetId) {
+          payload.patient_id = state.selectedPetId;
+        }
+
+        await createRecord(payload);
       } catch (e) {
-        // Не блокируем UX: показываем подтверждение даже если запись не сохранилась.
+        // Не блокируем UX: показываем подтверждение даже если запись не сохранилась
         console.error('Ошибка создания записи:', e);
       }
     }
@@ -776,7 +765,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   !petName ||
                   !selectedPatientTypeId ||
                   !selectedBreedId ||
-                  !petGender ||
+                  
                   !petBirthDate
                   : !selectedPetId)
               }>
