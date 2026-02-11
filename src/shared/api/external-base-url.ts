@@ -8,7 +8,8 @@
  * Эта функция приводит всё к base-префиксу .../api/v1/tenant/external
  */
 export function normalizeExternalBaseUrl(apiUrl: string): string {
-  const trimmed = apiUrl.replace(/\/+$/, '');
+  const withScheme = /^https?:\/\//i.test(apiUrl) ? apiUrl : `https://${apiUrl}`;
+  const trimmed = withScheme.replace(/\/+$/, '');
 
   // Если передали полный settings URL — вырезаем хвост
   const settingsSuffix = '/widgets/online-appointment/settings';

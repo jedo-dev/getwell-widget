@@ -41,6 +41,14 @@ export const Widget: React.FC<WidgetProps> = ({
   const [loadingBranches, setLoadingBranches] = useState<boolean>(false);
   const [loadingEmployees, setLoadingEmployees] = useState<boolean>(false);
   const [loadingDepartments, setLoadingDepartments] = useState<boolean>(false);
+  const isMobileViewport = drawerWidth === '100%';
+  const nextStepsHeaderImage = isMobileViewport
+    ? widgetState.config?.mobileImageUrl ||
+      widgetState.config?.desktopImageUrl ||
+      (defaultImage as string)
+    : widgetState.config?.desktopImageUrl ||
+      widgetState.config?.mobileImageUrl ||
+      (defaultImage as string);
 
   const isOffline =
     widgetState.config?.offlineMode === true ||
@@ -301,7 +309,7 @@ export const Widget: React.FC<WidgetProps> = ({
       case WidgetStep.NEXT_STEPS:
         return (
           <div className='next-steps-image-container'>
-            <img src={defaultImage as string} alt='Default' className='next-steps-image' />
+            <img src={nextStepsHeaderImage} alt='Next steps' className='next-steps-image' />
           </div>
         );
 
@@ -358,6 +366,9 @@ export const Widget: React.FC<WidgetProps> = ({
     return <LeftOutlined className='department-specialists-selection-back' onClick={goBack} />;
   };
   const isImageHeader = () => {
+    if (widgetState.currentStep === WidgetStep.NEXT_STEPS) {
+      return true;
+    }
     if (widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION) {
       return true;
     }

@@ -94,7 +94,7 @@ export interface DepartmentApiData {
 /**
  * Интерфейс изображения из API
  */
-interface LogoImage {
+export interface FileImage {
   id: number;
   name: string;
   mime_type: string;
@@ -135,7 +135,7 @@ export interface WidgetSettingsApiResponse {
   status: string;
   reason: string | null;
   data: {
-    logo_image: LogoImage | null;
+    logo_image: FileImage | null;
     widget_theme: string;
     filials: FilialApiData[];
     yandex_map_frame: string | null;
@@ -145,8 +145,8 @@ export interface WidgetSettingsApiResponse {
     show_employee_info: boolean;
     employees: EmployeeApiData[];
     legal_documents: LegalDocuments;
-    image_pc: string | null;
-    image_mobile: string | null;
+    image_pc: FileImage | string | null;
+    image_mobile: FileImage | string | null;
     online_appointment_button: OnlineAppointmentButton;
   };
   validation_errors: Record<string, unknown>;

@@ -1,6 +1,7 @@
 import { Branch, Department, Employee, WidgetConfig } from '../../types';
 import {
   EmployeeApiData,
+  FileImage,
   FilialApiData,
   getWidgetSettings,
   WidgetSettingsApiResponse,
@@ -97,6 +98,20 @@ function mapEmployeeApiToEmployee(employeeApi: EmployeeApiData): Employee {
   };
 }
 
+function resolveImageUrl(image: FileImage | string | null | undefined): string | undefined {
+  if (!image) {
+    return undefined;
+  }
+
+  if (typeof image === 'string') {
+    return image;
+  }
+
+  return (
+    image.original_link || image.webp_preview_link || image.jpeg_preview_link || image.download_link
+  );
+}
+
 /**
  * Преобразование данных из API в формат WidgetConfig
  */
@@ -139,8 +154,8 @@ function mapApiResponseToWidgetConfig(
     ...initialConfig,
     // Изображения
     logoUrl: data.logo_image?.original_link || undefined,
-    desktopImageUrl: data.image_pc || undefined,
-    mobileImageUrl: data.image_mobile || undefined,
+    desktopImageUrl: resolveImageUrl(data.image_pc),
+    mobileImageUrl: resolveImageUrl(data.image_mobile),
     logo: data.logo_image?.original_link || undefined,
 
     // Тема

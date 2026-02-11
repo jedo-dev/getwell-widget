@@ -119,13 +119,14 @@
 .next-steps-image-container {
   width: 100%;
   max-width: 600px;
-  margin-top: 16px;
+ 
 }
 
 .next-steps-image {
   width: 100%;
+      margin-bottom: -6px;
   max-width: 600px;
   aspect-ratio: 600 / 338;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 8px;
 }
