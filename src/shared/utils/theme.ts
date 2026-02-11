@@ -1,8 +1,5 @@
 import { WidgetTheme } from '../../types';
 
-/**
- * Дефолтные значения темы
- */
 const defaultTheme: Required<WidgetTheme> = {
   primaryColor: '#344054',
   secondaryColor: '#52c41a',
@@ -28,18 +25,91 @@ const defaultTheme: Required<WidgetTheme> = {
   tagBackground: '#1c29360d',
 };
 
-/**
- * Применить тему к документу через CSS переменные
- */
+const themeAccents = {
+  dark: {
+    primaryColor: '#344054',
+    buttonPrimary: '#344054',
+    buttonPrimaryHover: '#1D2939',
+    textSecondary: '#344054',
+    scrollbarColor: '#344054',
+  },
+  blue: {
+    primaryColor: '#0142FF',
+    buttonPrimary: '#0142FF',
+    buttonPrimaryHover: '#0037D6',
+    textSecondary: '#0142FF',
+    scrollbarColor: '#0142FF',
+  },
+  red: {
+    primaryColor: '#C01048',
+    buttonPrimary: '#C01048',
+    buttonPrimaryHover: '#A11043',
+    textSecondary: '#C01048',
+    scrollbarColor: '#C01048',
+  },
+  green: {
+    primaryColor: '#039855',
+    buttonPrimary: '#039855',
+    buttonPrimaryHover: '#027A48',
+    textSecondary: '#039855',
+    scrollbarColor: '#039855',
+  },
+  orange: {
+    primaryColor: '#F79009',
+    buttonPrimary: '#F79009',
+    buttonPrimaryHover: '#DC6803',
+    textSecondary: '#F79009',
+    scrollbarColor: '#F79009',
+  },
+  purple: {
+    primaryColor: '#752BDF',
+    buttonPrimary: '#752BDF',
+    buttonPrimaryHover: '#601DC0',
+    textSecondary: '#752BDF',
+    scrollbarColor: '#752BDF',
+  },
+  aqua: {
+    primaryColor: '#50B7BF',
+    buttonPrimary: '#50B7BF',
+    buttonPrimaryHover: '#119AA5',
+    textSecondary: '#50B7BF',
+    scrollbarColor: '#50B7BF',
+  },
+} as const;
+
+type ThemeAccentKey = keyof typeof themeAccents;
+
+function getAccentByThemeKey(themeKey?: string): Partial<WidgetTheme> | undefined {
+  if (!themeKey) {
+    return undefined;
+  }
+
+  const normalized = themeKey.trim().toLowerCase() as ThemeAccentKey;
+  return themeAccents[normalized];
+}
+
+export function resolveTheme(theme?: WidgetTheme): Required<WidgetTheme> {
+  const accent = getAccentByThemeKey(theme?.primaryColor);
+  const normalizedTheme: WidgetTheme = {
+    ...theme,
+    primaryColor: accent ? accent.primaryColor : theme?.primaryColor,
+  };
+
+  return {
+    ...defaultTheme,
+    ...(accent ?? {}),
+    ...normalizedTheme,
+  };
+}
+
 export function applyTheme(theme?: WidgetTheme): void {
   if (typeof document === 'undefined') {
     return;
   }
 
   const root = document.documentElement;
-  const finalTheme = { ...defaultTheme };
+  const finalTheme = resolveTheme(theme);
 
-  // Устанавливаем CSS переменные
   root.style.setProperty('--widget-primary-color', finalTheme.primaryColor);
   root.style.setProperty('--widget-secondary-color', finalTheme.secondaryColor);
   root.style.setProperty('--widget-background-color', finalTheme.backgroundColor);
@@ -64,13 +134,9 @@ export function applyTheme(theme?: WidgetTheme): void {
   root.style.setProperty('--widget-tag-background', finalTheme.tagBackground);
 }
 
-/**
- * Получить значение CSS переменной темы
- */
 export function getThemeVar(varName: string): string {
   if (typeof document === 'undefined') {
     return '';
   }
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
-

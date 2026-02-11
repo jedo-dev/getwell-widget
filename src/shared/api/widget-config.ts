@@ -121,9 +121,6 @@ function mapApiResponseToWidgetConfig(
 ): WidgetConfig {
   const { data } = apiResponse;
 
-
-
-
   const branches: Branch[] = Array.from(data.filials.values()).map(mapFilialToBranch);
 
   // Собираем все отделения
@@ -133,7 +130,7 @@ function mapApiResponseToWidgetConfig(
       departmentsMap.set(dept.id, {
         id: dept.id,
         name: dept.name,
-        filialId:dept.filial.id,
+        filialId: dept.filial.id,
         showInWidget: true,
       });
     }
@@ -169,9 +166,9 @@ function mapApiResponseToWidgetConfig(
     departments,
 
     // Настройки отображения
-    showDepartments: data.show_departments ,
-    showEmployeePosition: data.show_employee_position ,
-    showDoctorInfo: data.show_employee_info ,
+    showDepartments: data.show_departments,
+    showEmployeePosition: data.show_employee_position,
+    showDoctorInfo: data.show_employee_info,
 
     // Яндекс карты
     yandexMapFrameCode: data.yandex_map_frame || undefined,

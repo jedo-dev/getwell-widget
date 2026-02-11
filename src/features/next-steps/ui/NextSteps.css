@@ -11,15 +11,19 @@
   align-items: center;
   gap: 12px;
   padding: 20px;
-  
-    background: linear-gradient(180deg, var(--widget-primary-color) 30%, var(--widget-background-color) 30%);
+
+  background: linear-gradient(
+    180deg,
+    var(--widget-primary-color) 30%,
+    var(--widget-background-color) 30%
+  );
 
   border-radius: 16px;
 }
-.next-steps-branch-image{
-  border-radius:50%
+.next-steps-branch-image {
+  border-radius: 50%;
 }
-.next-step-branch-wallpaper{
+.next-step-branch-wallpaper {
   height: 50px;
   width: 100%;
 }
@@ -119,12 +123,11 @@
 .next-steps-image-container {
   width: 100%;
   max-width: 600px;
- 
 }
 
 .next-steps-image {
   width: 100%;
-      margin-bottom: -6px;
+  margin-bottom: -6px;
   max-width: 600px;
   aspect-ratio: 600 / 338;
   object-fit: cover;
