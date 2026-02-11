@@ -1,4 +1,5 @@
 import { normalizeExternalBaseUrl } from './external-base-url';
+import { getCalltouchSessionId } from '../utils/calltouch';
 /**
  * Интерфейс расписания филиала из API
  */
@@ -200,10 +201,12 @@ export async function getWidgetSettings(apiUrl?: string): Promise<WidgetSettings
   const fullUrl = `${normalizedBase}/widgets/online-appointment/settings`;
 
   // Выполняем новый запрос
+  const calltouchSessionId = getCalltouchSessionId();
   cachePromise = fetch(fullUrl, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      ...(calltouchSessionId ? { session_id: calltouchSessionId } : {}),
     },
   })
     .then(async (response) => {

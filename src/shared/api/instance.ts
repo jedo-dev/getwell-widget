@@ -1,4 +1,5 @@
 import { ApiError } from '../types/api';
+import { getCalltouchSessionId } from '../utils/calltouch';
 const token = '';
 /**
  * Конфигурация API клиента
@@ -154,12 +155,14 @@ class ApiClient {
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
+      const calltouchSessionId = getCalltouchSessionId();
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
         headers: {
           ...this.defaultHeaders,
           ...options.headers,
+          ...(calltouchSessionId ? { session_id: calltouchSessionId } : {}),
         },
       });
       clearTimeout(timeoutId);
@@ -215,12 +218,13 @@ class ApiClient {
    */
   async post<T>(endpoint: string, data?: unknown, config?: RequestInit): Promise<T> {
     const url = this.buildURL(endpoint);
-
+ const calltouchSessionId = getCalltouchSessionId();
     try {
       const response = await this.fetchWithTimeout(url, {
         method: 'POST',
         body: data ? JSON.stringify(data) : undefined,
         ...config,
+         ...(calltouchSessionId ? { session_id: calltouchSessionId } : {}),
       });
 
       // Пытаемся распарсить JSON, даже если статус не OK
