@@ -8,6 +8,36 @@ export interface StickyButtonProps {
   widgetState?: WidgetState;
 }
 
+const HOVER_BY_PRIMARY: Record<string, string> = {
+  '#344054': '#1D2939',
+  '#0142FF': '#0037D6',
+  '#C01048': '#A11043',
+  '#039855': '#027A48',
+  '#F79009': '#DC6803',
+  '#752BDF': '#601DC0',
+  '#50B7BF': '#119AA5',
+};
+
+const toHexRgb = (hex: string): { r: number; g: number; b: number } | null => {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    return null;
+  }
+
+  return {
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16),
+  };
+};
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const rgb = toHexRgb(hex);
+  if (!rgb) {
+    return `rgba(81, 56, 236, ${alpha})`;
+  }
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+};
+
 export const StickyButton: React.FC<StickyButtonProps> = ({ enabled = false, widgetState }) => {
   const handleClick = () => {
     if (widgetState?.config?.isNeedToBlankOpen) {
@@ -25,43 +55,13 @@ export const StickyButton: React.FC<StickyButtonProps> = ({ enabled = false, wid
 
   const pulseEnabled = widgetState?.config?.stickyButtonPulse ?? true;
   const position = widgetState?.config?.stickyButtonPosition ?? 'right';
-  const buttonColor = widgetState?.config?.stickyButtonColor ?? '#5138EC';
-
-  // Вычисляем цвет для hover эффекта (немного темнее основного)
-  const getHoverColor = (color: string): string => {
-    if (color.startsWith('#')) {
-      const hex = color.slice(1);
-      const r = parseInt(hex.slice(0, 2), 16);
-      const g = parseInt(hex.slice(2, 4), 16);
-      const b = parseInt(hex.slice(4, 6), 16);
-      // Уменьшаем яркость на 15%
-      const newR = Math.max(0, Math.floor(r * 0.85));
-      const newG = Math.max(0, Math.floor(g * 0.85));
-      const newB = Math.max(0, Math.floor(b * 0.85));
-      return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
-    }
-    return '#3d2ac4'; // fallback
-  };
-
-  const hoverColor = getHoverColor(buttonColor);
-
-  // Преобразуем hex в rgba для пульсации
-  const hexToRgba = (hex: string, alpha: number): string => {
-    if (hex.startsWith('#')) {
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    return `rgba(81, 56, 236, ${alpha})`; // fallback
-  };
-
+  const buttonColor = (widgetState?.config?.stickyButtonColor ?? '#5138EC').toUpperCase();
+  const hoverColor = HOVER_BY_PRIMARY[buttonColor] ?? buttonColor;
   const pulseColor = hexToRgba(buttonColor, 0.6);
   const pulseBorderColor = hexToRgba(buttonColor, 0.8);
 
   return (
     <div className={`sticky-button-container sticky-button-position-${position}`}>
-      {/* Пульсирующие круги (капли) - эффект ripple */}
       {pulseEnabled &&
         [0, 1, 2].map((index) => (
           <div
@@ -74,7 +74,6 @@ export const StickyButton: React.FC<StickyButtonProps> = ({ enabled = false, wid
           />
         ))}
 
-      {/* Основная кнопка */}
       <button
         className='sticky-button'
         onClick={handleClick}
@@ -99,4 +98,3 @@ export const StickyButton: React.FC<StickyButtonProps> = ({ enabled = false, wid
     </div>
   );
 };
-

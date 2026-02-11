@@ -1,4 +1,5 @@
 import { Branch, Department, Employee, WidgetConfig } from '../../types';
+import { resolveTheme } from '../utils/theme';
 import {
   EmployeeApiData,
   FileImage,
@@ -121,6 +122,13 @@ function mapApiResponseToWidgetConfig(
 ): WidgetConfig {
   const { data } = apiResponse;
 
+  const resolvedStickyButtonTheme = resolveTheme({
+    primaryColor:
+      data.online_appointment_button?.decoration?.color ||
+      data.widget_theme ||
+      initialConfig.theme?.primaryColor,
+  });
+
   const branches: Branch[] = Array.from(data.filials.values()).map(mapFilialToBranch);
 
   // Собираем все отделения
@@ -181,7 +189,7 @@ function mapApiResponseToWidgetConfig(
     // Кнопка онлайн-записи
     stickyBtnEnable: data.online_appointment_button?.display_on_site || false,
     stickyButtonPulse: data.online_appointment_button?.decoration?.ripple_effect || false,
-    stickyButtonColor: data.online_appointment_button?.decoration?.color || 'dark',
+    stickyButtonColor: resolvedStickyButtonTheme.primaryColor,
     stickyButtonPosition:
       data.online_appointment_button?.decoration?.position_on_site === 'left' ? 'left' : 'right',
   };
