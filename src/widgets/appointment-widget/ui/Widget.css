@@ -153,6 +153,10 @@ letter-spacing: -2%;
   letter-spacing: -0.48px;
 }
 
+.getwell-widget-fullscreen-header.getwell-widget-fullscreen-header--no-padding {
+  padding: 0;
+}
+
 .getwell-widget-fullscreen-content {
   flex: 1;
   overflow-y: auto;
@@ -189,6 +193,10 @@ letter-spacing: -2%;
   .getwell-widget-fullscreen-header {
     padding: 16px;
     font-size: 20px;
+  }
+
+  .getwell-widget-fullscreen-header.getwell-widget-fullscreen-header--no-padding {
+    padding: 0;
   }
 }
 

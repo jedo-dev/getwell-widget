@@ -374,6 +374,7 @@ export const Widget: React.FC<WidgetProps> = ({
     }
     return false;
   };
+  const isNextStepsStep = widgetState.currentStep === WidgetStep.NEXT_STEPS;
   const renderContent = () => {
     console.log('***', widgetState, '***');
     const { currentStep } = widgetState;
@@ -504,7 +505,10 @@ export const Widget: React.FC<WidgetProps> = ({
   if (withoutDrawer) {
     return (
       <div className='getwell-widget-fullscreen'>
-        <div className='getwell-widget-fullscreen-header'>
+        <div
+          className={`getwell-widget-fullscreen-header ${
+            isNextStepsStep ? 'getwell-widget-fullscreen-header--no-padding' : ''
+          }`}>
           {renderReturnBtn()}
           {renderStepTitle()}
         </div>
