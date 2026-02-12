@@ -143,6 +143,7 @@ export interface WidgetConfig {
     currentStep?: WidgetStep; // Принудительно отрисовать указанный шаг (для предпросмотра)
     lockStep?: boolean; // Зафиксировать шаг и запретить навигацию
     preserveStepOnOpen?: boolean; // Не сбрасывать шаг при open()
+    selectedBranchId?: number | null; // Предвыбранный филиал для preview/offline сценариев
   };
   branches?: Branch[];
   employees?: Employee[];

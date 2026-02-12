@@ -138,6 +138,7 @@ export async function initGetWellWidget(config?: WidgetConfig): Promise<void> {
       preserveStepOnOpen: finalConfig.render?.preserveStepOnOpen ?? false,
       lockStep: finalConfig.render?.lockStep ?? false,
       currentStep: finalConfig.render?.currentStep,
+      selectedBranchId: finalConfig.render?.selectedBranchId,
     },
   };
 
@@ -152,6 +153,13 @@ export async function initGetWellWidget(config?: WidgetConfig): Promise<void> {
     widgetState = {
       ...widgetState,
       currentStep: normalizedConfig.render.currentStep,
+    };
+  }
+
+  if (normalizedConfig.render?.selectedBranchId !== undefined) {
+    widgetState = {
+      ...widgetState,
+      selectedBranchId: normalizedConfig.render.selectedBranchId ?? null,
     };
   }
 
@@ -187,6 +195,13 @@ export function openGetWellWidget(): void {
       };
     }
 
+    if (widgetState.config?.render?.selectedBranchId !== undefined) {
+      widgetState = {
+        ...widgetState,
+        selectedBranchId: widgetState.config.render.selectedBranchId ?? null,
+      };
+    }
+
     notifyStateChange();
     return;
   }
@@ -195,7 +210,7 @@ export function openGetWellWidget(): void {
     ...widgetState,
     isOpen: true,
     currentStep: widgetState.config?.render?.currentStep ?? WidgetStep.BRANCH_SELECTION,
-    selectedBranchId: null,
+    selectedBranchId: widgetState.config?.render?.selectedBranchId ?? null,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
     selectionMode: undefined,
@@ -644,6 +659,13 @@ export function applyConfig(
     widgetState = {
       ...widgetState,
       currentStep: mergedConfig.render.currentStep,
+    };
+  }
+
+  if (mergedConfig.render?.selectedBranchId !== undefined) {
+    widgetState = {
+      ...widgetState,
+      selectedBranchId: mergedConfig.render.selectedBranchId ?? null,
     };
   }
 
