@@ -130,6 +130,10 @@
   margin-bottom: -6px;
   max-width: 600px;
   aspect-ratio: 600 / 338;
+
   object-fit: cover;
   border-radius: 8px;
+  @media (max-width: 768px) {
+    aspect-ratio: 371 / 157;
+  }
 }

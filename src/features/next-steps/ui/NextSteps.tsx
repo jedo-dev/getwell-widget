@@ -9,6 +9,7 @@ import {
   goToDepartmentSelection,
   goToSpecialistSelection,
 } from '../../../lib/widget-manager';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch } from '../../../types';
 import './NextSteps.css';
 export interface NextStepsProps {
@@ -22,7 +23,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
   const menuItems = [
     {
       key: 'specialist',
-      icon: <img src={doctorChoose} className='next-steps-item-icon' />,
+      icon: <IconWrapper size={40} iconSize={40} src={doctorChoose} />,
       title: 'Выбрать специалиста',
       onClick: () => {
         goToSpecialistSelection();
@@ -32,7 +33,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
       ? [
           {
             key: 'department',
-            icon: <img src={deparmentChoose} className='next-steps-item-icon' />,
+            icon: <IconWrapper size={40} iconSize={40} src={deparmentChoose} />,
             title: 'Выбрать отделение',
             onClick: () => {
               goToDepartmentSelection();
