@@ -11,7 +11,8 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ text, ...rest }) => {
   const hasValue = !!rest.value;
   return (
     <div className='input-container'>
-      <div className={`custom-placeholder ${hasValue ? 'has-value' : ''}`}>
+      <div
+        className={`custom-placeholder ${hasValue ? 'has-value custom-placeholder-hidden' : ''}`}>
         {text} <span className='redmark'></span>
       </div>
       <Input.TextArea
@@ -19,7 +20,7 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ text, ...rest }) => {
         size='large'
 
         style={{
-          paddingTop: `${hasValue ? '18px' : '12px'}`,
+          paddingTop: `${hasValue ? '12px' : '12px'}`,
           overflowY: 'auto',
           resize: 'none',
           borderBottom: '1px solid var(--widget-border-secondary)'

@@ -31,6 +31,10 @@
   color: #999;
 }
 
+.custom-placeholder.custom-placeholder-hidden {
+  opacity: 0;
+}
+
 .redmark {
   color: red;
 }
