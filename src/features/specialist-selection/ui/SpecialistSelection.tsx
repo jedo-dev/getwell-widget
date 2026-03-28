@@ -56,6 +56,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   );
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string } | null>(null);
+  const [selectedTimechipKey, setSelectedTimechipKey] = useState<string | null>(null);
 
   // Обновляем активную вкладку при изменении режима выбора
   useEffect(() => {
@@ -69,6 +70,10 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       }
     }
   }, [selectionMode, showDepartments]);
+
+  useEffect(() => {
+    setSelectedTimechipKey(null);
+  }, [selectedEmployeeId]);
 
   const filteredEmployees = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -202,8 +207,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       }
     }
 
-    // Пропускаем календарь и переходим на phone-input
-    goToPhoneInput();
+    setSelectedTimechipKey(`${timechip.from}_${timechip.to}`);
   };
 
   // Показываем первые N слотов (8-12)
@@ -335,6 +339,10 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                                             <button
                                               key={`${timechip.from}-${index}`}
                                               className={`specialist-selection-time-slot ${
+                                                selectedTimechipKey === `${timechip.from}_${timechip.to}`
+                                                  ? 'selected'
+                                                  : ''
+                                              } ${
                                                 isDisabled ? 'disabled' : ''
                                               }`}
                                               type='button'
@@ -462,11 +470,14 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           <Button
             type='primary'
             className='specialist-selection-footer-btn primary'
-            onClick={handleSelectDateTime}>
-            Выбрать дату и время
+            onClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}>
+            {selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
           </Button>
         </div>
       )}
     </div>
   );
 };
+  const handleContinueToPhoneInput = () => {
+    goToPhoneInput();
+  };

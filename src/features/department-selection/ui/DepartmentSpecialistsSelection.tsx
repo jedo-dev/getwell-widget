@@ -1,6 +1,6 @@
 import { SearchOutlined } from '@ant-design/icons';
 import { Button, Input, List, Radio, Skeleton, Tag } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   getWidgetState,
   goToDateTimeSelection,
@@ -45,6 +45,11 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string } | null>(null);
+  const [selectedTimechipKey, setSelectedTimechipKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedTimechipKey(null);
+  }, [selectedEmployeeId]);
 
   const filteredEmployees = useMemo(() => {
     let result = employees;
@@ -155,8 +160,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
       }
     }
 
-    // Пропускаем календарь и переходим на phone-input
-    goToPhoneInput();
+    setSelectedTimechipKey(`${timechip.from}_${timechip.to}`);
   };
 
   // Показываем первые N слотов (8-12)
@@ -248,6 +252,10 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
                                   <button
                                     key={`${timechip.from}-${index}`}
                                     className={`department-specialists-selection-time-slot ${
+                                      selectedTimechipKey === `${timechip.from}_${timechip.to}`
+                                        ? 'selected'
+                                        : ''
+                                    } ${
                                       isDisabled ? 'disabled' : ''
                                     }`}
                                     type='button'
@@ -319,11 +327,14 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
           <Button
             type='primary'
             className='specialist-selection-footer-btn primary'
-            onClick={handleSelectDateTime}>
-            Выбрать дату и время
+            onClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}>
+            {selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
           </Button>
         </div>
       )}
     </div>
   );
 };
+  const handleContinueToPhoneInput = () => {
+    goToPhoneInput();
+  };
