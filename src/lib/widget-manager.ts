@@ -610,10 +610,15 @@ export async function goBack(): Promise<void> {
       currentStep: WidgetStep.SPECIALIST_SELECTION,
       selectedDepartmentId: null,
     };
-  } else if (
-    currentStep === WidgetStep.SPECIALIST_SELECTION ||
-    currentStep === WidgetStep.DATE_TIME_SELECTION
-  ) {
+  } else if (currentStep === WidgetStep.DATE_TIME_SELECTION) {
+    widgetState = {
+      ...widgetState,
+      currentStep: WidgetStep.SPECIALIST_SELECTION,
+      selectionMode: widgetState.selectedDepartmentId
+        ? SelectionMode.DEPARTMENT
+        : SelectionMode.EMPLOYEE,
+    };
+  } else if (currentStep === WidgetStep.SPECIALIST_SELECTION) {
     widgetState = {
       ...widgetState,
       currentStep: WidgetStep.NEXT_STEPS,
