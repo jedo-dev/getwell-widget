@@ -38,11 +38,11 @@
   gap: 2px;
   flex: 1;
   overflow: hidden;
-  .ant-input-outlined:focus-within{
-    border-color: unset!important;
-    box-shadow: unset!important;
+  .ant-input-outlined:focus-within {
+    border-color: unset !important;
+    box-shadow: unset !important;
   }
-  .ant-list-item{
+  .ant-list-item {
     border-radius: 16px;
   }
   .ant-list-items {
@@ -60,7 +60,7 @@
   flex: 1;
   overflow: auto;
   border-radius: 16px 16px 0 0;
-  background:  var(--widget-background-color);
+  background: var(--widget-background-color);
 }
 
 .department-specialists-selection-item {
@@ -75,7 +75,7 @@
 }
 
 .department-specialists-selection-item.selected {
-  background-color: #f0f7ff;
+  background-color: #ffffff;
 }
 
 .department-specialists-selection-item:last-child {
@@ -161,6 +161,40 @@
   flex-direction: column;
   gap: 8px;
   flex-grow: 1;
+}
+
+.department-specialists-selection .ant-radio-wrapper {
+  align-self: flex-start;
+}
+
+.department-specialists-selection .ant-radio {
+  top: 0;
+}
+
+.department-specialists-selection .ant-radio-inner {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border: 2px solid #d0d5dd;
+}
+
+.department-specialists-selection .ant-radio-inner::after {
+  width: 26px;
+  height: 26px;
+  margin-block-start: -13px;
+  margin-inline-start: -13px;
+  background: #344054;
+}
+
+.department-specialists-selection .ant-radio-checked .ant-radio-inner {
+  background: #ffffff;
+  border-color: #344054;
+}
+
+.department-specialists-selection .ant-radio-wrapper:hover .ant-radio-inner,
+.department-specialists-selection .ant-radio:hover .ant-radio-inner,
+.department-specialists-selection .ant-radio-input:focus + .ant-radio-inner {
+  border-color: #344054;
 }
 
 .department-specialists-selection-footer {
