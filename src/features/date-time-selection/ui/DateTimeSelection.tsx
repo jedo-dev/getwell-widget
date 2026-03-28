@@ -345,7 +345,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           {selectedDate && selectedTime && (
             <div className='date-time-selection-doctor-right'>
               <div className='date-time-selection-calendar-icon-wrapper'>
-                <IconWrapper src={CalendarIcon} />
+                <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
               </div>
               <div className='date-time-selection-selected-info'>
                 <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>
@@ -415,7 +415,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
               <Spin size='large' />
             </div>
           )}
-
+ 
           {showEmptySlotsState ? (
             <div className='date-time-selection-empty-state'>
               <div className='date-time-selection-empty-title'>

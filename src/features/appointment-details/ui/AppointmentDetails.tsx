@@ -32,7 +32,7 @@ import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
 import CustomTextArea from '../../../shared/ui/CustomTextArea';
 import IconWrapper from '../../../shared/ui/IconWrapper';
-import { Branch, Breed, Employee, PatientType, Pet } from '../../../types';
+import { Branch, Breed, Employee, PatientType, Pet, WidgetState } from '../../../types';
 import { AddPetModal } from '../../pet-management';
 import './AppointmentDetails.css';
 
@@ -78,9 +78,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   // Поля для нового пользователя
   const [firstName, setFirstName] = useState<string>(appointmentDetailsDraft?.firstName || '');
   const [lastName, setLastName] = useState<string>(appointmentDetailsDraft?.lastName || '');
-  const [patronymic, setPatronymic] = useState<string>(
-    appointmentDetailsDraft?.patronymic || '',
-  );
+  const [patronymic, setPatronymic] = useState<string>(appointmentDetailsDraft?.patronymic || '');
   const [gender, setGender] = useState<Gender | undefined>(
     appointmentDetailsDraft?.gender ?? Gender.MALE,
   );
@@ -563,7 +561,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {selectedBranch && (
             <div className='appointment-details-location'>
               <div className='appointment-details-icon-wrapper'>
-                <IconWrapper src={LocationIcon} />
+                <IconWrapper src={LocationIcon} size={48} withBackground={false} />
               </div>
               <div className='appointment-details-location-info'>
                 <div className='appointment-details-location-name'>{selectedBranch.name}</div>
@@ -596,7 +594,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           {dateTimeInfo && (
             <div className='appointment-details-date'>
               <div className='appointment-details-icon-wrapper'>
-                <IconWrapper src={CalendarIcon} />
+                <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
               </div>
               <div className='appointment-details-date-info'>
                 <div className='appointment-details-date-text'>{formattedDate}</div>

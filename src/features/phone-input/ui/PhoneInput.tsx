@@ -201,7 +201,7 @@ export const PhoneInput: React.FC = () => {
         {branch && (
           <div className='phone-input-location'>
             <div className='phone-input-icon-wrapper'>
-              <IconWrapper src={LocationIcon} />
+              <IconWrapper src={LocationIcon} size={48} withBackground={false} />
             </div>
             <div className='phone-input-location-info'>
               <div className='phone-input-location-name'>{branch.name}</div>
@@ -232,7 +232,7 @@ export const PhoneInput: React.FC = () => {
         {dateTime && (
           <div className='phone-input-date'>
             <div className='phone-input-icon-wrapper'>
-              <IconWrapper src={CalendarIcon} />
+              <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
             </div>
             <div className='phone-input-date-info'>
               <div className='phone-input-date-text'>{formattedDate}</div>
