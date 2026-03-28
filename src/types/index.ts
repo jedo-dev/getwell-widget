@@ -223,6 +223,23 @@ export interface WidgetState {
       owner: number | null;
     }>;
   };
+  appointmentDetailsDraft?: {
+    selectedPetId?: number | null;
+    selectedPatientTypeId?: number;
+    selectedBreedId?: number;
+    firstName?: string;
+    lastName?: string;
+    patronymic?: string;
+    gender?: Gender;
+    petName?: string;
+    petSpecies?: PetSpecies | string;
+    petBreed?: string;
+    petGender?: string;
+    petBirthDate?: string | null;
+    symptoms?: string;
+    consentPersonalData?: boolean;
+    consentMarketing?: boolean;
+  };
 }
 
 // Экспортируем enum'ы для удобства

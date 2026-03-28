@@ -8,6 +8,7 @@ import {
   goBack,
   goToAppointmentConfirmation,
   goToPrivacyPolicy,
+  saveAppointmentDetailsDraft,
   selectBreed,
   selectPatientType,
   selectPet,
@@ -54,31 +55,48 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 }) => {
   const maxBirthDate = dayjs().endOf('day');
   const widgetState = getWidgetState();
+  const appointmentDetailsDraft = widgetState.appointmentDetailsDraft;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const { genders: petGenders, getLabel: getPetGenderLabel, getId } = usePetGenders();
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
   const [pets, setPets] = useState<Pet[]>([]);
-  const [selectedPetId, setSelectedPetId] = useState<number | null>(null);
+  const [selectedPetId, setSelectedPetId] = useState<number | null>(
+    appointmentDetailsDraft?.selectedPetId ?? widgetState.selectedPetId ?? null,
+  );
   const [loadingPets, setLoadingPets] = useState<boolean>(false);
-  const [symptoms, setSymptoms] = useState<string>('');
-  const [consentPersonalData, setConsentPersonalData] = useState<boolean>(false);
-  const [consentMarketing, setConsentMarketing] = useState<boolean>(false);
+  const [symptoms, setSymptoms] = useState<string>(appointmentDetailsDraft?.symptoms || '');
+  const [consentPersonalData, setConsentPersonalData] = useState<boolean>(
+    appointmentDetailsDraft?.consentPersonalData ?? false,
+  );
+  const [consentMarketing, setConsentMarketing] = useState<boolean>(
+    appointmentDetailsDraft?.consentMarketing ?? false,
+  );
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState<boolean>(false);
 
   // Поля для нового пользователя
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [patronymic, setPatronymic] = useState<string>('');
-  const [gender, setGender] = useState<Gender | undefined>(Gender.MALE);
+  const [firstName, setFirstName] = useState<string>(appointmentDetailsDraft?.firstName || '');
+  const [lastName, setLastName] = useState<string>(appointmentDetailsDraft?.lastName || '');
+  const [patronymic, setPatronymic] = useState<string>(
+    appointmentDetailsDraft?.patronymic || '',
+  );
+  const [gender, setGender] = useState<Gender | undefined>(
+    appointmentDetailsDraft?.gender ?? Gender.MALE,
+  );
 
   // Поля для питомца (для нового пользователя)
-  const [petName, setPetName] = useState<string>('');
-  const [petSpecies, setPetSpecies] = useState<PetSpecies | string>('');
-  const [petBreed, setPetBreed] = useState<string>('');
-  const [petGender, setPetGender] = useState<string | undefined>(undefined);
-  const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(null);
+  const [petName, setPetName] = useState<string>(appointmentDetailsDraft?.petName || '');
+  const [petSpecies, setPetSpecies] = useState<PetSpecies | string>(
+    appointmentDetailsDraft?.petSpecies || '',
+  );
+  const [petBreed, setPetBreed] = useState<string>(appointmentDetailsDraft?.petBreed || '');
+  const [petGender, setPetGender] = useState<string | undefined>(
+    appointmentDetailsDraft?.petGender,
+  );
+  const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(
+    appointmentDetailsDraft?.petBirthDate ? dayjs(appointmentDetailsDraft.petBirthDate) : null,
+  );
 
   // Состояние для пород и типов животных
   const [breeds, setBreeds] = useState<Breed[]>([]);
@@ -87,10 +105,10 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   // Локальное состояние для синхронизации с виджетом
   const [selectedPatientTypeId, setSelectedPatientTypeId] = useState<number | undefined>(
-    getWidgetState().selectedPatientTypeId,
+    appointmentDetailsDraft?.selectedPatientTypeId ?? getWidgetState().selectedPatientTypeId,
   );
   const [selectedBreedId, setSelectedBreedId] = useState<number | undefined>(
-    getWidgetState().selectedBreedId,
+    appointmentDetailsDraft?.selectedBreedId ?? getWidgetState().selectedBreedId,
   );
 
   // Синхронизация с состоянием виджета
@@ -513,6 +531,24 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     goBack();
   };
 
+  const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => ({
+    selectedPetId,
+    selectedPatientTypeId,
+    selectedBreedId,
+    firstName,
+    lastName,
+    patronymic,
+    gender,
+    petName,
+    petSpecies,
+    petBreed,
+    petGender,
+    petBirthDate: petBirthDate?.format('YYYY-MM-DD') ?? null,
+    symptoms,
+    consentPersonalData,
+    consentMarketing,
+  });
+
   return (
     <div className='appointment-details'>
       <AddPetModal
@@ -796,6 +832,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 onClick={(e) => {
                   if (!widgetState.config?.isExternalLinkPolicy) {
                     e.preventDefault();
+                    saveAppointmentDetailsDraft(buildAppointmentDetailsDraft());
                     goToPrivacyPolicy();
                   }
                 }}

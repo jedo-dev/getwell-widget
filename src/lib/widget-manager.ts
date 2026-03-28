@@ -19,6 +19,7 @@ let widgetState: WidgetState = {
   selectedPatientTypeId: undefined,
   selectedBreedId: undefined,
   reservedTimeslotHash: null,
+  appointmentDetailsDraft: undefined,
 };
 
 // let widgetState: WidgetState = {
@@ -241,6 +242,7 @@ export function openGetWellWidget(): void {
     selectedPatientTypeId: undefined,
     selectedBreedId: undefined,
     reservedTimeslotHash: null,
+    appointmentDetailsDraft: undefined,
   };
 
   notifyStateChange();
@@ -278,6 +280,7 @@ export function resetGetWellWidget(): void {
     selectedPatientTypeId: undefined,
     selectedBreedId: undefined,
     reservedTimeslotHash: null,
+    appointmentDetailsDraft: undefined,
   };
 
   notifyStateChange();
@@ -481,6 +484,7 @@ export function goToAppointmentConfirmation(): void {
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.APPOINTMENT_CONFIRMATION,
+    appointmentDetailsDraft: undefined,
   };
 
   notifyStateChange();
@@ -510,6 +514,15 @@ export function goToPrivacyPolicy(): void {
   };
 
   notifyStateChange();
+}
+
+export function saveAppointmentDetailsDraft(
+  draft: WidgetState['appointmentDetailsDraft'],
+): void {
+  widgetState = {
+    ...widgetState,
+    appointmentDetailsDraft: draft,
+  };
 }
 
 /**
@@ -671,6 +684,7 @@ export function applyConfig(
       selectedPatientTypeId: undefined,
       selectedBreedId: undefined,
       reservedTimeslotHash: null,
+      appointmentDetailsDraft: undefined,
     };
   }
 
