@@ -402,7 +402,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                   key: 'department',
                   label: SELECTION_MODE_LABELS[SelectionMode.DEPARTMENT],
                   children: (
-                    <div className='specialist-selection-content'>
+                    <>
                       <Input
                         placeholder='Поиск'
                         prefix={<SearchOutlined />}
@@ -442,7 +442,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                       ) : (
                         <EmptyState description='Отделения не найдены' />
                       )}
-                    </div>
+                    </>
                   ),
                 },
               ]

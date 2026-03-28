@@ -96,6 +96,8 @@
 }
 .ant-tabs-tabpane {
   height: -webkit-fill-available !important;
+  display: flex;
+  flex-direction: column;
 }
 .ant-drawer-body {
   padding: unset !important;
