@@ -60,10 +60,13 @@ export interface Pet {
   name: string;
   species?: PetSpecies | string; // вид животного (для обратной совместимости оставляем string)
   breed?: string; // порода
+  patientTypeId?: number;
+  breedId?: number;
   age?: number;
   weight?: number;
   gender?: Gender; // пол питомца
   birthDate?: string; // дата рождения в формате ISO
+  isLocal?: boolean;
 }
 
 // Client (Клиент)

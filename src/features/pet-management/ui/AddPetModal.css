@@ -82,6 +82,7 @@
 
 .add-pet-modal-gender {
   width: 100%;
+  display: flex;
 }
 
 .add-pet-modal-gender .ant-radio-button-wrapper {
@@ -89,15 +90,41 @@
   text-align: center;
   height: 48px;
   line-height: 48px;
-  border-radius: 8px;
+  border: none;
+  background: #f4f4f5;
+  color: #101828;
+  font-family: Onest, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .add-pet-modal-gender .ant-radio-button-wrapper:first-child {
-  border-radius: 8px 0 0 8px;
+  border-radius: 12px 0 0 12px;
 }
 
 .add-pet-modal-gender .ant-radio-button-wrapper:last-child {
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 12px 12px 0;
+}
+
+.add-pet-modal-gender .ant-radio-button-wrapper::before {
+  display: none;
+}
+
+.add-pet-modal-gender .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background: #344054;
+  color: #ffffff;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.add-pet-modal-gender
+  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+  background: #344054;
+  color: #ffffff;
+}
+
+.add-pet-modal-gender .ant-radio-button-wrapper:hover {
+  color: #101828;
 }
 
 .add-pet-modal-datepicker {

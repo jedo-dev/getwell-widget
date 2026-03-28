@@ -1,15 +1,13 @@
 import { Button, DatePicker, Modal, Radio, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import React, { useEffect, useState } from 'react';
-import {
-  Gender,
-  PET_SPECIES_OPTIONS,
-  PetSpecies,
-} from '../../../shared/constants';
+import React, { useEffect, useMemo, useState } from 'react';
+import { getWidgetState } from '../../../lib/widget-manager';
+import { patientsApi } from '../../../shared/api';
+import { Gender } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
-import { Pet } from '../../../types';
+import { Breed, Pet } from '../../../types';
 import './AddPetModal.css';
 
 export interface AddPetModalProps {
@@ -21,10 +19,12 @@ export interface AddPetModalProps {
 export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave }) => {
   const maxBirthDate = dayjs().endOf('day');
   const { genders: petGenders } = usePetGenders();
+  const widgetState = getWidgetState();
   const [name, setName] = useState<string>('');
-  const [species, setSpecies] = useState<PetSpecies | string>('');
-  const [breed, setBreed] = useState<string>('');
-  const [gender, setGender] = useState<string>(Gender.MALE);
+  const [breeds, setBreeds] = useState<Breed[]>([]);
+  const [species, setSpecies] = useState<number | null>(null);
+  const [breed, setBreed] = useState<number | null>(null);
+  const [gender, setGender] = useState<string>('');
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -34,6 +34,55 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       setGender(petGenders[0].code);
     }
   }, [petGenders, gender]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const config = widgetState.config;
+    if (!config?.apiUrl || config.offlineMode) {
+      setBreeds([]);
+      return;
+    }
+
+    const loadBreeds = async () => {
+      try {
+        const breedsData = await patientsApi.getBreeds(config.apiUrl);
+        setBreeds(breedsData);
+      } catch (error) {
+        console.error('Ошибка загрузки пород для модалки питомца:', error);
+        setBreeds([]);
+      }
+    };
+
+    loadBreeds();
+  }, [open, widgetState.config]);
+
+  const speciesOptions = useMemo(() => {
+    const typeMap = new Map<number, string>();
+    breeds.forEach((item) => {
+      typeMap.set(item.patient_type.id, item.patient_type.name);
+    });
+
+    return Array.from(typeMap.entries()).map(([value, label]) => ({
+      value,
+      label,
+    }));
+  }, [breeds]);
+
+  const breedOptions = useMemo(() => {
+    if (!species) {
+      return [];
+    }
+
+    return breeds
+      .filter((item) => item.patient_type.id === species)
+      .map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
+  }, [breeds, species]);
 
   const handleSave = () => {
     const newErrors: Record<string, string> = {};
@@ -59,12 +108,18 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       return;
     }
 
+    const selectedSpecies = breeds.find((item) => item.patient_type.id === species)?.patient_type.name;
+    const selectedBreed = breeds.find((item) => item.id === breed)?.name;
+
     const pet: Omit<Pet, 'id'> = {
       name: name.trim(),
-      species: species as string,
-      breed,
+      species: selectedSpecies || '',
+      breed: selectedBreed || '',
+      patientTypeId: species || undefined,
+      breedId: breed || undefined,
       gender: gender as Gender,
       birthDate: birthDate?.format('YYYY-MM-DD'),
+      isLocal: true,
       age: birthDate
         ? Math.floor((Date.now() - birthDate.valueOf()) / (1000 * 60 * 60 * 24 * 365))
         : undefined,
@@ -77,23 +132,13 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
 
   const handleClose = () => {
     setName('');
-    setSpecies('');
-    setBreed('');
+    setSpecies(null);
+    setBreed(null);
     setGender(petGenders[0]?.code || Gender.MALE);
     setBirthDate(null);
     setErrors({});
     onClose();
   };
-
-  // Временные данные для пород (заглушка)
-  const breedOptions = species
-    ? [
-      { value: 'labrador', label: 'Лабрадор' },
-      { value: 'german-shepherd', label: 'Немецкая овчарка' },
-      { value: 'british', label: 'Британская' },
-      { value: 'persian', label: 'Персидская' },
-    ]
-    : [];
 
   return (
     <Modal
@@ -130,13 +175,13 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             text='Вид'
             value={species}
             onChange={(value) => {
-              setSpecies(value);
-              setBreed('');
+              setSpecies(typeof value === 'number' ? value : Number(value));
+              setBreed(null);
               if (errors.species) {
                 setErrors({ ...errors, species: '' });
               }
             }}
-            options={PET_SPECIES_OPTIONS}
+            options={speciesOptions}
           />
           {errors.species && <div className='add-pet-modal-error'>{errors.species}</div>}
         </div>
@@ -147,7 +192,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             text='Порода'
             value={breed}
             onChange={(value) => {
-              setBreed(value);
+              setBreed(typeof value === 'number' ? value : Number(value));
               if (errors.breed) {
                 setErrors({ ...errors, breed: '' });
               }
@@ -163,7 +208,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
           <Radio.Group
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className='appointment-details-gender-group'>
+            className='add-pet-modal-gender'>
             {petGenders.map((g) => (
               <Radio.Button key={g.code} value={g.code}>
                 {g.name}

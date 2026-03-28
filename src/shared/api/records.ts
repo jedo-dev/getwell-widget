@@ -52,10 +52,17 @@ interface CreateExternalRecordRequestWithData {
   owner: CreateOwnerData;
 }
 
+interface CreateExternalRecordRequestWithNewPatientForExistingOwner {
+  appointment: AppointmentData;
+  patient: CreatePatientData;
+  owner_id: number;
+}
+
 // Union тип для поддержки обоих вариантов
 export type CreateExternalRecordRequest =
   | CreateExternalRecordRequestWithIds
-  | CreateExternalRecordRequestWithData;
+  | CreateExternalRecordRequestWithData
+  | CreateExternalRecordRequestWithNewPatientForExistingOwner;
 
 export const recordsApi = {
   async createRecord(params: {

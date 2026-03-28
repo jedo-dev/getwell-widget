@@ -447,11 +447,34 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         const ownerData = state.ownerData;
         let payload;
 
-        if (!isNewUser && ownerData?.id && selectedPetId) {
+        const selectedPet = pets.find((pet) => pet.id === selectedPetId);
+
+        if (!isNewUser && ownerData?.id && selectedPetId && !selectedPet?.isLocal) {
           // Вариант для авторизованного пользователя: используем ID
           payload = {
             appointment: appointmentData,
             patient_id: selectedPetId,
+            owner_id: ownerData.id,
+          };
+        } else if (!isNewUser && ownerData?.id && selectedPet?.isLocal) {
+          const petGenderItem = petGenders.find(
+            (g) => g.code === selectedPet.gender || g.name === selectedPet.gender,
+          );
+          const petGenderCode = petGenderItem?.code || selectedPet.gender || '';
+
+          if (!selectedPet.patientTypeId || !selectedPet.breedId || !selectedPet.birthDate) {
+            throw new Error('Не все данные нового питомца заполнены');
+          }
+
+          payload = {
+            appointment: appointmentData,
+            patient: {
+              nickname: selectedPet.name,
+              type_id: String(selectedPet.patientTypeId),
+              breed_id: String(selectedPet.breedId),
+              gender_id: getId(petGenderCode),
+              birth_date: selectedPet.birthDate,
+            },
             owner_id: ownerData.id,
           };
         } else if (isNewUser) {
@@ -506,10 +529,10 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   };
 
   const handleSaveNewPet = (pet: Omit<Pet, 'id'>) => {
-    // TODO: В будущем здесь будет запрос к API для сохранения питомца
     const newPet: Pet = {
       ...pet,
-      id: Date.now(), // Временный ID
+      id: -Date.now(),
+      isLocal: true,
     };
     setPets([...pets, newPet]);
     const newPetId = newPet.id || null;
