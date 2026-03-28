@@ -1,5 +1,6 @@
 import { Branch, Department, Employee, WidgetConfig } from '../../types';
 import { resolveTheme } from '../utils/theme';
+import { formatResidentialAddress } from './address';
 import {
   EmployeeApiData,
   FileImage,
@@ -74,7 +75,7 @@ function mapFilialToBranch(filial: FilialApiData): Branch {
   return {
     id: filial.id,
     name: filial.name,
-    address: filial.residential_address?.street || '',
+    address: formatResidentialAddress(filial.residential_address),
     phone: filial.phone_number || '',
     schedule: formatSchedule(filial.schedules || []),
   };

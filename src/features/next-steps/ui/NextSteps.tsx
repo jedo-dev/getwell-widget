@@ -54,7 +54,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
               src={widgetState.config?.logoUrl}
               width={60}
               height={60}
-              alt={selectedBranch.name}
+              alt={'Логотип'}
               className='next-steps-branch-image'
             />
             <div className='next-steps-branch-name'>{selectedBranch.name}</div>

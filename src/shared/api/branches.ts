@@ -1,5 +1,6 @@
 import { Branch } from '../../types';
 import { BranchesResponse } from '../types/api';
+import { formatResidentialAddress } from './address';
 import { FilialApiData, getWidgetSettings } from './widget-settings-cache';
 
 /**
@@ -74,7 +75,7 @@ function mapFilialToBranch(filial: FilialApiData): Branch {
   return {
     id: filial.id,
     name: filial.name,
-    address: filial?.residential_address?.street || '',
+    address: formatResidentialAddress(filial.residential_address),
     phone: filial.phone_number || '',
     schedule: formatSchedule(filial.schedules || []),
   };
