@@ -171,7 +171,7 @@
 
 .specialist-selection-item-arrow {
   font-size: 16px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--widget-text-tertiary);
   flex-shrink: 0;
 }
 
