@@ -61,6 +61,41 @@
   box-shadow: unset !important;
 }
 
+.specialist-selection-search .ant-input-affix-wrapper {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.specialist-selection-search .ant-input-prefix {
+  margin-inline-end: 12px;
+}
+
+.specialist-selection-search-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.specialist-selection-search .ant-input {
+  font-family: Onest, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #101828;
+}
+
+.specialist-selection-search .ant-input::placeholder {
+  font-family: Onest, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #c9c9c9;
+  opacity: 1;
+}
+
 .specialist-selection-list {
   flex: 1;
   background-color: white;

@@ -1,4 +1,4 @@
-import { RightOutlined, SearchOutlined } from '@ant-design/icons';
+import { RightOutlined } from '@ant-design/icons';
 import { Button, Input, List, Radio, Segmented, Skeleton, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -28,6 +28,7 @@ import {
 } from '../../../shared/lib';
 import { Avatar, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
+import SearchIcon from '../../../img/search.svg';
 import './SpecialistSelection.css';
 
 export interface SpecialistSelectionProps {
@@ -267,7 +268,14 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
               <>
                 <Input
                   placeholder='Поиск'
-                  prefix={<SearchOutlined />}
+                  prefix={
+                    <img
+                      src={SearchIcon}
+                      alt=''
+                      aria-hidden='true'
+                      className='specialist-selection-search-icon'
+                    />
+                  }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className='specialist-selection-search'
@@ -414,7 +422,14 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                     <>
                       <Input
                         placeholder='Поиск'
-                        prefix={<SearchOutlined />}
+                        prefix={
+                          <img
+                            src={SearchIcon}
+                            alt=''
+                            aria-hidden='true'
+                            className='specialist-selection-search-icon'
+                          />
+                        }
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className='specialist-selection-search'

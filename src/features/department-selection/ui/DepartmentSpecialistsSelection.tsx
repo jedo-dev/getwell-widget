@@ -1,4 +1,3 @@
-import { SearchOutlined } from '@ant-design/icons';
 import { Button, Input, List, Radio, Skeleton, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -26,6 +25,7 @@ import {
 } from '../../../shared/lib';
 import { Avatar, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
+import SearchIcon from '../../../img/search.svg';
 import './DepartmentSpecialistsSelection.css';
 
 export interface DepartmentSpecialistsSelectionProps {
@@ -182,7 +182,14 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
       <div className='department-specialists-selection-content'>
         <Input
           placeholder='Поиск'
-          prefix={<SearchOutlined />}
+          prefix={
+            <img
+              src={SearchIcon}
+              alt=''
+              aria-hidden='true'
+              className='department-specialists-selection-search-icon'
+            />
+          }
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className='department-specialists-selection-search'

@@ -194,7 +194,7 @@ export const schedulesApi = {
       };
       department_id: number;
       employee_id: number;
-      unique_hash?: string;
+      rsrv_timeslot_unq_hash?: string;
     } = {
       timeslot: {
         from: params.timeslot.from,
@@ -205,7 +205,7 @@ export const schedulesApi = {
     };
 
     if (params.uniqueHash) {
-      payload.unique_hash = params.uniqueHash;
+      payload.rsrv_timeslot_unq_hash = params.uniqueHash;
     }
 
     let res: ExternalApiResponse<{ unique_hash: string }>;
