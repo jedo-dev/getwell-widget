@@ -106,10 +106,11 @@
   background: transparent;
 }
 
-.ant-drawer-footer {
+.ant-drawer .ant-drawer-footer {
   background: white !important;
   border-radius: 0 0 16px 16px;
   margin-bottom: 10px;
+  border-top: unset !important;
   @media (max-width: 768px) {
     margin-bottom: 0;
   }
