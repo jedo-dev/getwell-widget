@@ -26,7 +26,7 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
 
   // Стандартная информация о враче, если не указана
   const defaultInfo =
-    'Стремимся обеспечивать высокий уровень профессиональной ветеринарной помощи. От диагностики и лечения до медицинского сопровождения домашних питомцев разного вида, веса и возраста.';
+    '';
   const doctorInfo = employee.information || defaultInfo;
 
   return (
