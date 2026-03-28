@@ -246,7 +246,7 @@ export const PhoneInput: React.FC = () => {
       {/* Phone Input Container */}
       <div className='phone-input-phone-container'>
         <div className='phone-input-phone-header'>
-          <h3 className='phone-input-phone-title'>Номер телефона</h3>
+          <h3 className='phone-input-phone-title'>Введите номер телефона</h3>
         </div>
         <div className='phone-input-phone-input-container'>
           <CustomInput
