@@ -117,6 +117,25 @@ letter-spacing: -2%;
   /* border-top: 1px solid #f0f0f0; */
 }
 
+.getwell-widget-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.getwell-widget-footer-link:hover .getwell-widget-footer-text,
+.getwell-widget-footer-link:focus-visible .getwell-widget-footer-text {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.getwell-widget-footer-link:focus-visible {
+  outline: 2px solid rgba(1, 66, 255, 0.35);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
 .getwell-widget-footer-text {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.45);
