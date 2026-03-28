@@ -113,6 +113,12 @@ function resolveImageUrl(image: FileImage | string | null | undefined): string |
   );
 }
 
+function normalizeStickyButtonPosition(
+  positionOnSite?: string,
+): NonNullable<WidgetConfig['stickyButtonPosition']> {
+  return positionOnSite === 'left' || positionOnSite === 'bottom_left' ? 'left' : 'right';
+}
+
 /**
  * Преобразование данных из API в формат WidgetConfig
  */
@@ -190,8 +196,9 @@ function mapApiResponseToWidgetConfig(
     stickyBtnEnable: data.online_appointment_button?.display_on_site || false,
     stickyButtonPulse: data.online_appointment_button?.decoration?.ripple_effect || false,
     stickyButtonColor: resolvedStickyButtonTheme.primaryColor,
-    stickyButtonPosition:
-      data.online_appointment_button?.decoration?.position_on_site === 'left' ? 'left' : 'right',
+    stickyButtonPosition: normalizeStickyButtonPosition(
+      data.online_appointment_button?.decoration?.position_on_site,
+    ),
   };
 
   return config;

@@ -123,7 +123,7 @@ interface OnlineAppointmentButton {
   decoration: {
     ripple_effect: boolean;
     color: string;
-    position_on_site: string;
+    position_on_site: 'left' | 'right' | 'bottom_left' | 'bottom_right' | string;
   };
   js_code: string;
   link_for_site: string;
