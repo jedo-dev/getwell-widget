@@ -73,6 +73,14 @@ let widgetState: WidgetState = {
 // Callbacks для уведомления компонентов об изменении состояния
 let stateChangeCallbacks: Array<(state: WidgetState) => void> = [];
 
+function getSingleBranchId(config?: WidgetConfig | null): number | null {
+  if (!config?.branches || config.branches.length !== 1) {
+    return null;
+  }
+
+  return config.branches[0]?.id ?? null;
+}
+
 // Функция для подписки на изменения состояния
 export function subscribeToStateChange(callback: (state: WidgetState) => void): () => void {
   stateChangeCallbacks.push(callback);
@@ -177,6 +185,10 @@ export function openGetWellWidget(): void {
   }
 
   const preserve = widgetState.config?.render?.preserveStepOnOpen === true;
+  const forcedStep = widgetState.config?.render?.currentStep;
+  const forcedBranchId = widgetState.config?.render?.selectedBranchId ?? null;
+  const singleBranchId = getSingleBranchId(widgetState.config);
+  const shouldSkipBranchSelection = !forcedStep && !forcedBranchId && Boolean(singleBranchId);
 
   // В режиме предпросмотра (preserveStepOnOpen) не сбрасываем состояние,
   // чтобы Flutter-админка могла менять конфиг "на лету" и сразу видеть результат.
@@ -187,7 +199,6 @@ export function openGetWellWidget(): void {
     };
 
     // Если задан текущий шаг в конфиге — применяем его (даже если preserve включён)
-    const forcedStep = widgetState.config?.render?.currentStep;
     if (forcedStep) {
       widgetState = {
         ...widgetState,
@@ -198,7 +209,15 @@ export function openGetWellWidget(): void {
     if (widgetState.config?.render?.selectedBranchId !== undefined) {
       widgetState = {
         ...widgetState,
-        selectedBranchId: widgetState.config.render.selectedBranchId ?? null,
+        selectedBranchId: forcedBranchId,
+      };
+    }
+
+    if (shouldSkipBranchSelection) {
+      widgetState = {
+        ...widgetState,
+        currentStep: WidgetStep.NEXT_STEPS,
+        selectedBranchId: singleBranchId,
       };
     }
 
@@ -209,8 +228,9 @@ export function openGetWellWidget(): void {
   widgetState = {
     ...widgetState,
     isOpen: true,
-    currentStep: widgetState.config?.render?.currentStep ?? WidgetStep.BRANCH_SELECTION,
-    selectedBranchId: widgetState.config?.render?.selectedBranchId ?? null,
+    currentStep:
+      shouldSkipBranchSelection ? WidgetStep.NEXT_STEPS : forcedStep ?? WidgetStep.BRANCH_SELECTION,
+    selectedBranchId: shouldSkipBranchSelection ? singleBranchId : forcedBranchId,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
     selectionMode: undefined,

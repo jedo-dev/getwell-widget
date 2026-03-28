@@ -12,7 +12,7 @@ import { PhoneInput } from '../../../features/phone-input';
 import { PrivacyPolicy } from '../../../features/privacy-policy';
 import { SpecialistSelection } from '../../../features/specialist-selection';
 import defaultImage from '../../../img/default.png';
-import { goBack } from '../../../lib/widget-manager';
+import { goBack, selectBranch } from '../../../lib/widget-manager';
 import { branchesApi, departmentsApi } from '../../../shared/api';
 import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
@@ -107,6 +107,30 @@ export const Widget: React.FC<WidgetProps> = ({
       }
     }
   }, [open, withoutDrawer, isOffline, widgetState.config?.apiUrl, widgetState.config?.branches]);
+
+  useEffect(() => {
+    if (!open || withoutDrawer) {
+      return;
+    }
+
+    if (
+      widgetState.currentStep !== WidgetStep.BRANCH_SELECTION ||
+      widgetState.selectedBranchId ||
+      widgetState.config?.render?.currentStep ||
+      branches.length !== 1
+    ) {
+      return;
+    }
+
+    selectBranch(branches[0].id);
+  }, [
+    open,
+    withoutDrawer,
+    branches,
+    widgetState.currentStep,
+    widgetState.selectedBranchId,
+    widgetState.config?.render?.currentStep,
+  ]);
 
   useEffect(() => {
     // Загружаем специалистов при переходе к выбору специалиста
