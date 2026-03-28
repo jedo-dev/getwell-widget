@@ -3,6 +3,7 @@ import { List, Skeleton } from 'antd';
 import { Image } from 'antd/lib';
 import React from 'react';
 import deparmentChoose from '../../../img/department-choose.svg';
+import defaultLogo from '../../../img/default-logo.svg';
 import doctorChoose from '../../../img/doctor-choose.svg';
 import {
   getWidgetState,
@@ -51,7 +52,8 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
             <Image
               placeholder={<Skeleton.Avatar active={true} shape='circle' size={60} />}
               preview={false}
-              src={widgetState.config?.logoUrl}
+              src={widgetState.config?.logoUrl || defaultLogo}
+              fallback={defaultLogo}
               width={60}
               height={60}
               alt={'Логотип'}
