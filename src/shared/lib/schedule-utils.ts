@@ -2,6 +2,21 @@ import { AvailableDoctorsData, NearestAvailableTimeslot, ScheduleItem } from '..
 import { isToday } from './date-formatting';
 import { formatLocalMidnight } from './datetime';
 
+const MONTHS_GENITIVE = [
+  'января',
+  'февраля',
+  'марта',
+  'апреля',
+  'мая',
+  'июня',
+  'июля',
+  'августа',
+  'сентября',
+  'октября',
+  'ноября',
+  'декабря',
+] as const;
+
 /**
  * Парсит строку даты в формате "YYYY-MM-DD HH:mm:ss" в объект Date
  */
@@ -51,7 +66,7 @@ export interface NearestAppointmentDateResult {
  * Форматирует дату для отображения ближайшего времени приёма
  * - "сегодня" если это сегодня
  * - "завтра" если это завтра
- * - "ДД.ММ" если через пару дней
+ * - "с 15 ноября" если через пару дней
  * Возвращает объект с текстом для отображения и датой для запросов
  */
 export function formatNearestAppointmentDate(
@@ -91,10 +106,10 @@ export function formatNearestAppointmentDate(
     };
   }
 
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = date.getDate();
+  const month = MONTHS_GENITIVE[date.getMonth()];
   return {
-    text: `${day}.${month}`,
+    text: `с ${day} ${month}`,
     date: dateForRequest,
   };
 }
