@@ -194,10 +194,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
   const localDateTimeToIso = (dt: string): string => {
     const [datePart, timePart] = dt.split(' ');
-    const [y, m, d] = datePart.split('-').map(Number);
-    const [hh, mm, ss] = timePart.split(':').map(Number);
-    const local = new Date(y, m - 1, d, hh, mm, ss || 0, 0);
-    return local.toISOString();
+    return `${datePart}T${timePart}`;
   };
 
   const getPeriod = (hours: number): TimePeriod => {
