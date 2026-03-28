@@ -15,7 +15,6 @@ import { goBack, selectBranch } from '../../../lib/widget-manager';
 import { branchesApi, departmentsApi } from '../../../shared/api';
 import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
-import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
 import './Widget.css';
 
@@ -340,11 +339,8 @@ export const Widget: React.FC<WidgetProps> = ({
       case WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION:
         return selectedDepartment ? selectedDepartment.name : 'Выберите специалиста';
 
-      case WidgetStep.DOCTOR_INFO: {
-        const selectedEmployee = getSelectedEmployee();
-        const fullName = formatEmployeeFullName(selectedEmployee);
-        return fullName || 'Информация о враче';
-      }
+      case WidgetStep.DOCTOR_INFO:
+        return 'Информация';
 
       case WidgetStep.DATE_TIME_SELECTION:
         return 'Выберите дату и время';
