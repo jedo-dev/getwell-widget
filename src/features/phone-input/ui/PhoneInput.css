@@ -200,6 +200,11 @@
   gap: 8px;
 }
 
+.phone-input-phone-input-container .ant-input::placeholder {
+  color: var(--widget-text-color);
+  opacity: 1;
+}
+
 .phone-input-input {
   height: 44px;
   font-size: 16px;

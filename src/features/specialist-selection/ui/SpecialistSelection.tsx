@@ -10,6 +10,7 @@ import {
   goToSpecialistSelection,
   selectDateTime,
   selectDepartment,
+  selectDepartmentOnly,
   selectEmployee,
   setReservedTimeslotHash,
 } from '../../../lib/widget-manager';
@@ -169,7 +170,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
 
     // Сохраняем department_id из timechip, если он есть
     if (timechip.department_id) {
-      selectDepartment(timechip.department_id);
+      selectDepartmentOnly(timechip.department_id);
     }
 
     // Сохраняем выбранного врача (уже выбран)
