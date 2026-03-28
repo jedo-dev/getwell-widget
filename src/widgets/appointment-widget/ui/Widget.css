@@ -26,15 +26,14 @@
   letter-spacing: -2%;
   display: flex;
   gap: 12px;
-  @media  (max-width: 768px) {
+  @media (max-width: 768px) {
     font-family: Onest;
-font-weight: 500;
-font-style: Medium;
-font-size: 20px;
-leading-trim: NONE;
-line-height: 24px;
-letter-spacing: -2%;
-
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 20px;
+    leading-trim: NONE;
+    line-height: 24px;
+    letter-spacing: -2%;
   }
 }
 .ant-modal-root .ant-modal-wrap {
@@ -47,6 +46,10 @@ letter-spacing: -2%;
   border-radius: 16px;
   margin-top: 10px;
   padding: 21px 24px !important;
+  .ant-drawer-close {
+    width: 40px;
+    height: 40px;
+  }
   @media (max-width: 768px) {
     margin-top: 0 !important;
     padding: 14px 20px !important;
@@ -54,7 +57,7 @@ letter-spacing: -2%;
   button {
     position: absolute;
 
-    left: -50px;
+    left: -60px;
     background: white !important;
     border-radius: 50% !important;
     aspect-ratio: 1 / 1;
@@ -62,17 +65,20 @@ letter-spacing: -2%;
     top: 10px;
     @media (max-width: 768px) {
     }
+    .anticon {
+      color: var(--widget-text-color);
+    }
   }
 }
 .image-header {
   padding: 0 !important;
   border-bottom: unset !important;
 }
-.ant-tabs-content{
-  height: -webkit-fill-available!important;
+.ant-tabs-content {
+  height: -webkit-fill-available !important;
 }
-.ant-tabs-tabpane{
-  height: -webkit-fill-available!important;
+.ant-tabs-tabpane {
+  height: -webkit-fill-available !important;
 }
 .ant-drawer-body {
   padding: unset !important;
@@ -200,6 +206,7 @@ letter-spacing: -2%;
 @media (max-width: 768px) {
   .getwell-widget-drawer .ant-drawer-content-wrapper {
     width: 100% !important;
+    box-shadow: unset;
   }
 
   .getwell-widget-fullscreen-header,
