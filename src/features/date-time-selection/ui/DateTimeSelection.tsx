@@ -8,11 +8,12 @@ import {
   selectDepartmentOnly,
   setReservedTimeslotHash,
 } from '../../../lib/widget-manager';
-import { schedulesApi } from '../../../shared/api/schedules';
+import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
   formatDate,
   formatEmployeeFullName,
+  findNearestTimeslot,
   formatLocalDateTime,
   formatLocalMidnight,
   formatMonthYear,
@@ -29,6 +30,7 @@ import IconWrapper from '../../../shared/ui/IconWrapper';
 
 export interface DateTimeSelectionProps {
   selectedEmployee: Employee | null;
+  selectedEmployeeData?: AvailableDoctorsData;
 }
 
 interface TimeSlot {
@@ -40,7 +42,10 @@ interface TimeSlot {
   departmentId?: number;
 }
 
-export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee }) => {
+export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
+  selectedEmployee,
+  selectedEmployeeData,
+}) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const currentRealMonth = useMemo(() => {
@@ -59,6 +64,13 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
     setSelectedDate(date);
     setSelectedTime(null);
     setSelectedSlotKey(null);
+  };
+
+  const parseLocalDateTime = (dt: string): Date => {
+    const [datePart, timePart] = dt.split(' ');
+    const [y, m, d] = datePart.split('-').map(Number);
+    const [hh, mm, ss] = timePart.split(':').map(Number);
+    return new Date(y, m - 1, d, hh, mm, ss || 0, 0);
   };
 
   const handleTimeSelect = async (slot: TimeSlot) => {
@@ -287,6 +299,22 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   }, [timeSlots]);
 
   const fullName = formatEmployeeFullName(selectedEmployee);
+  const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
+  const nearestAvailableDate = nearestTimeslot ? parseLocalDateTime(nearestTimeslot.from) : null;
+  const nearestAvailableDateLabel = nearestAvailableDate ? formatDate(nearestAvailableDate) : null;
+  const hasAvailableSlots = timeSlots.length > 0;
+  const showEmptySlotsState = !loadingSlots && !hasAvailableSlots;
+
+  const handleGoToNearestDate = () => {
+    if (!nearestAvailableDate) {
+      return;
+    }
+
+    setCurrentMonth(
+      new Date(nearestAvailableDate.getFullYear(), nearestAvailableDate.getMonth(), 1),
+    );
+    handleDateSelect(nearestAvailableDate);
+  };
 
   return (
     <div className='date-time-selection'>
@@ -391,7 +419,27 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             </div>
           )}
 
-          {!loadingSlots &&
+          {showEmptySlotsState ? (
+            <div className='date-time-selection-empty-state'>
+              <div className='date-time-selection-empty-title'>
+                На выбранную дату нет свободного времени
+              </div>
+              {nearestAvailableDateLabel && (
+                <div className='date-time-selection-empty-subtitle'>
+                  Ближайшая доступная дата: {nearestAvailableDateLabel}
+                </div>
+              )}
+              {nearestAvailableDate && (
+                <Button
+                  type='primary'
+                  className='date-time-selection-empty-btn'
+                  onClick={handleGoToNearestDate}>
+                  Перейти к ближайшей дате
+                </Button>
+              )}
+            </div>
+          ) : (
+            !loadingSlots &&
             (Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
               if (groupedTimeSlots[period].length === 0) return null;
 
@@ -415,7 +463,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
                   </div>
                 </div>
               );
-            })}
+            })
+          )}
         </div>
       </div>
 

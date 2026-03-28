@@ -463,7 +463,15 @@ export const Widget: React.FC<WidgetProps> = ({
 
     if (currentStep === WidgetStep.DATE_TIME_SELECTION) {
       const selectedEmployee = getSelectedEmployee();
-      return <DateTimeSelection selectedEmployee={selectedEmployee} />;
+      const selectedEmployeeData = widgetState.selectedEmployeeId
+        ? doctorsWithSchedules.find((d) => d.employee.id === widgetState.selectedEmployeeId)
+        : undefined;
+      return (
+        <DateTimeSelection
+          selectedEmployee={selectedEmployee}
+          selectedEmployeeData={selectedEmployeeData}
+        />
+      );
     }
 
     if (currentStep === WidgetStep.PHONE_INPUT) {

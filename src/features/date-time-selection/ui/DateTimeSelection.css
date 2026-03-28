@@ -330,6 +330,60 @@
   flex: 1;
 }
 
+.date-time-selection-empty-state {
+  flex: 1;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.date-time-selection-empty-title {
+  font-family: Onest;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 24px;
+  leading-trim: NONE;
+  line-height: 30px;
+  letter-spacing: -2%;
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.date-time-selection-empty-subtitle {
+  color: var(--widget-text-tertiary);
+
+  font-family: Onest;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  leading-trim: NONE;
+  line-height: 20px;
+  letter-spacing: 0%;
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.date-time-selection-empty-btn {
+  margin-top: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 64px;
+  background-color: #344054;
+  border-color: #344054;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Onest', sans-serif;
+}
+
+.date-time-selection-empty-btn:hover {
+  background-color: #1f2937;
+  border-color: #1f2937;
+}
+
 .date-time-selection-time-group {
   display: flex;
   flex-direction: column;
