@@ -280,7 +280,7 @@ export const PhoneInput: React.FC = () => {
           disabled={!phone || phoneError !== '' || checkingOwner}
           loading={checkingOwner}
           size='large'>
-          Далее
+          Записаться
         </Button>
       </div>
     </div>
