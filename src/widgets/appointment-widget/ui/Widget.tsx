@@ -350,7 +350,7 @@ export const Widget: React.FC<WidgetProps> = ({
         return 'Выберите дату и время';
 
       case WidgetStep.PHONE_INPUT:
-        return 'Введите номер телефона';
+        return 'Детали записи';
 
       case WidgetStep.APPOINTMENT_DETAILS:
         return 'Детали записи';
