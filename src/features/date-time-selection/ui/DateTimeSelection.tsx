@@ -43,6 +43,10 @@ interface TimeSlot {
 export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEmployee }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const currentRealMonth = useMemo(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  }, []);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
@@ -121,10 +125,19 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   };
 
   const handlePrevMonth = () => {
+    if (!canGoToPrevMonth) {
+      return;
+    }
+
     const prevMonth = new Date(currentMonth);
     prevMonth.setMonth(prevMonth.getMonth() - 1);
     setCurrentMonth(prevMonth);
   };
+
+  const canGoToPrevMonth = useMemo(() => {
+    const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+    return prevMonth >= currentRealMonth;
+  }, [currentMonth, currentRealMonth]);
 
   // Генерация календаря
   const calendarDays = useMemo(() => {
@@ -322,7 +335,10 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
               {formatMonthYear(currentMonth)}
             </div>
             <div className='date-time-selection-calendar-nav-group'>
-              <button className='date-time-selection-calendar-nav' onClick={handlePrevMonth}>
+              <button
+                className='date-time-selection-calendar-nav'
+                onClick={handlePrevMonth}
+                disabled={!canGoToPrevMonth}>
                 <LeftOutlined />
               </button>
               <button className='date-time-selection-calendar-nav' onClick={handleNextMonth}>

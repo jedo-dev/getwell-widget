@@ -208,6 +208,15 @@
   background-color: rgba(0, 0, 0, 0.04);
 }
 
+.date-time-selection-calendar-nav:disabled {
+  cursor: not-allowed;
+  color: #cfcfcf;
+}
+
+.date-time-selection-calendar-nav:disabled:hover {
+  background-color: transparent;
+}
+
 .date-time-selection-calendar-nav .anticon {
   font-size: 20px;
 }
