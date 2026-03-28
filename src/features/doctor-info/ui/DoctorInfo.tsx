@@ -32,7 +32,7 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
   return (
     <div className='doctor-info'>
       <div className='doctor-info-content'>
-        <div className='doctor-info-card'>
+        <div className='doctor-info-profile-card'>
           <div className='doctor-info-card-wallpaper'></div>
           <Avatar
             src={employee.photo}
@@ -45,7 +45,9 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
           {showEmployeePosition && (
             <div className='doctor-info-specialization'>{employee.specialization}</div>
           )}
+        </div>
 
+        <div className='doctor-info-about-card'>
           <div className='doctor-info-section'>
             <h3 className='doctor-info-section-title'>О враче</h3>
             <div className='doctor-info-text'>
