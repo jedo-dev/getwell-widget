@@ -55,13 +55,15 @@
 .branch-item-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   padding: 20px;
+  gap: 12px;
 }
 
 .branch-item-info {
   flex: 1;
+  min-width: 0;
 }
 
 .branch-item-name {
@@ -73,6 +75,9 @@
   letter-spacing: -2%;
   color: #101828;
   margin-bottom: 4px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .branch-item-address {
@@ -83,6 +88,9 @@
   line-height: 20px;
   letter-spacing: 0%;
   color: #777777;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .branch-item-arrow {
