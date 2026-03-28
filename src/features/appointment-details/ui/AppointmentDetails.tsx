@@ -1,6 +1,6 @@
 import { DownOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
-import type { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import CalendarIcon from '../../../img/calendar.svg';
 import {
@@ -52,6 +52,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   phone: initialPhone,
   isNewUser = false,
 }) => {
+  const maxBirthDate = dayjs().endOf('day');
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const { genders: petGenders, getLabel: getPetGenderLabel, getId } = usePetGenders();
@@ -759,7 +760,10 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomDatepicker
                   text='Дата рождения *'
                   value={petBirthDate}
-                  onChange={setPetBirthDate}
+                  onChange={(date) => {
+                    setPetBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
+                  }}
+                  disabledDate={(current) => Boolean(current && current.isAfter(maxBirthDate))}
                   format='DD.MM.YYYY'
                   style={{ width: '100%' }}
                 />

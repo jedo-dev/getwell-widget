@@ -1,5 +1,5 @@
 import { Button, DatePicker, Modal, Radio, message } from 'antd';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import {
   Gender,
@@ -19,6 +19,7 @@ export interface AddPetModalProps {
 }
 
 export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave }) => {
+  const maxBirthDate = dayjs().endOf('day');
   const { genders: petGenders } = usePetGenders();
   const [name, setName] = useState<string>('');
   const [species, setSpecies] = useState<PetSpecies | string>('');
@@ -180,13 +181,15 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             placeholder='Выберите дату'
             value={birthDate}
             onChange={(date) => {
-              setBirthDate(date);
+              setBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
               if (errors.birthDate) {
                 setErrors({ ...errors, birthDate: '' });
               }
             }}
+            disabledDate={(current) => Boolean(current && current.isAfter(maxBirthDate))}
             format='DD.MM.YYYY'
             style={{ width: '100%' }}
+            inputReadOnly
           />
           {errors.birthDate && <div className='add-pet-modal-error'>{errors.birthDate}</div>}
         </div>

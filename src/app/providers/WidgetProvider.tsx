@@ -1,4 +1,7 @@
 import { ConfigProvider } from 'antd';
+import ruRU from 'antd/locale/ru_RU';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
 import React, { useEffect, useState } from 'react';
 import {
   closeGetWellWidget,
@@ -9,6 +12,8 @@ import {
 import { applyTheme, resolveTheme } from '../../shared/utils/theme';
 import { WidgetState } from '../../types';
 import { StickyButton, Widget } from '../../widgets/appointment-widget/ui';
+
+dayjs.locale('ru');
 
 const WidgetProvider: React.FC = () => {
   const [widgetState, setWidgetState] = useState<WidgetState>(getWidgetState());
@@ -51,6 +56,7 @@ const WidgetProvider: React.FC = () => {
 
   return (
     <ConfigProvider
+      locale={ruRU}
       theme={{
         token: {
           colorPrimary: resolvedTheme.primaryColor,
