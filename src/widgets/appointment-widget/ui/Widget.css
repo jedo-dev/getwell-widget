@@ -74,6 +74,23 @@
   padding: 0 !important;
   border-bottom: unset !important;
 }
+.collapsed-header {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+.collapsed-header .drawer-title {
+  display: none;
+}
+.collapsed-header .ant-drawer-header-title {
+  min-height: 0 !important;
+}
+.collapsed-header .ant-drawer-close {
+  top: 0 !important;
+}
 .ant-tabs-content {
   height: -webkit-fill-available !important;
 }

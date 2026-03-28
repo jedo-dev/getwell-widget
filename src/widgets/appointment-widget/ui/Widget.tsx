@@ -11,7 +11,6 @@ import { NextSteps } from '../../../features/next-steps';
 import { PhoneInput } from '../../../features/phone-input';
 import { PrivacyPolicy } from '../../../features/privacy-policy';
 import { SpecialistSelection } from '../../../features/specialist-selection';
-import defaultImage from '../../../img/default.png';
 import { goBack, selectBranch } from '../../../lib/widget-manager';
 import { branchesApi, departmentsApi } from '../../../shared/api';
 import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
@@ -43,12 +42,8 @@ export const Widget: React.FC<WidgetProps> = ({
   const [loadingDepartments, setLoadingDepartments] = useState<boolean>(false);
   const isMobileViewport = drawerWidth === '100%';
   const nextStepsHeaderImage = isMobileViewport
-    ? widgetState.config?.mobileImageUrl ||
-      widgetState.config?.desktopImageUrl ||
-      (defaultImage as string)
-    : widgetState.config?.desktopImageUrl ||
-      widgetState.config?.mobileImageUrl ||
-      (defaultImage as string);
+    ? widgetState.config?.mobileImageUrl || widgetState.config?.desktopImageUrl
+    : widgetState.config?.desktopImageUrl || widgetState.config?.mobileImageUrl;
 
   const isOffline =
     widgetState.config?.offlineMode === true ||
@@ -331,11 +326,11 @@ export const Widget: React.FC<WidgetProps> = ({
         return 'Выберите филиал';
 
       case WidgetStep.NEXT_STEPS:
-        return (
+        return nextStepsHeaderImage ? (
           <div className='next-steps-image-container'>
             <img src={nextStepsHeaderImage} alt='Next steps' className='next-steps-image' />
           </div>
-        );
+        ) : null;
 
       case WidgetStep.SPECIALIST_SELECTION:
         return selectionMode === SelectionMode.DEPARTMENT
@@ -390,7 +385,7 @@ export const Widget: React.FC<WidgetProps> = ({
     return <LeftOutlined className='department-specialists-selection-back' onClick={goBack} />;
   };
   const isImageHeader = () => {
-    if (widgetState.currentStep === WidgetStep.NEXT_STEPS) {
+    if (widgetState.currentStep === WidgetStep.NEXT_STEPS && nextStepsHeaderImage) {
       return true;
     }
     if (widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION) {
@@ -398,6 +393,8 @@ export const Widget: React.FC<WidgetProps> = ({
     }
     return false;
   };
+  const isCollapsedHeader =
+    widgetState.currentStep === WidgetStep.NEXT_STEPS && !nextStepsHeaderImage;
   const isNextStepsStep = widgetState.currentStep === WidgetStep.NEXT_STEPS;
   const renderContent = () => {
     console.log('***', widgetState, '***');
@@ -558,7 +555,7 @@ export const Widget: React.FC<WidgetProps> = ({
         </span>
       }
       classNames={{
-        header: `${isImageHeader() ? 'image-header' : ''}`,
+        header: `${isImageHeader() ? 'image-header' : ''} ${isCollapsedHeader ? 'collapsed-header' : ''}`.trim(),
       }}
       placement='right'
       onClose={onClose}
