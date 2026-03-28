@@ -49,6 +49,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   }, []);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedSlotKey, setSelectedSlotKey] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
   const [apiSlots, setApiSlots] = useState<TimeSlot[]>([]);
@@ -57,11 +58,12 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
     setSelectedTime(null);
+    setSelectedSlotKey(null);
   };
 
-  const handleTimeSelect = async (time: string) => {
-    setSelectedTime(time);
-    const slot = apiSlots.find((s) => s.time === time);
+  const handleTimeSelect = async (slot: TimeSlot) => {
+    setSelectedTime(slot.time);
+    setSelectedSlotKey(slot.fromIso);
     if (slot) {
       // Сохраняем department_id из слота, если он есть
       if (slot.departmentId) {
@@ -107,6 +109,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
           if (isDuplicate) {
             setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
             setSelectedTime(null);
+            setSelectedSlotKey(null);
             // Отменяем выбор времени в состоянии виджета
             selectDateTime(null, null);
             return;
@@ -388,30 +391,31 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({ selectedEm
             </div>
           )}
 
-          {(Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
-            if (groupedTimeSlots[period].length === 0) return null;
+          {!loadingSlots &&
+            (Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
+              if (groupedTimeSlots[period].length === 0) return null;
 
-            return (
-              <div key={period} className='date-time-selection-time-group'>
-                <div className='date-time-selection-time-group-label'>
-                  {TIME_PERIOD_LABELS[period]}
-                </div>
-                <div className='date-time-selection-time-group-slots'>
-                  {groupedTimeSlots[period].map((slot) => (
-                    <button
-                      key={slot.time}
-                      className={`date-time-selection-time-slot 
-                        ${selectedTime === slot.time ? 'selected' : ''}
+              return (
+                <div key={period} className='date-time-selection-time-group'>
+                  <div className='date-time-selection-time-group-label'>
+                    {TIME_PERIOD_LABELS[period]}
+                  </div>
+                  <div className='date-time-selection-time-group-slots'>
+                    {groupedTimeSlots[period].map((slot) => (
+                      <button
+                        key={slot.fromIso}
+                        className={`date-time-selection-time-slot 
+                        ${selectedSlotKey === slot.fromIso ? 'selected' : ''}
                         ${slot.isLimited ? 'disabled' : ''}`}
-                      disabled={slot.isLimited}
-                      onClick={() => handleTimeSelect(slot.time)}>
-                      {slot.time}
-                    </button>
-                  ))}
+                        disabled={slot.isLimited}
+                        onClick={() => handleTimeSelect(slot)}>
+                        {slot.time}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
 
