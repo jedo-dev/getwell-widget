@@ -201,12 +201,13 @@
   justify-content: center;
   gap: 8px;
 }
-
+.getwell-widget-drawer-root.ant-drawer-right > .ant-drawer-content-wrapper {
+  box-shadow: unset !important;
+}
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   .getwell-widget-drawer .ant-drawer-content-wrapper {
     width: 100% !important;
-    box-shadow: unset;
   }
 
   .getwell-widget-fullscreen-header,

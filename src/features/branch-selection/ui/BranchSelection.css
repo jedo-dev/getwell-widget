@@ -102,7 +102,7 @@
   height: calc(100vh - 77px - 64px - 73px);
   iframe {
     width: 100%;
-    height:calc(100vh - 77px - 64px - 73px)!important;
+    height: calc(100vh - 77px - 64px - 73px) !important;
   }
 }
 
@@ -113,11 +113,13 @@
 .branch-selection-tabs-segmented {
   margin-top: 2px;
   border-radius: 16px;
+  padding: unset;
   .ant-segmented-group {
     height: 100% !important;
   }
   .ant-segmented-item {
     flex: 1 1 0 !important;
+    border-radius: 15px;
   }
   .ant-segmented-item-label {
     font-family: Onest;
@@ -125,4 +127,3 @@
     font-size: 16px;
   }
 }
-

@@ -540,6 +540,7 @@ export const Widget: React.FC<WidgetProps> = ({
       onClose={onClose}
       open={open}
       width={drawerWidth}
+      rootClassName='getwell-widget-drawer-root'
       className='getwell-widget-drawer'
       footer={renderFooter()}>
       <div className='getwell-widget-content'>{renderContent()}</div>
