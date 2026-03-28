@@ -24,7 +24,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [species, setSpecies] = useState<number | null>(null);
   const [breed, setBreed] = useState<number | null>(null);
-  const [gender, setGender] = useState<string>('');
+  const [gender, setGender] = useState<string>(Gender.MALE);
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -208,7 +208,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
           <Radio.Group
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className='add-pet-modal-gender'>
+            className='appointment-details-gender-group'>
             {petGenders.map((g) => (
               <Radio.Button key={g.code} value={g.code}>
                 {g.name}
