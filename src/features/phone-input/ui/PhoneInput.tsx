@@ -1,4 +1,4 @@
-import { Button, message, Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import CalendarIcon from '../../../img/calendar.svg';
 import LocationIcon from '../../../img/location.svg';
@@ -135,7 +135,6 @@ export const PhoneInput: React.FC = () => {
     const validation = validatePhoneUtil(phone);
     if (!validation.isValid) {
       setPhoneError(validation.error || '');
-      message.error('Пожалуйста, введите корректный номер телефона');
       return;
     }
 
@@ -277,7 +276,7 @@ export const PhoneInput: React.FC = () => {
           className='phone-input-submit-btn'
           block
           onClick={handleSubmit}
-          disabled={!phone || phoneError !== '' || checkingOwner}
+          disabled={checkingOwner}
           loading={checkingOwner}
           size='large'>
           Записаться
