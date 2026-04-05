@@ -10,7 +10,7 @@ const CustomSelector: React.FC<CustomSelectProps> = ({ text, ...rest }) => {
   const hasValue = !!rest.value;
   return (
     <div className='input-container'>
-      <div className={`custom-placeholder ${hasValue ? 'has-value' : ''}`}
+      <div className={`custom-placeholder ${hasValue ? 'has-value custom-placeholder-hidden' : ''}`}
       //  style={{ left: '33px' }}
        >
         {text} <span className='redmark'>*</span>

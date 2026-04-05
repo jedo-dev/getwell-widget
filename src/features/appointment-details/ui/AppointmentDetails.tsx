@@ -175,11 +175,16 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         });
 
         setPets(petsFromOwner);
-        if (petsFromOwner.length > 0 && !selectedPetId) {
-          const firstPetId = petsFromOwner[0].id || null;
-          setSelectedPetId(firstPetId);
-          if (firstPetId) {
-            selectPet(firstPetId);
+        if (petsFromOwner.length > 0) {
+          const hasSelected = selectedPetId
+            ? petsFromOwner.some((pet) => pet.id === selectedPetId)
+            : false;
+          const nextPetId = hasSelected ? selectedPetId : petsFromOwner[0].id || null;
+          if (nextPetId !== selectedPetId) {
+            setSelectedPetId(nextPetId);
+          }
+          if (nextPetId) {
+            selectPet(nextPetId);
           }
         }
       } else {
@@ -196,11 +201,16 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           const response = await petsApi.getByPhone(phone);
           if (response.success && response.data) {
             setPets(response.data);
-            if (response.data.length > 0 && !selectedPetId) {
-              const firstPetId = response.data[0].id || null;
-              setSelectedPetId(firstPetId);
-              if (firstPetId) {
-                selectPet(firstPetId);
+            if (response.data.length > 0) {
+              const hasSelected = selectedPetId
+                ? response.data.some((pet) => pet.id === selectedPetId)
+                : false;
+              const nextPetId = hasSelected ? selectedPetId : response.data[0].id || null;
+              if (nextPetId !== selectedPetId) {
+                setSelectedPetId(nextPetId);
+              }
+              if (nextPetId) {
+                selectPet(nextPetId);
               }
             }
           }
