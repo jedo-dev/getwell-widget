@@ -1,9 +1,10 @@
+﻿import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Modal, Radio, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getWidgetState } from '../../../lib/widget-manager';
 import { patientsApi } from '../../../shared/api';
-import { Gender } from '../../../shared/constants';
+import { Gender, PET_GENDER_LABELS } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
@@ -28,7 +29,6 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Инициализируем gender первым элементом из petGenders, когда они загрузятся
   useEffect(() => {
     if (petGenders.length > 0 && !petGenders.find((g) => g.code === gender)) {
       setGender(petGenders[0].code);
@@ -108,7 +108,8 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       return;
     }
 
-    const selectedSpecies = breeds.find((item) => item.patient_type.id === species)?.patient_type.name;
+    const selectedSpecies = breeds.find((item) => item.patient_type.id === species)?.patient_type
+      .name;
     const selectedBreed = breeds.find((item) => item.id === breed)?.name;
 
     const pet: Omit<Pet, 'id'> = {
@@ -142,15 +143,16 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
 
   return (
     <Modal
-      title='Новый питомец'
+      title={<h3 className='add-pet-modal-title'>Новый питомец</h3>}
       open={open}
+      width={600}
       centered={false}
       onCancel={handleClose}
       footer={null}
       className='add-pet-modal'
-      closeIcon={<span className='add-pet-modal-close'>×</span>}
+      closeIcon={<CloseOutlined className='add-pet-modal-close' />}
       getContainer={false}
-      style={{ top: 'auto', bottom: 0, paddingBottom: 0, right: 0 }}
+      style={{ top: 'auto', bottom: 0, paddingBottom: 0 }}
       wrapClassName='add-pet-modal-wrap'>
       <div className='add-pet-modal-content'>
         <div className='add-pet-modal-field'>
@@ -203,27 +205,23 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
           {errors.breed && <div className='add-pet-modal-error'>{errors.breed}</div>}
         </div>
 
-        <div className='add-pet-modal-field'>
-          <label className='add-pet-modal-label'>Пол</label>
+        <div className='add-pet-modal-field add-pet-modal-gender-field'>
           <Radio.Group
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className='appointment-details-gender-group'>
+            className='add-pet-modal-gender'>
             {petGenders.map((g) => (
               <Radio.Button key={g.code} value={g.code}>
-                {g.name}
+                {PET_GENDER_LABELS[g.code as Gender] || g.name}
               </Radio.Button>
             ))}
           </Radio.Group>
         </div>
 
         <div className='add-pet-modal-field'>
-          <label className='add-pet-modal-label'>
-            Дата рождения <span className='add-pet-modal-required'>*</span>
-          </label>
           <DatePicker
             className={`add-pet-modal-datepicker ${errors.birthDate ? 'error' : ''}`}
-            placeholder='Выберите дату'
+            placeholder='Дата рождения *'
             value={birthDate}
             onChange={(date) => {
               setBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
@@ -235,6 +233,8 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             format='DD.MM.YYYY'
             style={{ width: '100%' }}
             inputReadOnly
+            variant='outlined'
+            suffixIcon={<CalendarOutlined className='add-pet-modal-date-icon' />}
           />
           {errors.birthDate && <div className='add-pet-modal-error'>{errors.birthDate}</div>}
         </div>
