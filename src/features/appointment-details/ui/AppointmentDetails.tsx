@@ -1,4 +1,4 @@
-import { DownOutlined } from '@ant-design/icons';
+import { CheckOutlined, DownOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -58,6 +58,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const appointmentDetailsDraft = widgetState.appointmentDetailsDraft;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const { genders: petGenders, getLabel: getPetGenderLabel, getId } = usePetGenders();
+  const [ownerData, setOwnerData] = useState<WidgetState['ownerData'] | null>(
+    widgetState.ownerData ?? null,
+  );
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
@@ -114,6 +117,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     const unsubscribe = subscribeToStateChange((state) => {
       setSelectedPatientTypeId(state.selectedPatientTypeId);
       setSelectedBreedId(state.selectedBreedId);
+      setOwnerData(state.ownerData ?? null);
     });
     return unsubscribe;
   }, []);
@@ -151,9 +155,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   }, [petGenders.length]);
 
   useEffect(() => {
-    const state = getWidgetState();
-    const ownerData = state.ownerData;
-
     // Если есть данные владельца, используем их
     if (ownerData && ownerData.patients) {
       if (ownerData.patients.length > 0) {
@@ -223,9 +224,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   useEffect(() => {
     // Заполняем данные пользователя из ownerData, если они есть
-    const state = getWidgetState();
-    const ownerData = state.ownerData;
-
     if (ownerData && !isNewUser) {
       // Заполняем поля пользователя из ownerData
       if (ownerData.name && !firstName) {
@@ -244,7 +242,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNewUser]);
+  }, [isNewUser, ownerData, firstName, lastName, patronymic, gender]);
 
   // Загрузка пород при входе на шаг (только для нового пользователя и в online режиме)
   useEffect(() => {
@@ -552,6 +550,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     goBack();
   };
 
+  const isOwnerRecognized = Boolean(ownerData && !isNewUser);
+
   const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => ({
     selectedPetId,
     selectedPatientTypeId,
@@ -649,6 +649,11 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               <div className='appointment-details-phone-display'>
                 <div className='appointment-details-phone-display-content'>
                   <span className='appointment-details-phone-number'>{phone}</span>
+                  {isOwnerRecognized && (
+                    <span className='appointment-details-phone-check' aria-label='Номер подтвержден'>
+                      <CheckOutlined />
+                    </span>
+                  )}
 
                   <button className='appointment-details-phone-change' onClick={handlePhoneEdit}>
                     изменить
