@@ -11,6 +11,7 @@ import {
   formatEmployeeFullName,
   formatPhone,
   formatTime,
+  normalizePhoneForLookup,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
 import { Avatar } from '../../../shared/ui';
@@ -88,8 +89,8 @@ export const PhoneInput: React.FC = () => {
     setPhoneError('');
 
     // Если телефон валиден и полностью введен, проверяем владельца
-    const phoneDigits = formatted.replace(/[^\d]/g, '');
-    if (phoneDigits.length === 11) {
+    const phoneDigits = normalizePhoneForLookup(formatted);
+    if (phoneDigits.length >= 10) {
       await checkOwner(formatted);
     } else {
       setIsNewUser(false);
@@ -251,10 +252,10 @@ export const PhoneInput: React.FC = () => {
           <CustomInput
             text=''
             className={` ${phoneError ? 'error' : ''}`}
-            placeholder='+7 --- --- -- --'
+            placeholder='Введите номер телефона'
             value={phone}
             onChange={handlePhoneChange}
-            maxLength={17}
+            maxLength={32}
             size='large'
             autoFocus
             variant='borderless'

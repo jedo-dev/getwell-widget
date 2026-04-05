@@ -48,14 +48,41 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const initialSelectedDate = useMemo(() => {
+    if (widgetState.selectedTimeSlot) {
+      const restoredDate = new Date(widgetState.selectedTimeSlot);
+      if (!Number.isNaN(restoredDate.getTime())) {
+        return restoredDate;
+      }
+    }
+
+    return new Date();
+  }, [widgetState.selectedTimeSlot]);
   const currentRealMonth = useMemo(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
   }, []);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedSlotKey, setSelectedSlotKey] = useState<string | null>(null);
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(initialSelectedDate);
+  const [selectedTime, setSelectedTime] = useState<string | null>(() => {
+    if (!widgetState.selectedTimeSlot) {
+      return null;
+    }
+
+    const restoredDate = new Date(widgetState.selectedTimeSlot);
+    if (Number.isNaN(restoredDate.getTime())) {
+      return null;
+    }
+
+    return `${String(restoredDate.getHours()).padStart(2, '0')}:${String(
+      restoredDate.getMinutes(),
+    ).padStart(2, '0')}`;
+  });
+  const [selectedSlotKey, setSelectedSlotKey] = useState<string | null>(
+    widgetState.selectedTimeSlot,
+  );
+  const [currentMonth, setCurrentMonth] = useState<Date>(
+    new Date(initialSelectedDate.getFullYear(), initialSelectedDate.getMonth(), 1),
+  );
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
   const [apiSlots, setApiSlots] = useState<TimeSlot[]>([]);
   const [notification, setNotification] = useState<{ message: string } | null>(null);
@@ -64,6 +91,35 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
     setSelectedDate(date);
     setSelectedTime(null);
     setSelectedSlotKey(null);
+    selectDateTime(null, null);
+  };
+
+  const getDefaultSelectedDateForMonth = (month: Date): Date => {
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDay =
+      year === today.getFullYear() && monthIndex === today.getMonth() ? today.getDate() : 1;
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+    for (let day = startDay; day <= daysInMonth; day += 1) {
+      const candidate = new Date(year, monthIndex, day);
+      if (!isPastDate(candidate)) {
+        return candidate;
+      }
+    }
+
+    return new Date(year, monthIndex, startDay);
+  };
+
+  const resetSelectionForMonth = (month: Date) => {
+    const nextSelectedDate = getDefaultSelectedDateForMonth(month);
+    setCurrentMonth(month);
+    setSelectedDate(nextSelectedDate);
+    setSelectedTime(null);
+    setSelectedSlotKey(null);
+    selectDateTime(null, null);
   };
 
   const parseLocalDateTime = (dt: string): Date => {
@@ -136,7 +192,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   const handleNextMonth = () => {
     const nextMonth = new Date(currentMonth);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    setCurrentMonth(nextMonth);
+    resetSelectionForMonth(nextMonth);
   };
 
   const handlePrevMonth = () => {
@@ -146,7 +202,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 
     const prevMonth = new Date(currentMonth);
     prevMonth.setMonth(prevMonth.getMonth() - 1);
-    setCurrentMonth(prevMonth);
+    resetSelectionForMonth(prevMonth);
   };
 
   const canGoToPrevMonth = useMemo(() => {

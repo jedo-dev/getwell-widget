@@ -400,7 +400,7 @@ export function selectDateTime(dateTime: string | null, dateTimeTo?: string | nu
   widgetState = {
     ...widgetState,
     selectedTimeSlot: dateTime,
-    selectedTimeSlotTo: dateTimeTo ?? widgetState.selectedTimeSlotTo,
+    selectedTimeSlotTo: dateTimeTo === undefined ? widgetState.selectedTimeSlotTo : dateTimeTo,
   };
 
   notifyStateChange();
@@ -559,6 +559,7 @@ export async function goBack(): Promise<void> {
 
   // Если возвращаемся назад с экрана ввода телефона, отменяем резервирование
   if (
+    false &&
     currentStep === WidgetStep.PHONE_INPUT &&
     widgetState.reservedTimeslotHash &&
     widgetState.config?.apiUrl
@@ -566,7 +567,7 @@ export async function goBack(): Promise<void> {
     try {
       const { schedulesApi } = await import('../shared/api/schedules');
       await schedulesApi.cancelTimeslotReservation({
-        apiUrl: widgetState.config.apiUrl,
+        apiUrl: widgetState.config?.apiUrl,
         uniqueHash: widgetState.reservedTimeslotHash,
       });
       // Очищаем unique_hash после успешной отмены

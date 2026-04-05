@@ -639,7 +639,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   value={phone}
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneConfirm}
-                  maxLength={17}
+                  maxLength={32}
                   size='large'
                   autoFocus
                 />
@@ -648,10 +648,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             ) : (
               <div className='appointment-details-phone-display'>
                 <div className='appointment-details-phone-display-content'>
-                  <span className='appointment-details-phone-code'>+7</span>
-                  <span className='appointment-details-phone-number'>
-                    {phone ? phone.replace(/^\+7\s?/, '') : ''}
-                  </span>
+                  <span className='appointment-details-phone-number'>{phone}</span>
 
                   <button className='appointment-details-phone-change' onClick={handlePhoneEdit}>
                     изменить

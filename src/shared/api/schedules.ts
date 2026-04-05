@@ -244,7 +244,14 @@ export const schedulesApi = {
   /**
    * Отменить резервирование временного слота.
    */
-  async cancelTimeslotReservation(params: { apiUrl: string; uniqueHash: string }): Promise<void> {
+  async cancelTimeslotReservation(params: {
+    apiUrl?: string | null;
+    uniqueHash?: string | null;
+  }): Promise<void> {
+    if (!params.apiUrl || !params.uniqueHash) {
+      return;
+    }
+
     const base = normalizeExternalBaseUrl(params.apiUrl);
     const endpoint = `${base}/widgets/online-appointment/reserve-timeslot`;
 
