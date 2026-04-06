@@ -53,6 +53,33 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   phone: initialPhone,
   isNewUser = false,
 }) => {
+  const normalizeGenderValue = (value?: string | null): Gender | undefined => {
+    if (!value) {
+      return undefined;
+    }
+
+    const normalized = value.trim().toLowerCase();
+    if (
+      normalized === Gender.MALE ||
+      normalized === 'мужской' ||
+      normalized === 'мужчина' ||
+      normalized === 'самец'
+    ) {
+      return Gender.MALE;
+    }
+
+    if (
+      normalized === Gender.FEMALE ||
+      normalized === 'женский' ||
+      normalized === 'женщина' ||
+      normalized === 'самка'
+    ) {
+      return Gender.FEMALE;
+    }
+
+    return undefined;
+  };
+
   const maxBirthDate = dayjs().endOf('day');
   const widgetState = getWidgetState();
   const appointmentDetailsDraft = widgetState.appointmentDetailsDraft;
@@ -92,8 +119,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     appointmentDetailsDraft?.petSpecies || '',
   );
   const [petBreed, setPetBreed] = useState<string>(appointmentDetailsDraft?.petBreed || '');
-  const [petGender, setPetGender] = useState<string | undefined>(
-    appointmentDetailsDraft?.petGender,
+  const [petGender, setPetGender] = useState<Gender | undefined>(
+    normalizeGenderValue(appointmentDetailsDraft?.petGender) || Gender.FEMALE,
   );
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(
     appointmentDetailsDraft?.petBirthDate ? dayjs(appointmentDetailsDraft.petBirthDate) : null,
@@ -149,10 +176,19 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
   useEffect(() => {
-    if (petGenders.length) {
-      setPetGender(petGenders[0].name);
+    if (!petGenders.length) {
+      return;
     }
-  }, [petGenders.length]);
+    const normalizedCurrentGender = normalizeGenderValue(petGender);
+    const hasCurrentGender = petGenders.some(
+      (g) => g.code === normalizedCurrentGender || normalizeGenderValue(g.name) === normalizedCurrentGender,
+    );
+    if (!hasCurrentGender || !normalizedCurrentGender) {
+      setPetGender(Gender.FEMALE);
+      return;
+    }
+    setPetGender(normalizedCurrentGender);
+  }, [petGenders, petGender]);
 
   useEffect(() => {
     // Если есть данные владельца, используем их
@@ -581,7 +617,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   });
 
   return (
-    <div className='appointment-details'>
+    <div className={`appointment-details ${isNewUser ? 'appointment-details--new-user' : ''}`}>
       <AddPetModal
         open={isAddPetModalOpen}
         onClose={() => setIsAddPetModalOpen(false)}
@@ -818,16 +854,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   value={petGender}
                   onChange={(e) => setPetGender(e.target.value)}
                   className='appointment-details-gender-group'>
-                  {petGenders.map((gender) => (
-                    <Radio.Button key={gender.name} value={gender.name}>
-                      {gender.name}
-                    </Radio.Button>
-                  ))}
+                  <Radio.Button value={Gender.FEMALE}>Женский</Radio.Button>
+                  <Radio.Button value={Gender.MALE}>Мужской</Radio.Button>
                 </Radio.Group>
               </div>
               <div className='appointment-details-field'>
                 <CustomDatepicker
-                  text='Дата рождения *'
+                  text='Дата рождения'
                   value={petBirthDate}
                   onChange={(date) => {
                     setPetBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
@@ -875,12 +908,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               </a>
             </Checkbox>
 
-            <Checkbox
-              checked={consentMarketing}
-              onChange={(e) => setConsentMarketing(e.target.checked)}
-              className='appointment-details-consent-checkbox'>
-              Согласен на получение сообщений и информационно-рекламной рассылки
-            </Checkbox>
+            {!isNewUser && (
+              <Checkbox
+                checked={consentMarketing}
+                onChange={(e) => setConsentMarketing(e.target.checked)}
+                className='appointment-details-consent-checkbox'>
+                Согласен на получение сообщений и информационно-рекламной рассылки
+              </Checkbox>
+            )}
           </div>
 
           <div className='appointment-details-footer'>

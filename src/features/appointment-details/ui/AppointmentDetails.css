@@ -486,3 +486,27 @@
   color: rgba(0, 0, 0, 0.85);
   margin-bottom: 16px;
 }
+
+.appointment-details--new-user .appointment-details-appointment-details {
+  display: none;
+}
+
+.appointment-details--new-user .appointment-details-user-data {
+  border-radius: 16px;
+}
+
+.appointment-details--new-user .appointment-details-user-data-title {
+  display: none;
+}
+
+.appointment-details--new-user .appointment-details-phone-section {
+  margin-bottom: 16px;
+}
+
+.appointment-details--new-user .appointment-details-consents {
+  padding: 0;
+  margin-bottom: 0;
+  background: transparent;
+  border-radius: 0;
+  gap: 12px;
+}
