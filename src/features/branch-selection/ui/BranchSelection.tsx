@@ -9,14 +9,9 @@ import './BranchSelection.css';
 export interface BranchSelectionProps {
   branches: Branch[];
   yandexMapFrameCode?: string;
-  footerContent?: React.ReactNode;
 }
 
-export const BranchSelection: React.FC<BranchSelectionProps> = ({
-  branches,
-  yandexMapFrameCode,
-  footerContent,
-}) => {
+export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yandexMapFrameCode }) => {
   const [activeTab, setActiveTab] = useState<string>('list');
   const iframe = yandexMapFrameCode || `<iframe
                     src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
@@ -75,7 +70,6 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({
                 ) : (
                   <EmptyState description='Филиалы не найдены' />
                 )}
-                {footerContent && <div className='branch-selection-powered'>{footerContent}</div>}
               </div>
             ),
           },

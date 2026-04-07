@@ -47,11 +47,6 @@
   min-height: 0;
 }
 
-.branch-selection-powered {
-  margin-top: auto;
-  padding-top: 12px;
-}
-
 .branch-item {
   padding: 16px 0 !important;
   cursor: pointer;

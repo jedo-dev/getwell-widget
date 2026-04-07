@@ -1,0 +1,34 @@
+.gw-field-container {
+  position: relative;
+  font-family: 'Onest', sans-serif;
+}
+
+.gw-field-placeholder {
+  position: absolute;
+  left: 12px;
+  top: 16px;
+  z-index: 1;
+  font-size: 16px;
+  line-height: 24px;
+  color: #999999;
+  padding: 0 4px;
+  margin-left: -4px;
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+  font-family: 'Onest', sans-serif;
+}
+
+.gw-field-placeholder--active {
+  top: 8px;
+  font-size: 10px;
+  line-height: 10px;
+  color: #999999;
+}
+
+.gw-field-placeholder--hidden {
+  opacity: 0;
+}
+
+.gw-field-required {
+  color: #ff4d4f;
+}
