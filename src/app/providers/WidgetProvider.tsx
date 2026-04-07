@@ -63,6 +63,11 @@ const WidgetProvider: React.FC = () => {
           colorInfo: resolvedTheme.primaryColor,
         },
         components: {
+          Button: {
+            defaultShadow: 'none',
+            primaryShadow: 'none',
+            dangerShadow: 'none',
+          },
           Radio: {
             buttonSolidCheckedBg: resolvedTheme.primaryColor,
           },

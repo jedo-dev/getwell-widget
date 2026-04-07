@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import React, { useState } from 'react';
+import { FormField } from '../FormField/FormField';
 
 export enum DayOfWeek {
   Monday = 'MONDAY',
@@ -40,12 +41,12 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
   const hasValue = !!rest.value;
 
   return (
-    <div className='input-container'>
-      <div
-        className={`custom-placeholder ${hasValue || open ? 'has-value' : ''}`}
-        >
-        {text} <span className='redmark'>*</span>
-      </div>
+    <FormField
+      label={text}
+      required={Boolean(text)}
+      hasValue={hasValue}
+      isActive={open}
+      hidePlaceholderWhenActive={false}>
       <DatePicker
         {...rest}
         size='large'
@@ -55,7 +56,11 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
         onChange={(date) => {
           rest.onChange?.(date, date?.format('YYYY-MM-DD'));
         }}
-        style={{ height: '56px', width: '100%', borderBottom: '1px solid var(--widget-border-secondary)' }}
+        style={{
+          height: 'var(--widget-field-height)',
+          width: '100%',
+          borderBottom: '1px solid var(--widget-field-line-color)',
+        }}
         suffixIcon={null}
         locale={locale}
         format={'DD.MM.YYYY'}
@@ -65,7 +70,7 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
         variant='borderless'
         inputReadOnly
       />
-    </div>
+    </FormField>
   );
 };
 

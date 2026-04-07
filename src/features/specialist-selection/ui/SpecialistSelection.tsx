@@ -1,6 +1,7 @@
 import { RightOutlined } from '@ant-design/icons';
-import { Button, Input, List, Radio, Segmented, Skeleton, Tabs, Tag } from 'antd';
+import { Input, List, Segmented, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
+import SearchIcon from '../../../img/search.svg';
 import {
   getWidgetState,
   goToDateTimeSelection,
@@ -25,10 +26,10 @@ import {
   findNearestTimeslot,
   formatEmployeeFullName,
   formatNearestAppointmentDate,
+  localDateTimeToIso,
 } from '../../../shared/lib';
-import { Avatar, EmptyState, Notification } from '../../../shared/ui';
+import { ActionFooter, DoctorSelectionList, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
-import SearchIcon from '../../../img/search.svg';
 import './SpecialistSelection.css';
 
 export interface SpecialistSelectionProps {
@@ -60,13 +61,11 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   const [notification, setNotification] = useState<{ message: string } | null>(null);
   const [selectedTimechipKey, setSelectedTimechipKey] = useState<string | null>(null);
 
-  // Обновляем активную вкладку при изменении режима выбора
   useEffect(() => {
     if (selectionMode === SelectionMode.DEPARTMENT && showDepartments) {
       setActiveTab('department');
     } else {
       setActiveTab('name');
-      // Если отделения скрыты, но мы в режиме выбора отделения, переключаемся на специалиста
       if (selectionMode === SelectionMode.DEPARTMENT && !showDepartments) {
         goToSpecialistSelection();
       }
@@ -111,11 +110,14 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
 
   const handleDepartmentSelect = (departmentId: number) => {
     selectDepartment(departmentId);
-    // После выбора отделения переходим к списку врачей отделения
   };
 
   const handleSelectDateTime = () => {
     goToDateTimeSelection();
+  };
+
+  const handleContinueToPhoneInput = () => {
+    goToPhoneInput();
   };
 
   const handleDoctorInfo = () => {
@@ -126,18 +128,12 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     ? employees.find((emp) => emp.id === selectedEmployeeId)
     : null;
 
-  const selectedDepartment = selectedDepartmentId
-    ? departments.find((dept) => dept.id === selectedDepartmentId)
-    : null;
-
-  // Находим ближайший timeslot для выбранного врача
   const selectedEmployeeData = selectedEmployeeId
     ? doctorsWithSchedules.find((d) => d.employee.id === selectedEmployeeId)
     : undefined;
   const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
   const nearestAppointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
 
-  // Загружаем timechips для выбранного врача
   const isOnSpecialistSelectionStep = widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION;
   const {
     timechips,
@@ -149,35 +145,17 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     nearestAppointmentDate.date,
   );
 
-  // Преобразуем "YYYY-MM-DD HH:mm:ss" в "HH:mm"
-  const formatTimeFromDateTime = (dateTime: string): string => {
-    const [datePart, timePart] = dateTime.split(' ');
-    const [hh, mm] = timePart.split(':');
-    return `${hh}:${mm}`;
-  };
-
-  // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
-  const localDateTimeToIso = (dt: string): string => {
-    const [datePart, timePart] = dt.split(' ');
-    return `${datePart}T${timePart}`;
-  };
-
-  // Обработка клика на time-chip
   const handleTimeChipClick = async (timechip: AvailableTimechip) => {
     if (!selectedEmployeeId) return;
 
-    // Сохраняем department_id из timechip, если он есть
     if (timechip.department_id) {
       selectDepartmentOnly(timechip.department_id);
     }
 
-    // Сохраняем выбранного врача (уже выбран)
-    // Сохраняем слот from/to
     const fromIso = localDateTimeToIso(timechip.from);
     const toIso = localDateTimeToIso(timechip.to);
     selectDateTime(fromIso, toIso);
 
-    // Резервируем слот на 5 минут
     if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId) {
       try {
         const result = await schedulesApi.reserveTimeslot({
@@ -191,28 +169,21 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           uniqueHash: widgetState.reservedTimeslotHash || undefined,
         });
 
-        // Сохраняем unique_hash
         if (result.unique_hash) {
           setReservedTimeslotHash(result.unique_hash);
         }
       } catch (error: any) {
-        console.error('Ошибка резервирования слота:', error);
+        console.error('Error reserving slot:', error);
         if (error.code === 'DUPLICATE_ENTRY' || error.message === 'duplicate_entry') {
           setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
           return;
         }
-        // Продолжаем выполнение даже при другой ошибке резервирования
         return;
       }
     }
 
     setSelectedTimechipKey(`${timechip.from}_${timechip.to}`);
   };
-
-  // Показываем первые N слотов (8-12)
-  const MAX_VISIBLE_SLOTS = 10;
-  const visibleTimechips = timechips.slice(0, MAX_VISIBLE_SLOTS);
-  const hasTimechips = visibleTimechips.length > 0;
 
   const options = [
     { label: SELECTION_MODE_LABELS[SelectionMode.EMPLOYEE], value: 'name' },
@@ -231,6 +202,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           onClose={() => setNotification(null)}
         />
       )}
+
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
@@ -262,152 +234,24 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
             key: 'name',
             label: SELECTION_MODE_LABELS[SelectionMode.EMPLOYEE],
             children: (
-              <>
-                <Input
-                  placeholder='Поиск'
-                  prefix={
-                    <img
-                      src={SearchIcon}
-                      alt=''
-                      aria-hidden='true'
-                      className='specialist-selection-search-icon'
-                    />
-                  }
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className='specialist-selection-search'
+              <div className='specialist-selection-content'>
+                <DoctorSelectionList
+                  baseClass='specialist-selection'
+                  employees={filteredEmployees}
+                  doctorsWithSchedules={doctorsWithSchedules}
+                  selectedEmployeeId={selectedEmployeeId}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onEmployeeSelect={handleEmployeeSelect}
+                  showEmployeePosition={showEmployeePosition}
+                  loadingTimechips={loadingTimechips}
+                  timechips={timechips}
+                  timechipsError={timechipsError}
+                  selectedTimechipKey={selectedTimechipKey}
+                  onTimechipClick={handleTimeChipClick}
+                  onSelectDateTime={handleSelectDateTime}
                 />
-                <div className='specialist-selection-content'>
-                  {filteredEmployees.length > 0 ? (
-                    <List
-                      className='specialist-selection-list'
-                      dataSource={filteredEmployees}
-                      renderItem={(employee) => {
-                        const isSelected = selectedEmployeeId === employee.id;
-                        const fullName = formatEmployeeFullName(employee);
-                        const isCurrentEmployee = isSelected && employee.id === selectedEmployeeId;
-                        const doctorData = doctorsWithSchedules.find(
-                          (d) => d.employee.id === employee.id,
-                        );
-                        const nearestTimeslot = findNearestTimeslot(doctorData);
-                        const appointmentDate = formatNearestAppointmentDate(
-                          nearestTimeslot?.from || null,
-                        );
-                        const hasAppointment = !!appointmentDate.date;
-
-                        return (
-                          <List.Item
-                            className={`specialist-selection-item ${isSelected ? 'selected' : ''} ${
-                              !hasAppointment ? 'disabled' : ''
-                            }`}
-                            onClick={() => {
-                              // Отключаем клик, если нет ближайшей записи
-                              if (hasAppointment) {
-                                handleEmployeeSelect(employee.id);
-                              }
-                            }}>
-                            <div className='specialist-selection-item-content'>
-                              <div className='specialist-selection-item-content-left'>
-                                <div className='specialist-selection-item-left'>
-                                  <Avatar
-                                    src={employee.photo}
-                                    alt={fullName}
-                                    size='medium'
-                                    className='specialist-selection-avatar'
-                                  />
-                                  <div className='specialist-selection-item-info'>
-                                    <div className='specialist-selection-item-name'>{fullName}</div>
-                                    {showEmployeePosition && (
-                                      <div className='specialist-selection-item-specialization'>
-                                        {employee.specialization}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className='specialist-selection-item-appointment'>
-                                  Ближайшее время приёма: <Tag>{appointmentDate.text}</Tag>
-                                </div>
-                                {isCurrentEmployee && (
-                                  <>
-                                    {loadingTimechips && (
-                                      <div className='specialist-selection-time-slots'>
-                                        <Skeleton.Button active size='small' block={false} />
-                                        <Skeleton.Button active size='small' block={false} />
-                                        <Skeleton.Button active size='small' block={false} />
-                                      </div>
-                                    )}
-                                    {!loadingTimechips && hasTimechips && (
-                                      <div className='specialist-selection-time-slots'>
-                                        {visibleTimechips.map((timechip, index) => {
-                                          const timeStr = formatTimeFromDateTime(timechip.from);
-                                          const isDisabled = timechip.is_limited;
-                                          return (
-                                            <button
-                                              key={`${timechip.from}-${index}`}
-                                              className={`specialist-selection-time-slot ${
-                                                selectedTimechipKey === `${timechip.from}_${timechip.to}`
-                                                  ? 'selected'
-                                                  : ''
-                                              } ${
-                                                isDisabled ? 'disabled' : ''
-                                              }`}
-                                              type='button'
-                                              disabled={isDisabled}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (!isDisabled) {
-                                                  handleTimeChipClick(timechip);
-                                                }
-                                              }}>
-                                              {timeStr}
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                    {!loadingTimechips && !hasTimechips && !timechipsError && (
-                                      <div className='specialist-selection-no-slots'>
-                                        <div className='specialist-selection-no-slots-text'>
-                                          Нет слотов на сегодня
-                                        </div>
-                                        <Button
-                                          type='link'
-                                          className='specialist-selection-select-date-btn'
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleSelectDateTime();
-                                          }}>
-                                          Выбрать дату и время
-                                        </Button>
-                                      </div>
-                                    )}
-                                    {!loadingTimechips && timechipsError && (
-                                      <div className='specialist-selection-no-slots'>
-                                        <Button
-                                          type='link'
-                                          className='specialist-selection-select-date-btn'
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleSelectDateTime();
-                                          }}>
-                                          Выбрать дату и время
-                                        </Button>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                              <Radio checked={isSelected} />
-                            </div>
-                          </List.Item>
-                        );
-                      }}
-                    />
-                  ) : (
-                    <EmptyState description='Специалисты не найдены' />
-                  )}
-                </div>
-              </>
+              </div>
             ),
           },
           ...(showDepartments
@@ -437,7 +281,6 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                           className='specialist-selection-list'
                           dataSource={filteredDepartments}
                           renderItem={(department) => {
-                            console.log(department);
                             const isSelected = selectedDepartmentId === department.id;
 
                             return (
@@ -472,25 +315,15 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       />
 
       {selectedEmployee && selectionMode === SelectionMode.EMPLOYEE && (
-        <div className='specialist-selection-footer'>
-          {showDoctorInfo && (
-            <Button
-              className='specialist-selection-footer-btn secondary'
-              onClick={handleDoctorInfo}>
-              О враче
-            </Button>
-          )}
-          <Button
-            type='primary'
-            className='specialist-selection-footer-btn primary'
-            onClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}>
-            {selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
-          </Button>
-        </div>
+        <ActionFooter
+          className='specialist-selection-footer'
+          showSecondary={showDoctorInfo}
+          secondaryLabel='О враче'
+          onSecondaryClick={handleDoctorInfo}
+          primaryLabel={selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
+          onPrimaryClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}
+        />
       )}
     </div>
   );
 };
-  const handleContinueToPhoneInput = () => {
-    goToPhoneInput();
-  };

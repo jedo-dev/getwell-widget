@@ -26,4 +26,14 @@
   --widget-button-text: #ffffff;
   --widget-scrollbar-color: #344054;
   --widget-tag-background: #1c29360d;
+  --widget-field-height: 56px;
+  --widget-field-line-color: #eaecf0;
+  --widget-field-label-color: #999999;
+  --widget-field-label-font-size: 16px;
+  --widget-field-label-line-height: 24px;
+  --widget-field-label-active-font-size: 10px;
+  --widget-field-label-active-line-height: 10px;
+  --widget-field-padding-left: 12px;
+  --widget-field-padding-top-default: 12px;
+  --widget-field-padding-top-filled: 18px;
 }

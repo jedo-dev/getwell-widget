@@ -10,7 +10,7 @@ interface TimechipCacheKey {
   date: string;
 }
 
-// Кэш на уровне сессии
+// Session-level cache
 const timechipCache = new Map<string, AvailableTimechip[]>();
 
 function getCacheKey(key: TimechipCacheKey): string {
@@ -24,12 +24,12 @@ interface UseTimechipsResult {
 }
 
 /**
- * Хук для загрузки timechips с кэшированием
+ * Hook for loading timechips with caching.
  */
 export function useTimechips(
   doctorId: number | null,
   enabled: boolean = true,
-  date?: string | null, // YYYY-MM-DD HH:mm:ss - опциональная дата для запроса
+  date?: string | null, // YYYY-MM-DD HH:mm:ss - optional request date
 ): UseTimechipsResult {
   const [timechips, setTimechips] = useState<AvailableTimechip[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -53,10 +53,10 @@ export function useTimechips(
       return;
     }
 
-    // Используем переданную дату или формируем дату на сегодня в 00:00:00
+    // Use provided date or today's midnight in local time
     const requestDate = date || formatLocalMidnight(new Date());
 
-    // Проверяем кэш
+    // Read cache
     const cacheKey: TimechipCacheKey = {
       filialId,
       doctorId,
@@ -72,7 +72,7 @@ export function useTimechips(
       return;
     }
 
-    // Загружаем данные
+    // Load data
     setLoading(true);
     setError(null);
 
@@ -86,13 +86,13 @@ export function useTimechips(
         departmentId,
       })
       .then((data) => {
-        // Кэшируем результат
+        // Save to cache
         timechipCache.set(key, data);
         setTimechips(data);
         setError(null);
       })
       .catch((err) => {
-        console.error('Ошибка загрузки timechips:', err);
+        console.error('Error loading timechips:', err);
         setError(err instanceof Error ? err : new Error('Failed to load timechips'));
         setTimechips([]);
       })

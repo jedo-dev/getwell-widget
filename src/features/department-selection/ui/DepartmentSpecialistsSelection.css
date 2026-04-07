@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: linear-gradient(#ffffff00, #ffffff);
 }
 
 .department-specialists-selection-header {
@@ -38,22 +39,41 @@
   gap: 2px;
   flex: 1;
   overflow: hidden;
-  .ant-input-outlined:focus-within {
-    border-color: unset !important;
-    box-shadow: unset !important;
-  }
-  .ant-list-item {
-    border-radius: 16px;
-  }
-  .ant-list-items {
-    border-radius: 16px 16px 0 0;
-    background: white;
-  }
+  margin-top: 2px;
+}
+
+.department-specialists-selection-content .ant-input-outlined:focus-within {
+  border-color: unset !important;
+  box-shadow: unset !important;
+}
+
+.department-specialists-selection-content .ant-list-item {
+  border-radius: 16px;
+}
+
+.department-specialists-selection-content .ant-list-items {
+  border-radius: 16px 16px 0 0;
+  background: white;
 }
 
 .department-specialists-selection-search {
   padding: 20px;
   border-radius: 16px;
+}
+
+.department-specialists-selection-search.ant-input-affix-wrapper,
+.department-specialists-selection-search.ant-input-affix-wrapper:hover,
+.department-specialists-selection-search.ant-input-affix-wrapper:focus,
+.department-specialists-selection-search.ant-input-affix-wrapper:focus-within,
+.department-specialists-selection-search.ant-input-affix-wrapper-focused,
+.department-specialists-selection-search.ant-input-outlined,
+.department-specialists-selection-search.ant-input-outlined:hover,
+.department-specialists-selection-search.ant-input-outlined:focus,
+.department-specialists-selection-search.ant-input-outlined:focus-within {
+  border-color: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .department-specialists-selection-search .ant-input-affix-wrapper {
@@ -230,30 +250,6 @@
 .department-specialists-selection .ant-radio:hover .ant-radio-inner,
 .department-specialists-selection .ant-radio-input:focus + .ant-radio-inner {
   border-color: #344054;
-}
-
-.department-specialists-selection-footer {
-  background: white;
-  display: flex;
-  gap: 12px;
-  padding: 16px 0;
-  border-top: 1px solid #f0f0f0;
-  margin-top: auto;
-}
-
-.department-specialists-selection-footer-btn {
-  flex: 1;
-}
-
-.department-specialists-selection-footer-btn.secondary {
-  background-color: #f5f5f5;
-  border-color: #d9d9d9;
-  color: rgba(0, 0, 0, 0.85);
-}
-
-.department-specialists-selection-footer-btn.secondary:hover {
-  background-color: #e6e6e6;
-  border-color: #bfbfbf;
 }
 
 .department-specialists-selection-time-slots {

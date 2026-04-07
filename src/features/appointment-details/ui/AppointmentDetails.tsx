@@ -1,4 +1,4 @@
-import { DownOutlined } from '@ant-design/icons';
+import { CheckOutlined, DownOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -53,11 +53,41 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   phone: initialPhone,
   isNewUser = false,
 }) => {
+  const normalizeGenderValue = (value?: string | null): Gender | undefined => {
+    if (!value) {
+      return undefined;
+    }
+
+    const normalized = value.trim().toLowerCase();
+    if (
+      normalized === Gender.MALE ||
+      normalized === 'мужской' ||
+      normalized === 'мужчина' ||
+      normalized === 'самец'
+    ) {
+      return Gender.MALE;
+    }
+
+    if (
+      normalized === Gender.FEMALE ||
+      normalized === 'женский' ||
+      normalized === 'женщина' ||
+      normalized === 'самка'
+    ) {
+      return Gender.FEMALE;
+    }
+
+    return undefined;
+  };
+
   const maxBirthDate = dayjs().endOf('day');
   const widgetState = getWidgetState();
   const appointmentDetailsDraft = widgetState.appointmentDetailsDraft;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const { genders: petGenders, getLabel: getPetGenderLabel, getId } = usePetGenders();
+  const [ownerData, setOwnerData] = useState<WidgetState['ownerData'] | null>(
+    widgetState.ownerData ?? null,
+  );
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
@@ -89,8 +119,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     appointmentDetailsDraft?.petSpecies || '',
   );
   const [petBreed, setPetBreed] = useState<string>(appointmentDetailsDraft?.petBreed || '');
-  const [petGender, setPetGender] = useState<string | undefined>(
-    appointmentDetailsDraft?.petGender,
+  const [petGender, setPetGender] = useState<Gender | undefined>(
+    normalizeGenderValue(appointmentDetailsDraft?.petGender) || Gender.FEMALE,
   );
   const [petBirthDate, setPetBirthDate] = useState<Dayjs | null>(
     appointmentDetailsDraft?.petBirthDate ? dayjs(appointmentDetailsDraft.petBirthDate) : null,
@@ -114,6 +144,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     const unsubscribe = subscribeToStateChange((state) => {
       setSelectedPatientTypeId(state.selectedPatientTypeId);
       setSelectedBreedId(state.selectedBreedId);
+      setOwnerData(state.ownerData ?? null);
     });
     return unsubscribe;
   }, []);
@@ -145,15 +176,21 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   // Инициализируем petGender первым элементом из petGenders, когда они загрузятся
   useEffect(() => {
-    if (petGenders.length) {
-      setPetGender(petGenders[0].name);
+    if (!petGenders.length) {
+      return;
     }
-  }, [petGenders.length]);
+    const normalizedCurrentGender = normalizeGenderValue(petGender);
+    const hasCurrentGender = petGenders.some(
+      (g) => g.code === normalizedCurrentGender || normalizeGenderValue(g.name) === normalizedCurrentGender,
+    );
+    if (!hasCurrentGender || !normalizedCurrentGender) {
+      setPetGender(Gender.FEMALE);
+      return;
+    }
+    setPetGender(normalizedCurrentGender);
+  }, [petGenders, petGender]);
 
   useEffect(() => {
-    const state = getWidgetState();
-    const ownerData = state.ownerData;
-
     // Если есть данные владельца, используем их
     if (ownerData && ownerData.patients) {
       if (ownerData.patients.length > 0) {
@@ -174,11 +211,16 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         });
 
         setPets(petsFromOwner);
-        if (petsFromOwner.length > 0 && !selectedPetId) {
-          const firstPetId = petsFromOwner[0].id || null;
-          setSelectedPetId(firstPetId);
-          if (firstPetId) {
-            selectPet(firstPetId);
+        if (petsFromOwner.length > 0) {
+          const hasSelected = selectedPetId
+            ? petsFromOwner.some((pet) => pet.id === selectedPetId)
+            : false;
+          const nextPetId = hasSelected ? selectedPetId : petsFromOwner[0].id || null;
+          if (nextPetId !== selectedPetId) {
+            setSelectedPetId(nextPetId);
+          }
+          if (nextPetId) {
+            selectPet(nextPetId);
           }
         }
       } else {
@@ -195,11 +237,16 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           const response = await petsApi.getByPhone(phone);
           if (response.success && response.data) {
             setPets(response.data);
-            if (response.data.length > 0 && !selectedPetId) {
-              const firstPetId = response.data[0].id || null;
-              setSelectedPetId(firstPetId);
-              if (firstPetId) {
-                selectPet(firstPetId);
+            if (response.data.length > 0) {
+              const hasSelected = selectedPetId
+                ? response.data.some((pet) => pet.id === selectedPetId)
+                : false;
+              const nextPetId = hasSelected ? selectedPetId : response.data[0].id || null;
+              if (nextPetId !== selectedPetId) {
+                setSelectedPetId(nextPetId);
+              }
+              if (nextPetId) {
+                selectPet(nextPetId);
               }
             }
           }
@@ -223,9 +270,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   useEffect(() => {
     // Заполняем данные пользователя из ownerData, если они есть
-    const state = getWidgetState();
-    const ownerData = state.ownerData;
-
     if (ownerData && !isNewUser) {
       // Заполняем поля пользователя из ownerData
       if (ownerData.name && !firstName) {
@@ -244,7 +288,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNewUser]);
+  }, [isNewUser, ownerData, firstName, lastName, patronymic, gender]);
 
   // Загрузка пород при входе на шаг (только для нового пользователя и в online режиме)
   useEffect(() => {
@@ -552,6 +596,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     goBack();
   };
 
+  const isOwnerRecognized = Boolean(ownerData && !isNewUser);
+
   const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => ({
     selectedPetId,
     selectedPatientTypeId,
@@ -571,7 +617,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   });
 
   return (
-    <div className='appointment-details'>
+    <div className={`appointment-details ${isNewUser ? 'appointment-details--new-user' : ''}`}>
       <AddPetModal
         open={isAddPetModalOpen}
         onClose={() => setIsAddPetModalOpen(false)}
@@ -639,7 +685,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   value={phone}
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneConfirm}
-                  maxLength={17}
+                  maxLength={32}
                   size='large'
                   autoFocus
                 />
@@ -648,10 +694,12 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             ) : (
               <div className='appointment-details-phone-display'>
                 <div className='appointment-details-phone-display-content'>
-                  <span className='appointment-details-phone-code'>+7</span>
-                  <span className='appointment-details-phone-number'>
-                    {phone ? phone.replace(/^\+7\s?/, '') : ''}
-                  </span>
+                  <span className='appointment-details-phone-number'>{phone}</span>
+                  {isOwnerRecognized && (
+                    <span className='appointment-details-phone-check' aria-label='Номер подтвержден'>
+                      <CheckOutlined />
+                    </span>
+                  )}
 
                   <button className='appointment-details-phone-change' onClick={handlePhoneEdit}>
                     изменить
@@ -692,7 +740,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <Radio.Group
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className='appointment-details-gender-group'>
+                  className='appointment-details-gender-group gw-segmented'>
                   <Radio.Button value={Gender.MALE}>{GENDER_LABELS[Gender.MALE]}</Radio.Button>
                   <Radio.Button value={Gender.FEMALE}>{GENDER_LABELS[Gender.FEMALE]}</Radio.Button>
                 </Radio.Group>
@@ -805,17 +853,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <Radio.Group
                   value={petGender}
                   onChange={(e) => setPetGender(e.target.value)}
-                  className='appointment-details-gender-group'>
-                  {petGenders.map((gender) => (
-                    <Radio.Button key={gender.name} value={gender.name}>
-                      {gender.name}
-                    </Radio.Button>
-                  ))}
+                  className='appointment-details-gender-group gw-segmented'>
+                  <Radio.Button value={Gender.FEMALE}>Женский</Radio.Button>
+                  <Radio.Button value={Gender.MALE}>Мужской</Radio.Button>
                 </Radio.Group>
               </div>
               <div className='appointment-details-field'>
                 <CustomDatepicker
-                  text='Дата рождения *'
+                  text='Дата рождения'
                   value={petBirthDate}
                   onChange={(date) => {
                     setPetBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
@@ -863,18 +908,20 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               </a>
             </Checkbox>
 
-            <Checkbox
-              checked={consentMarketing}
-              onChange={(e) => setConsentMarketing(e.target.checked)}
-              className='appointment-details-consent-checkbox'>
-              Согласен на получение сообщений и информационно-рекламной рассылки
-            </Checkbox>
+            {!isNewUser && (
+              <Checkbox
+                checked={consentMarketing}
+                onChange={(e) => setConsentMarketing(e.target.checked)}
+                className='appointment-details-consent-checkbox'>
+                Согласен на получение сообщений и информационно-рекламной рассылки
+              </Checkbox>
+            )}
           </div>
 
           <div className='appointment-details-footer'>
             <Button
               type='primary'
-              className='appointment-details-submit-btn'
+              className='appointment-details-submit-btn gw-primary-btn'
               block
               onClick={handleSubmit}
               disabled={

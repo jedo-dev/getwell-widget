@@ -1,7 +1,7 @@
 import { Input } from 'antd';
 import type { TextAreaProps } from 'antd/es/input';
 import React from 'react';
-
+import { FormField } from '../FormField/FormField';
 
 interface CustomTextAreaProps extends TextAreaProps {
   text: string;
@@ -10,26 +10,21 @@ interface CustomTextAreaProps extends TextAreaProps {
 const CustomTextArea: React.FC<CustomTextAreaProps> = ({ text, ...rest }) => {
   const hasValue = !!rest.value;
   return (
-    <div className='input-container'>
-      <div
-        className={`custom-placeholder ${hasValue ? 'has-value custom-placeholder-hidden' : ''}`}>
-        {text} <span className='redmark'></span>
-      </div>
+    <FormField label={text} hasValue={hasValue}>
       <Input.TextArea
         {...rest}
         size='large'
-
         style={{
-          paddingTop: `${hasValue ? '12px' : '12px'}`,
+          paddingTop: 'var(--widget-field-padding-top-default)',
           overflowY: 'auto',
           resize: 'none',
-          borderBottom: '1px solid var(--widget-border-secondary)'
+          borderBottom: '1px solid var(--widget-field-line-color)',
         }}
-         variant='borderless'
+        variant='borderless'
         rows={1}
         maxLength={100}
       />
-    </div>
+    </FormField>
   );
 };
 

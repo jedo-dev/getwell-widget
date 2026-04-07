@@ -1,155 +1,211 @@
 .add-pet-modal-wrap {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+.add-pet-modal-wrap .ant-modal {
+  margin: 0 0 0 auto;
+  padding-bottom: 0;
 }
 
 .add-pet-modal {
   position: relative;
   margin: 0;
-  max-width: 100%;
+  max-width: 600px !important;
+  width: 600px !important;
   padding-bottom: 0;
   top: auto !important;
 }
 
 .add-pet-modal .ant-modal-content {
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
   padding: 0;
   margin: 0;
-  max-height: 90vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-shadow: none;
 }
 
 .add-pet-modal .ant-modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #f0f0f0;
-  border-radius: 16px 16px 0 0;
+  margin: 0;
+  padding: 20px;
+  border-bottom: none;
 }
 
-.add-pet-modal .ant-modal-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.85);
+.add-pet-modal-title {
+  margin: 0;
+  font-family: 'Onest', sans-serif;
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 500;
+  color: #101828;
+}
+
+.add-pet-modal .ant-modal-close {
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
 }
 
 .add-pet-modal-close {
-  font-size: 24px;
-  color: rgba(0, 0, 0, 0.45);
-  cursor: pointer;
-  line-height: 1;
-  transition: color 0.2s;
-}
-
-.add-pet-modal-close:hover {
-  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  color: #98a2b3;
 }
 
 .add-pet-modal-content {
-  padding: 24px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  flex: 1;
-  overflow-y: auto;
+  gap: 24px;
 }
 
 .add-pet-modal-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-.add-pet-modal-label {
+.add-pet-modal-line-input,
+.add-pet-modal-line-select,
+.add-pet-modal-line-datepicker {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-bottom: 1px solid #eaecf0;
+  border-radius: 4px 4px 0 0;
+  background: #ffffff;
+  box-shadow: none;
+  padding: 0;
+}
+
+.add-pet-modal-line-input {
+  font-family: 'Onest', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #101828;
+}
+
+.add-pet-modal-line-input::placeholder {
+  color: #777777;
+  opacity: 1;
+}
+
+.add-pet-modal-line-input.ant-input {
+  height: 44px !important;
+  border-bottom: 1px solid #eaecf0 !important;
+  padding: 10px 8px !important;
+}
+
+.add-pet-modal-line-select .ant-select-selector,
+.add-pet-modal-line-datepicker .ant-picker {
+  border: none !important;
+  box-shadow: none !important;
+  height: 44px !important;
+  border-bottom: 1px solid #eaecf0 !important;
+  border-radius: 4px 4px 0 0 !important;
+  padding: 10px 8px !important;
+  font-family: 'Onest', sans-serif;
+  font-size: 16px;
+  color: #101828;
+  background: #ffffff !important;
+}
+
+.add-pet-modal-datepicker.ant-picker {
+  width: 100%;
+  height: 44px !important;
+  padding: 10px 8px !important;
+  border: none !important;
+  border-bottom: 1px solid #eaecf0 !important;
+  border-radius: 4px 4px 0 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.add-pet-modal-datepicker.ant-picker-outlined,
+.add-pet-modal-datepicker.ant-picker-outlined:hover,
+.add-pet-modal-datepicker.ant-picker-outlined:focus,
+.add-pet-modal-datepicker.ant-picker-outlined:focus-within {
+  border: none !important;
+  border-bottom: 1px solid #eaecf0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.add-pet-modal-line-select .ant-select-selection-placeholder,
+.add-pet-modal-line-datepicker .ant-picker-input > input::placeholder {
+  color: #777777;
+}
+
+.add-pet-modal-date-icon {
+  color: #98a2b3;
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.85);
 }
 
-.add-pet-modal-required {
-  color: #ff4d4f;
+.add-pet-modal-line-datepicker .ant-picker-input > input {
+  font-family: 'Onest', sans-serif;
+  font-size: 16px;
+  color: #101828;
 }
 
-.add-pet-modal-field .ant-input,
-.add-pet-modal-field .ant-select-selector {
-  height: 48px;
-  border-radius: 8px;
-}
-
-.add-pet-modal-field .ant-input.error,
-.add-pet-modal-field .ant-select.error .ant-select-selector {
-  border-color: #ff4d4f;
+.add-pet-modal-gender-field {
+  padding-top: 8px;
 }
 
 .add-pet-modal-gender {
-  width: 100%;
-  display: flex;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper {
-  flex: 1;
-  text-align: center;
-  height: 48px;
-  line-height: 48px;
-  border: none;
-  background: #f4f4f5;
-  color: #101828;
-  font-family: Onest, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper:first-child {
-  border-radius: 12px 0 0 12px;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper:last-child {
-  border-radius: 0 12px 12px 0;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper::before {
-  display: none;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-  background: #344054;
-  color: #ffffff;
-  font-weight: 500;
-  box-shadow: none;
-}
-
-.add-pet-modal-gender
-  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-  background: #344054;
-  color: #ffffff;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper:hover {
-  color: #101828;
-}
-
-.add-pet-modal-datepicker {
-  width: 100%;
-  height: 48px;
-}
-
-.add-pet-modal-datepicker.error {
-  border-color: #ff4d4f;
+  --gw-segmented-radius: 64px;
+  --gw-segmented-height: 44px;
+  --gw-segmented-font-size: 16px;
+  --gw-segmented-active-hover-bg: #344054;
 }
 
 .add-pet-modal-error {
   font-size: 12px;
   color: #ff4d4f;
-  margin-top: -4px;
+  margin-top: -2px;
 }
 
 .add-pet-modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #f0f0f0;
+  padding: 24px 20px 20px;
 }
 
 .add-pet-modal-save-btn {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
+  --gw-btn-radius: 64px;
+  --gw-btn-hover-bg: #2d3b4f;
 }
 
+.add-pet-modal-line-input.error,
+.add-pet-modal-line-select.error,
+.add-pet-modal-line-select.error .ant-select-selector,
+.add-pet-modal-line-datepicker.error .ant-picker,
+.add-pet-modal-datepicker.error,
+.add-pet-modal-datepicker.error.ant-picker,
+.add-pet-modal-datepicker.error.ant-picker-outlined,
+.add-pet-modal-datepicker.error.ant-picker-outlined:focus-within {
+  border-bottom-color: #ff4d4f !important;
+}
+
+@media (max-width: 768px) {
+  .add-pet-modal-wrap {
+    padding: 0;
+    justify-content: center;
+  }
+
+  .add-pet-modal {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .add-pet-modal .ant-modal-content {
+    border-radius: 16px 16px 0 0;
+  }
+
+  .add-pet-modal-title {
+    font-size: 20px;
+    line-height: 24px;
+    letter-spacing: -0.4px;
+  }
+}

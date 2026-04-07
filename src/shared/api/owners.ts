@@ -1,5 +1,6 @@
 import { apiClient } from './instance';
 import { normalizeExternalBaseUrl } from './external-base-url';
+import { normalizePhoneForLookup } from '../lib';
 
 type ExternalStatus = 'ok' | 'error';
 
@@ -72,7 +73,7 @@ export const ownersApi = {
    */
   async getByPhone(params: { apiUrl: string; phone: string }): Promise<OwnersShortResponse> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
-    const phoneDigits = params.phone.replace(/[^\d]/g, '');
+    const phoneDigits = normalizePhoneForLookup(params.phone);
     const endpoint = `${base}/widgets/online-appointment/owners/short`;
 
     const res = await apiClient.get<OwnersShortResponse>(endpoint, {

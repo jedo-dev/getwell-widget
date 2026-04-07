@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: linear-gradient(#ffffff00, #ffffff);
 }
 
 .specialist-selection-header {
@@ -49,9 +50,9 @@
 .specialist-selection-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  /* gap: 2px; */
   min-height: 200px;
-  margin-top: 2px;
+  /* margin-top: 2px; */
   height: -webkit-fill-available;
 }
 
@@ -59,6 +60,22 @@
   padding: 20px;
   border-radius: 16px;
   box-shadow: unset !important;
+  margin-bottom: 2px;
+}
+
+.specialist-selection-search.ant-input-affix-wrapper,
+.specialist-selection-search.ant-input-affix-wrapper:hover,
+.specialist-selection-search.ant-input-affix-wrapper:focus,
+.specialist-selection-search.ant-input-affix-wrapper:focus-within,
+.specialist-selection-search.ant-input-affix-wrapper-focused,
+.specialist-selection-search.ant-input-outlined,
+.specialist-selection-search.ant-input-outlined:hover,
+.specialist-selection-search.ant-input-outlined:focus,
+.specialist-selection-search.ant-input-outlined:focus-within {
+  border-color: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .specialist-selection-search .ant-input-affix-wrapper {
@@ -102,34 +119,42 @@
   border-radius: 16px 16px 0 0;
 }
 
+.specialist-selection-list.ant-list-split .ant-list-item {
+  border-block-end: none;
+  border-bottom: 1px solid #f0f0f0;
+}
+
 .specialist-selection-item {
   padding: 20px !important;
   cursor: pointer;
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0;
   transition: background-color 0.2s;
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .specialist-selection-item:hover {
   background-color: #fafafa;
-  border-radius: 16px;
 }
 
 .specialist-selection-item.selected {
   background-color: #ffffff;
-  border-radius: 16px;
 }
 
 .specialist-selection-item:last-child {
   border-bottom: none;
 }
 
+.specialist-selection-list.ant-list-split .ant-list-item:first-child:hover {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
 .specialist-selection-item-content {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
+  /* display: flex;
+  align-items: center;
+  justify-content: space-between; */
+  position: relative;
   width: 100%;
-  gap: 16px;
+  /* gap: 16px; */
 }
 
 .specialist-selection-item-left {
@@ -166,6 +191,13 @@
 .specialist-selection-item-info {
   flex: 1;
   min-width: 0;
+  max-width: 450px;
+}
+
+@media (max-width: 768px) {
+  .specialist-selection-item-info {
+    max-width: 250px;
+  }
 }
 
 .specialist-selection-item-name {
@@ -208,10 +240,15 @@
   font-size: 16px;
   color: var(--widget-text-tertiary);
   flex-shrink: 0;
+  position: absolute;
+  right: 0;
+  top: calc(50% - 8px);
 }
 
 .specialist-selection .ant-radio-wrapper {
-  align-self: flex-start;
+  position: absolute;
+  right: 0;
+  top: 7px;
 }
 
 .specialist-selection .ant-radio {
@@ -245,40 +282,10 @@
 }
 
 .specialist-selection-footer {
-  background: white;
-  display: flex;
-  gap: 12px;
-  padding: 16px 20px;
-  margin-top: auto;
-  button {
-    height: 48px !important;
-    border-radius: 64px !important;
-    font-family: Onest;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 16px;
-    leading-trim: NONE;
-    line-height: 24px;
-    letter-spacing: 0%;
-  }
-}
-
-.specialist-selection-footer-btn {
-  flex: 1;
-}
-
-.specialist-selection-footer-btn.secondary {
-  background-color: #f5f5f5;
-  border-color: #d9d9d9;
-  color: rgba(0, 0, 0, 0.85);
-  flex: 1;
-}
-.specialist-selection-footer-btn.primary {
-  flex: 2;
-}
-.specialist-selection-footer-btn.secondary:hover {
-  background-color: #e6e6e6;
-  border-color: #bfbfbf;
+  --gw-action-footer-padding: 16px 20px;
+  --gw-action-footer-gap: 12px;
+  --gw-action-footer-secondary-flex: 1;
+  --gw-action-footer-primary-flex: 2;
 }
 
 .specialist-selection-time-slots {
@@ -308,15 +315,14 @@
   text-align: center;
 
   font-family: Onest;
-font-weight: 400;
-font-style: Regular;
-font-size: 16px;
-leading-trim: NONE;
-line-height: 20px;
-letter-spacing: 0%;
-text-align: center;
-vertical-align: middle;
-
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  leading-trim: NONE;
+  line-height: 20px;
+  letter-spacing: 0%;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .specialist-selection-time-slot:hover {

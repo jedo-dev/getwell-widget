@@ -264,25 +264,5 @@
 }
 
 .phone-input-submit-btn {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Onest', sans-serif;
-  line-height: 24px;
-  background-color: var(--widget-button-primary);
-  border-color: var(--widget-button-primary);
-  border-radius: 64px;
-  color: var(--widget-button-text);
-}
-
-.phone-input-submit-btn:hover:not(:disabled) {
-  background-color: var(--widget-button-primary-hover);
-  border-color: var(--widget-button-primary-hover);
-}
-
-.phone-input-submit-btn:disabled {
-  background-color: var(--widget-text-disabled);
-  border-color: var(--widget-text-disabled);
-  color: var(--widget-button-text);
-  opacity: 1;
+  --gw-btn-radius: 64px;
 }
