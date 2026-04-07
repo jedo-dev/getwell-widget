@@ -92,14 +92,14 @@
   --gw-action-footer-gap: 12px;
   --gw-action-footer-secondary-flex: 1;
   --gw-action-footer-primary-flex: 2;
-  background: #ffffff;
+  background: transparent;
   backdrop-filter: blur(2px);
   display: flex;
   gap: var(--gw-action-footer-gap);
   padding: var(--gw-action-footer-padding);
   margin-top: auto;
   position: sticky;
-  bottom: 0;
+  bottom: 50px;
   left: 0;
   right: 0;
   z-index: 5;

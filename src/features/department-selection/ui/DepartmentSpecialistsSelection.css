@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: linear-gradient(#ffffff00, #ffffff);
 }
 
 .department-specialists-selection-header {

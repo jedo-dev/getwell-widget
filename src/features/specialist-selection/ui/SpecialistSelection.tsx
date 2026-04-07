@@ -1,6 +1,7 @@
 import { RightOutlined } from '@ant-design/icons';
 import { Input, List, Segmented, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
+import SearchIcon from '../../../img/search.svg';
 import {
   getWidgetState,
   goToDateTimeSelection,
@@ -29,7 +30,6 @@ import {
 } from '../../../shared/lib';
 import { ActionFooter, DoctorSelectionList, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
-import SearchIcon from '../../../img/search.svg';
 import './SpecialistSelection.css';
 
 export interface SpecialistSelectionProps {
@@ -145,7 +145,6 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     nearestAppointmentDate.date,
   );
 
-
   const handleTimeChipClick = async (timechip: AvailableTimechip) => {
     if (!selectedEmployeeId) return;
 
@@ -203,6 +202,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           onClose={() => setNotification(null)}
         />
       )}
+
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
