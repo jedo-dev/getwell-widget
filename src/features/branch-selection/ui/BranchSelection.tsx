@@ -11,7 +11,10 @@ export interface BranchSelectionProps {
   yandexMapFrameCode?: string;
 }
 
-export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yandexMapFrameCode }) => {
+export const BranchSelection: React.FC<BranchSelectionProps> = ({
+  branches,
+  yandexMapFrameCode,
+}) => {
   const [activeTab, setActiveTab] = useState<string>('list');
   const iframe =
     yandexMapFrameCode ||
@@ -41,17 +44,19 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yand
 
       <div className='branch-selection-content-holder'>
         {activeTab === 'map' ? (
-          <div className='branch-selection-content'>
+          <div className='branch-selection-content branch-selection-content--map'>
             <div className='branch-map-placeholder' dangerouslySetInnerHTML={{ __html: iframe }} />
           </div>
         ) : (
-          <div className='branch-selection-content'>
+          <div className='branch-selection-content branch-selection-content--list'>
             {branches.length > 0 ? (
               <div className='branch-selection-list'>
                 <List
                   dataSource={branches}
                   renderItem={(branch) => (
-                    <List.Item className='branch-item' onClick={() => handleBranchSelect(branch.id)}>
+                    <List.Item
+                      className='branch-item'
+                      onClick={() => handleBranchSelect(branch.id)}>
                       <div className='branch-item-content'>
                         <div className='branch-item-info'>
                           <div className='branch-item-name'>{branch.name}</div>
@@ -64,7 +69,7 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yand
                 />
               </div>
             ) : (
-              <EmptyState description='������� �� �������' />
+              <EmptyState description='Филиалы не найдены' />
             )}
           </div>
         )}

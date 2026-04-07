@@ -25,6 +25,8 @@ import {
   findNearestTimeslot,
   formatEmployeeFullName,
   formatNearestAppointmentDate,
+  formatTimeFromDateTime,
+  localDateTimeToIso,
 } from '../../../shared/lib';
 import { Avatar, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
@@ -153,18 +155,6 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     nearestAppointmentDate.date,
   );
 
-  // Преобразуем "YYYY-MM-DD HH:mm:ss" в "HH:mm"
-  const formatTimeFromDateTime = (dateTime: string): string => {
-    const [datePart, timePart] = dateTime.split(' ');
-    const [hh, mm] = timePart.split(':');
-    return `${hh}:${mm}`;
-  };
-
-  // Преобразуем "YYYY-MM-DD HH:mm:ss" (локальное время) -> ISO строка
-  const localDateTimeToIso = (dt: string): string => {
-    const [datePart, timePart] = dt.split(' ');
-    return `${datePart}T${timePart}`;
-  };
 
   // Обработка клика на time-chip
   const handleTimeChipClick = async (timechip: AvailableTimechip) => {
@@ -495,3 +485,4 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     </div>
   );
 };
+
