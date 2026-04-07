@@ -38,6 +38,7 @@
   gap: 2px;
   flex: 1;
   overflow: hidden;
+  margin-top: 2px;
 }
 
 .department-specialists-selection-content .ant-input-outlined:focus-within {
@@ -57,6 +58,21 @@
 .department-specialists-selection-search {
   padding: 20px;
   border-radius: 16px;
+}
+
+.department-specialists-selection-search.ant-input-affix-wrapper,
+.department-specialists-selection-search.ant-input-affix-wrapper:hover,
+.department-specialists-selection-search.ant-input-affix-wrapper:focus,
+.department-specialists-selection-search.ant-input-affix-wrapper:focus-within,
+.department-specialists-selection-search.ant-input-affix-wrapper-focused,
+.department-specialists-selection-search.ant-input-outlined,
+.department-specialists-selection-search.ant-input-outlined:hover,
+.department-specialists-selection-search.ant-input-outlined:focus,
+.department-specialists-selection-search.ant-input-outlined:focus-within {
+  border-color: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .department-specialists-selection-search .ant-input-affix-wrapper {
