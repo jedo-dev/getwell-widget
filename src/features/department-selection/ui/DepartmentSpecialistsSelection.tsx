@@ -76,6 +76,10 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
     goToDateTimeSelection();
   };
 
+  const handleContinueToPhoneInput = () => {
+    goToPhoneInput();
+  };
+
   const handleDoctorInfo = () => {
     goToDoctorInfo();
   };
@@ -340,6 +344,3 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
     </div>
   );
 };
-  const handleContinueToPhoneInput = () => {
-    goToPhoneInput();
-  };

@@ -1,5 +1,5 @@
 import { RightOutlined } from '@ant-design/icons';
-import { List, Segmented, Tabs } from 'antd';
+import { List, Segmented } from 'antd';
 import React, { useState } from 'react';
 import { selectBranch } from '../../../lib/widget-manager';
 import { EmptyState } from '../../../shared/ui';
@@ -13,15 +13,18 @@ export interface BranchSelectionProps {
 
 export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yandexMapFrameCode }) => {
   const [activeTab, setActiveTab] = useState<string>('list');
-  const iframe = yandexMapFrameCode || `<iframe
-                    src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
-                    width='100%'
-                    height='572'
-                    frameborder='0'></iframe>`;
+  const iframe =
+    yandexMapFrameCode ||
+    `<iframe
+      src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
+      width='100%'
+      height='572'
+      frameborder='0'></iframe>`;
 
   const handleBranchSelect = (branchId: number) => {
     selectBranch(branchId);
   };
+
   const options = [
     { label: 'Список', value: 'list' },
     { label: 'На карте', value: 'map' },
@@ -29,61 +32,43 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yand
 
   return (
     <div className='branch-selection'>
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        renderTabBar={() => (
-          <Segmented
-            options={options}
-            defaultValue='list'
-            className='branch-selection-tabs-segmented'
-            onChange={(value) => {
-              setActiveTab(value);
-            }}
-          />
-        )}
-        defaultValue='list'
-        className='branch-selection-tabs'
-        items={[
-          {
-            key: 'list',
-            label: 'Список',
-            children: (
-              <div className='branch-selection-content'>
-                {branches.length > 0 ? (
-                  <div className='branch-selection-list'>
-                    <List
-                      dataSource={branches}
-                      renderItem={(branch) => (
-                        <List.Item className='branch-item' onClick={() => handleBranchSelect(branch.id)}>
-                          <div className='branch-item-content'>
-                            <div className='branch-item-info'>
-                              <div className='branch-item-name'>{branch.name}</div>
-                              <div className='branch-item-address'>{branch.address}</div>
-                            </div>
-                            <RightOutlined className='branch-item-arrow' />
-                          </div>
-                        </List.Item>
-                      )}
-                    />
-                  </div>
-                ) : (
-                  <EmptyState description='Филиалы не найдены' />
-                )}
-              </div>
-            ),
-          },
-          {
-            key: 'map',
-            label: 'На карте',
-            children: (
-              <div className='branch-selection-content'>
-                <div className='branch-map-placeholder' dangerouslySetInnerHTML={{ __html: iframe }}></div>
-              </div>
-            ),
-          },
-        ]}
+      <Segmented
+        options={options}
+        value={activeTab}
+        className='branch-selection-tabs-segmented'
+        onChange={(value) => setActiveTab(String(value))}
       />
+
+      <div className='branch-selection-content-holder'>
+        {activeTab === 'map' ? (
+          <div className='branch-selection-content'>
+            <div className='branch-map-placeholder' dangerouslySetInnerHTML={{ __html: iframe }} />
+          </div>
+        ) : (
+          <div className='branch-selection-content'>
+            {branches.length > 0 ? (
+              <div className='branch-selection-list'>
+                <List
+                  dataSource={branches}
+                  renderItem={(branch) => (
+                    <List.Item className='branch-item' onClick={() => handleBranchSelect(branch.id)}>
+                      <div className='branch-item-content'>
+                        <div className='branch-item-info'>
+                          <div className='branch-item-name'>{branch.name}</div>
+                          <div className='branch-item-address'>{branch.address}</div>
+                        </div>
+                        <RightOutlined className='branch-item-arrow' />
+                      </div>
+                    </List.Item>
+                  )}
+                />
+              </div>
+            ) : (
+              <EmptyState description='������� �� �������' />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

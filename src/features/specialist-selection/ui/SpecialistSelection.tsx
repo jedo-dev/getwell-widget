@@ -118,6 +118,10 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     goToDateTimeSelection();
   };
 
+  const handleContinueToPhoneInput = () => {
+    goToPhoneInput();
+  };
+
   const handleDoctorInfo = () => {
     goToDoctorInfo();
   };
@@ -491,6 +495,3 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     </div>
   );
 };
-  const handleContinueToPhoneInput = () => {
-    goToPhoneInput();
-  };

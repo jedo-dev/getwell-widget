@@ -21,7 +21,7 @@ import {
   isPastDate,
   isToday,
 } from '../../../shared/lib';
-import { Avatar, Notification } from '../../../shared/ui';
+import { Avatar, Notification, ScreenLayout } from '../../../shared/ui';
 import { Employee } from '../../../types';
 import './DateTimeSelection.css';
 
@@ -370,7 +370,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   };
 
   return (
-    <div className='date-time-selection'>
+    <>
       {notification && (
         <Notification
           message={notification.message}
@@ -379,159 +379,158 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           onClose={() => setNotification(null)}
         />
       )}
-      {/* Specialist Info Card */}
-      {selectedEmployee && (
-        <div className='date-time-selection-doctor-card'>
-          <div className='date-time-selection-doctor-left'>
-            <Avatar
-              src={selectedEmployee.photo}
-              alt={fullName}
-              size='medium'
-              className='date-time-selection-doctor-avatar'
-            />
-            <div className='date-time-selection-doctor-info'>
-              <div className='date-time-selection-doctor-name'>{fullName}</div>
-              {showEmployeePosition && (
-                <div className='date-time-selection-doctor-specialization'>
-                  {selectedEmployee.specialization}
+      <ScreenLayout
+        className='date-time-selection'
+        top={
+          selectedEmployee ? (
+            <div className='date-time-selection-doctor-card'>
+              <div className='date-time-selection-doctor-left'>
+                <Avatar
+                  src={selectedEmployee.photo}
+                  alt={fullName}
+                  size='medium'
+                  className='date-time-selection-doctor-avatar'
+                />
+                <div className='date-time-selection-doctor-info'>
+                  <div className='date-time-selection-doctor-name'>{fullName}</div>
+                  {showEmployeePosition && (
+                    <div className='date-time-selection-doctor-specialization'>
+                      {selectedEmployee.specialization}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {selectedDate && selectedTime && (
+                <div className='date-time-selection-doctor-right'>
+                  <div className='date-time-selection-calendar-icon-wrapper'>
+                    <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
+                  </div>
+                  <div className='date-time-selection-selected-info'>
+                    <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>
+                    <div className='date-time-selection-selected-time'>{selectedTime}</div>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-          {selectedDate && selectedTime && (
-            <div className='date-time-selection-doctor-right'>
-              <div className='date-time-selection-calendar-icon-wrapper'>
-                <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
+          ) : null
+        }
+        content={
+          <div className='date-time-selection-content'>
+            <div className='date-time-selection-calendar'>
+              <div className='date-time-selection-calendar-header'>
+                <div className='date-time-selection-calendar-month'>{formatMonthYear(currentMonth)}</div>
+                <div className='date-time-selection-calendar-nav-group'>
+                  <button
+                    className='date-time-selection-calendar-nav'
+                    onClick={handlePrevMonth}
+                    disabled={!canGoToPrevMonth}>
+                    <LeftOutlined />
+                  </button>
+                  <button className='date-time-selection-calendar-nav' onClick={handleNextMonth}>
+                    <RightOutlined />
+                  </button>
+                </div>
               </div>
-              <div className='date-time-selection-selected-info'>
-                <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>
-                <div className='date-time-selection-selected-time'>{selectedTime}</div>
+
+              <div className='date-time-selection-calendar-weekdays'>
+                {DAYS_OF_WEEK_SHORT.map((day: string) => (
+                  <div key={day} className='date-time-selection-calendar-weekday'>
+                    {day}
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
-        </div>
-      )}
 
-      <div className='date-time-selection-content'>
-        <div className='date-time-selection-calendar'>
-          <div className='date-time-selection-calendar-header'>
-            <div className='date-time-selection-calendar-month'>
-              {formatMonthYear(currentMonth)}
-            </div>
-            <div className='date-time-selection-calendar-nav-group'>
-              <button
-                className='date-time-selection-calendar-nav'
-                onClick={handlePrevMonth}
-                disabled={!canGoToPrevMonth}>
-                <LeftOutlined />
-              </button>
-              <button className='date-time-selection-calendar-nav' onClick={handleNextMonth}>
-                <RightOutlined />
-              </button>
-            </div>
-          </div>
+              <div className='date-time-selection-calendar-days'>
+                {calendarDays.map((date, index) => {
+                  if (!date) return <div key={index} className='date-time-selection-calendar-day empty' />;
 
-          <div className='date-time-selection-calendar-weekdays'>
-            {DAYS_OF_WEEK_SHORT.map((day: string) => (
-              <div key={day} className='date-time-selection-calendar-weekday'>
-                {day}
-              </div>
-            ))}
-          </div>
+                  const isPast = isPastDate(date);
+                  const isCurrentMonthDay = isCurrentMonth(date, currentMonth);
+                  const isSelectedDay = isSelected(date);
+                  const isTodayDay = isToday(date);
 
-          <div className='date-time-selection-calendar-days'>
-            {calendarDays.map((date, index) => {
-              if (!date)
-                return <div key={index} className='date-time-selection-calendar-day empty' />;
-
-              const isPast = isPastDate(date);
-              const isCurrentMonthDay = isCurrentMonth(date, currentMonth);
-              const isSelectedDay = isSelected(date);
-              const isTodayDay = isToday(date);
-
-              return (
-                <div
-                  key={index}
-                  className={`date-time-selection-calendar-day 
+                  return (
+                    <div
+                      key={index}
+                      className={`date-time-selection-calendar-day 
                     ${!isCurrentMonthDay ? 'other-month' : ''} 
                     ${isPast ? 'past' : ''} 
                     ${isSelectedDay ? 'selected' : ''} 
                     ${isTodayDay ? 'today' : ''}`}
-                  onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
-                  <span className='date-time-selection-calendar-day-number'>{date.getDate()}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className='date-time-selection-times'>
-          {loadingSlots && (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
-              <Spin size='large' />
-            </div>
-          )}
- 
-          {showEmptySlotsState ? (
-            <div className='date-time-selection-empty-state'>
-              <div className='date-time-selection-empty-title'>
-                На выбранную дату нет свободного времени
+                      onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
+                      <span className='date-time-selection-calendar-day-number'>{date.getDate()}</span>
+                    </div>
+                  );
+                })}
               </div>
-              {nearestAvailableDateLabel && (
-                <div className='date-time-selection-empty-subtitle'>
-                  Ближайшая доступная дата: {nearestAvailableDateLabel}
+            </div>
+
+            <div className='date-time-selection-times'>
+              {loadingSlots && (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
+                  <Spin size='large' />
                 </div>
               )}
-              {nearestAvailableDate && (
-                <Button
-                  type='primary'
-                  className='date-time-selection-empty-btn'
-                  onClick={handleGoToNearestDate}>
-                  Перейти к ближайшей дате
-                </Button>
-              )}
-            </div>
-          ) : (
-            !loadingSlots &&
-            (Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
-              if (groupedTimeSlots[period].length === 0) return null;
 
-              return (
-                <div key={period} className='date-time-selection-time-group'>
-                  <div className='date-time-selection-time-group-label'>
-                    {TIME_PERIOD_LABELS[period]}
+              {showEmptySlotsState ? (
+                <div className='date-time-selection-empty-state'>
+                  <div className='date-time-selection-empty-title'>
+                    На выбранную дату нет свободного времени
                   </div>
-                  <div className='date-time-selection-time-group-slots'>
-                    {groupedTimeSlots[period].map((slot) => (
-                      <button
-                        key={slot.fromIso}
-                        className={`date-time-selection-time-slot 
+                  {nearestAvailableDateLabel && (
+                    <div className='date-time-selection-empty-subtitle'>
+                      Ближайшая доступная дата: {nearestAvailableDateLabel}
+                    </div>
+                  )}
+                  {nearestAvailableDate && (
+                    <Button
+                      type='primary'
+                      className='date-time-selection-empty-btn'
+                      onClick={handleGoToNearestDate}>
+                      Перейти к ближайшей дате
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                !loadingSlots &&
+                (Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
+                  if (groupedTimeSlots[period].length === 0) return null;
+
+                  return (
+                    <div key={period} className='date-time-selection-time-group'>
+                      <div className='date-time-selection-time-group-label'>
+                        {TIME_PERIOD_LABELS[period]}
+                      </div>
+                      <div className='date-time-selection-time-group-slots'>
+                        {groupedTimeSlots[period].map((slot) => (
+                          <button
+                            key={slot.fromIso}
+                            className={`date-time-selection-time-slot 
                         ${selectedSlotKey === slot.fromIso ? 'selected' : ''}
                         ${slot.isLimited ? 'disabled' : ''}`}
-                        disabled={slot.isLimited}
-                        onClick={() => handleTimeSelect(slot)}>
-                        {slot.time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      {selectedTime && (
-        <div className='date-time-selection-footer'>
-          <Button
-            type='primary'
-            className='date-time-selection-next-btn'
-            block
-            onClick={goToPhoneInput}>
-            Далее
-          </Button>
-        </div>
-      )}
-    </div>
+                            disabled={slot.isLimited}
+                            onClick={() => handleTimeSelect(slot)}>
+                            {slot.time}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        }
+        footer={
+          selectedTime ? (
+            <div className='date-time-selection-footer'>
+              <Button type='primary' className='date-time-selection-next-btn' block onClick={goToPhoneInput}>
+                Далее
+              </Button>
+            </div>
+          ) : null
+        }
+      />
+    </>
   );
 };

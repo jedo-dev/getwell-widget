@@ -14,7 +14,7 @@ import {
   normalizePhoneForLookup,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
-import { Avatar } from '../../../shared/ui';
+import { Avatar, ScreenLayout } from '../../../shared/ui';
 import CustomInput from '../../../shared/ui/CustomInput';
 import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, WidgetState } from '../../../types';
@@ -186,103 +186,99 @@ export const PhoneInput: React.FC = () => {
 
   if (loading) {
     return (
-      <div className='phone-input'>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-          <Spin size='large' />
-        </div>
-      </div>
+      <ScreenLayout
+        className='phone-input'
+        content={
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size='large' />
+          </div>
+        }
+      />
     );
   }
 
   return (
-    <div className='phone-input'>
-      {/* Appointment Details Container */}
-      <div className='phone-input-appointment-details'>
-        {/* Location */}
-        {branch && (
-          <div className='phone-input-location'>
-            <div className='phone-input-icon-wrapper'>
-              <IconWrapper src={LocationIcon} size={48} withBackground={false} />
+    <ScreenLayout
+      className='phone-input'
+      top={
+        <div className='phone-input-appointment-details'>
+          {branch && (
+            <div className='phone-input-location'>
+              <div className='phone-input-icon-wrapper'>
+                <IconWrapper src={LocationIcon} size={48} withBackground={false} />
+              </div>
+              <div className='phone-input-location-info'>
+                <div className='phone-input-location-name'>{branch.name}</div>
+                <div className='phone-input-location-address'>{branch.address}</div>
+              </div>
             </div>
-            <div className='phone-input-location-info'>
-              <div className='phone-input-location-name'>{branch.name}</div>
-              <div className='phone-input-location-address'>{branch.address}</div>
-            </div>
-          </div>
-        )}
+          )}
 
-        {/* Doctor */}
-        {employee && (
-          <div className='phone-input-doctor'>
-            <Avatar
-              src={employee.photo}
-              alt={fullName}
-              size='medium'
-              className='phone-input-doctor-avatar'
+          {employee && (
+            <div className='phone-input-doctor'>
+              <Avatar
+                src={employee.photo}
+                alt={fullName}
+                size='medium'
+                className='phone-input-doctor-avatar'
+              />
+              <div className='phone-input-doctor-info'>
+                <div className='phone-input-doctor-name'>{fullName}</div>
+                {showEmployeePosition && (
+                  <div className='phone-input-doctor-specialization'>{employee.specialization}</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {dateTime && (
+            <div className='phone-input-date'>
+              <div className='phone-input-icon-wrapper'>
+                <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
+              </div>
+              <div className='phone-input-date-info'>
+                <div className='phone-input-date-text'>{formattedDate}</div>
+                <div className='phone-input-time-text'>{formattedTime}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      }
+      content={
+        <div className='phone-input-phone-container'>
+          <div className='phone-input-phone-header'>
+            <h3 className='phone-input-phone-title'>Введите номер телефона</h3>
+          </div>
+          <div className='phone-input-phone-input-container'>
+            <CustomInput
+              text=''
+              className={` ${phoneError ? 'error' : ''}`}
+              placeholder='Введите номер телефона'
+              value={phone}
+              onChange={handlePhoneChange}
+              maxLength={32}
+              size='large'
+              autoFocus
+              variant='borderless'
             />
-            <div className='phone-input-doctor-info'>
-              <div className='phone-input-doctor-name'>{fullName}</div>
-              {showEmployeePosition && (
-                <div className='phone-input-doctor-specialization'>{employee.specialization}</div>
-              )}
-            </div>
+            {phoneError && <div className='phone-input-error'>{phoneError}</div>}
           </div>
-        )}
-
-        {/* Date */}
-        {dateTime && (
-          <div className='phone-input-date'>
-            <div className='phone-input-icon-wrapper'>
-              <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
-            </div>
-            <div className='phone-input-date-info'>
-              <div className='phone-input-date-text'>{formattedDate}</div>
-              <div className='phone-input-time-text'>{formattedTime}</div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Phone Input Container */}
-      <div className='phone-input-phone-container'>
-        <div className='phone-input-phone-header'>
-          <h3 className='phone-input-phone-title'>Введите номер телефона</h3>
         </div>
-        <div className='phone-input-phone-input-container'>
-          <CustomInput
-            text=''
-            className={` ${phoneError ? 'error' : ''}`}
-            placeholder='Введите номер телефона'
-            value={phone}
-            onChange={handlePhoneChange}
-            maxLength={32}
-            size='large'
-            autoFocus
-            variant='borderless'
-          />
-          {phoneError && <div className='phone-input-error'>{phoneError}</div>}
+      }
+      footer={
+        <div className='phone-input-footer'>
+          <Button
+            type='primary'
+            className='phone-input-submit-btn gw-primary-btn'
+            block
+            onClick={handleSubmit}
+            disabled={checkingOwner}
+            loading={checkingOwner}
+            size='large'>
+            Записаться
+          </Button>
         </div>
-        {/* <Checkbox
-          checked={isNewUser}
-          onChange={(e) => setIsNewUser(e.target.checked)}
-          disabled={checkingOwner}>
-          Новый пользователь
-        </Checkbox> */}
-      </div>
-
-      {/* Footer */}
-      <div className='phone-input-footer'>
-        <Button
-          type='primary'
-          className='phone-input-submit-btn gw-primary-btn'
-          block
-          onClick={handleSubmit}
-          disabled={checkingOwner}
-          loading={checkingOwner}
-          size='large'>
-          Записаться
-        </Button>
-      </div>
-    </div>
+      }
+    />
   );
 };
