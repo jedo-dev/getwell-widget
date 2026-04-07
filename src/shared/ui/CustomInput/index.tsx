@@ -15,9 +15,9 @@ const CustomInput: React.FC<CustomInputProps> = ({ text, ...rest }) => {
         size='large'
         variant='borderless'
         style={{
-          height: '56px',
-          borderBottom: '1px solid var(--widget-border-secondary)',
-          paddingTop: `${hasValue ? '18px' : '12px'}`,
+          height: 'var(--widget-field-height)',
+          borderBottom: '1px solid var(--widget-field-line-color)',
+          paddingTop: `${hasValue ? 'var(--widget-field-padding-top-filled)' : 'var(--widget-field-padding-top-default)'}`,
         }}
       />
     </FormField>

@@ -15,10 +15,10 @@ const CustomTextArea: React.FC<CustomTextAreaProps> = ({ text, ...rest }) => {
         {...rest}
         size='large'
         style={{
-          paddingTop: `${hasValue ? '12px' : '12px'}`,
+          paddingTop: 'var(--widget-field-padding-top-default)',
           overflowY: 'auto',
           resize: 'none',
-          borderBottom: '1px solid var(--widget-border-secondary)',
+          borderBottom: '1px solid var(--widget-field-line-color)',
         }}
         variant='borderless'
         rows={1}

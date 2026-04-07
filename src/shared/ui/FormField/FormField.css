@@ -5,12 +5,12 @@
 
 .gw-field-placeholder {
   position: absolute;
-  left: 12px;
+  left: var(--widget-field-padding-left);
   top: 16px;
   z-index: 1;
-  font-size: 16px;
-  line-height: 24px;
-  color: #999999;
+  font-size: var(--widget-field-label-font-size);
+  line-height: var(--widget-field-label-line-height);
+  color: var(--widget-field-label-color);
   padding: 0 4px;
   margin-left: -4px;
   transition: all 0.2s ease-out;
@@ -20,9 +20,9 @@
 
 .gw-field-placeholder--active {
   top: 8px;
-  font-size: 10px;
-  line-height: 10px;
-  color: #999999;
+  font-size: var(--widget-field-label-active-font-size);
+  line-height: var(--widget-field-label-active-line-height);
+  color: var(--widget-field-label-color);
 }
 
 .gw-field-placeholder--hidden {

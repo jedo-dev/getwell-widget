@@ -22,12 +22,12 @@ export const FormField: React.FC<FormFieldProps> = ({
   const shouldHideLabel = hidePlaceholderWhenActive && isLabelActive;
 
   return (
-    <div className='gw-field-container input-container'>
+    <div className='gw-field-container'>
       <div
-        className={`gw-field-placeholder custom-placeholder ${
-          isLabelActive ? 'gw-field-placeholder--active has-value' : ''
-        } ${shouldHideLabel ? 'gw-field-placeholder--hidden custom-placeholder-hidden' : ''}`}>
-        {label} {required && <span className='gw-field-required redmark'>*</span>}
+        className={`gw-field-placeholder ${isLabelActive ? 'gw-field-placeholder--active' : ''} ${
+          shouldHideLabel ? 'gw-field-placeholder--hidden' : ''
+        }`}>
+        {label} {required && <span className='gw-field-required'>*</span>}
       </div>
       {children}
     </div>

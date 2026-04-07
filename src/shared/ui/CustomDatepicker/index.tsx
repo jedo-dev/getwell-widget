@@ -56,7 +56,11 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
         onChange={(date) => {
           rest.onChange?.(date, date?.format('YYYY-MM-DD'));
         }}
-        style={{ height: '56px', width: '100%', borderBottom: '1px solid var(--widget-border-secondary)' }}
+        style={{
+          height: 'var(--widget-field-height)',
+          width: '100%',
+          borderBottom: '1px solid var(--widget-field-line-color)',
+        }}
         suffixIcon={null}
         locale={locale}
         format={'DD.MM.YYYY'}
