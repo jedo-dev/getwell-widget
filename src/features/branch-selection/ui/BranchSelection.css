@@ -21,10 +21,12 @@
   display: flex;
   flex-direction: column;
   margin-top: 2px;
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
+  border: 1px solid transparent;
   background-color: white !important;
   min-height: 0;
   overflow: hidden;
+  border-radius:16px 16px 0 0;
 }
 
 .branch-selection-content {
@@ -33,6 +35,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  border-radius: 0;
 }
 
 .branch-selection-content .ant-list-item {
@@ -48,6 +51,7 @@
   flex-direction: column;
   min-height: 0;
   flex: 1 1 auto;
+  border-radius: 0;
 }
 
 .branch-item {
@@ -123,8 +127,9 @@
   flex: 1 1 auto;
   min-height: 0;
   background-color: #f5f5f5;
-  border-radius: 4px;
+  border-radius: 0;
   color: rgba(0, 0, 0, 0.45);
+  overflow: hidden;
 }
 
 .branch-map-placeholder iframe {
@@ -140,7 +145,11 @@
 .branch-selection-tabs-segmented {
   margin-top: 2px;
   border-radius: 16px;
-  padding: unset;
+
+  background: #f4f4f5 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .branch-selection-tabs-segmented .ant-segmented-group {
@@ -149,7 +158,13 @@
 
 .branch-selection-tabs-segmented .ant-segmented-item {
   flex: 1 1 0 !important;
+  border-radius: 0;
+  margin: 0 !important;
+}
+
+.branch-selection-tabs-segmented .ant-segmented-thumb {
   border-radius: 15px;
+  box-shadow: none;
 }
 
 .branch-selection-tabs-segmented .ant-segmented-item-label {

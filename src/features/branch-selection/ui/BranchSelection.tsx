@@ -21,7 +21,7 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({
     `<iframe
       src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
       width='100%'
-      height='572'
+      height='100%'
       frameborder='0'></iframe>`;
 
   const handleBranchSelect = (branchId: number) => {
