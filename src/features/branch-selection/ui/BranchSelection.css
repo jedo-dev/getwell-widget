@@ -81,6 +81,7 @@
 .branch-item-info {
   flex: 1;
   min-width: 0;
+  max-width: 500px;
 }
 
 .branch-item-name {
@@ -171,4 +172,10 @@
   font-family: Onest;
   font-weight: 500;
   font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .branch-item-info {
+    max-width: 300px;
+  }
 }
