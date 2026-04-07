@@ -1,5 +1,5 @@
 import { RightOutlined } from '@ant-design/icons';
-import { Button, Input, List, Segmented, Tabs } from 'antd';
+import { Input, List, Segmented, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   getWidgetState,
@@ -23,10 +23,11 @@ import { SELECTION_MODE_LABELS, WidgetStep } from '../../../shared/constants';
 import { useTimechips } from '../../../shared/hooks/useTimechips';
 import {
   findNearestTimeslot,
+  formatEmployeeFullName,
   formatNearestAppointmentDate,
   localDateTimeToIso,
 } from '../../../shared/lib';
-import { DoctorSelectionList, EmptyState, Notification } from '../../../shared/ui';
+import { ActionFooter, DoctorSelectionList, EmptyState, Notification } from '../../../shared/ui';
 import { Department, Employee, SelectionMode } from '../../../types';
 import SearchIcon from '../../../img/search.svg';
 import './SpecialistSelection.css';
@@ -60,13 +61,11 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   const [notification, setNotification] = useState<{ message: string } | null>(null);
   const [selectedTimechipKey, setSelectedTimechipKey] = useState<string | null>(null);
 
-  // Обновляем активную вкладку при изменении режима выбора
   useEffect(() => {
     if (selectionMode === SelectionMode.DEPARTMENT && showDepartments) {
       setActiveTab('department');
     } else {
       setActiveTab('name');
-      // Если отделения скрыты, но мы в режиме выбора отделения, переключаемся на специалиста
       if (selectionMode === SelectionMode.DEPARTMENT && !showDepartments) {
         goToSpecialistSelection();
       }
@@ -111,7 +110,6 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
 
   const handleDepartmentSelect = (departmentId: number) => {
     selectDepartment(departmentId);
-    // После выбора отделения переходим к списку врачей отделения
   };
 
   const handleSelectDateTime = () => {
@@ -130,14 +128,12 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     ? employees.find((emp) => emp.id === selectedEmployeeId)
     : null;
 
-  // Находим ближайший timeslot для выбранного врача
   const selectedEmployeeData = selectedEmployeeId
     ? doctorsWithSchedules.find((d) => d.employee.id === selectedEmployeeId)
     : undefined;
   const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
   const nearestAppointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
 
-  // Загружаем timechips для выбранного врача
   const isOnSpecialistSelectionStep = widgetState.currentStep === WidgetStep.SPECIALIST_SELECTION;
   const {
     timechips,
@@ -150,22 +146,17 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   );
 
 
-  // Обработка клика на time-chip
   const handleTimeChipClick = async (timechip: AvailableTimechip) => {
     if (!selectedEmployeeId) return;
 
-    // Сохраняем department_id из timechip, если он есть
     if (timechip.department_id) {
       selectDepartmentOnly(timechip.department_id);
     }
 
-    // Сохраняем выбранного врача (уже выбран)
-    // Сохраняем слот from/to
     const fromIso = localDateTimeToIso(timechip.from);
     const toIso = localDateTimeToIso(timechip.to);
     selectDateTime(fromIso, toIso);
 
-    // Резервируем слот на 5 минут
     if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId) {
       try {
         const result = await schedulesApi.reserveTimeslot({
@@ -179,17 +170,15 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           uniqueHash: widgetState.reservedTimeslotHash || undefined,
         });
 
-        // Сохраняем unique_hash
         if (result.unique_hash) {
           setReservedTimeslotHash(result.unique_hash);
         }
       } catch (error: any) {
-        console.error('Ошибка резервирования слота:', error);
+        console.error('Error reserving slot:', error);
         if (error.code === 'DUPLICATE_ENTRY' || error.message === 'duplicate_entry') {
           setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
           return;
         }
-        // Продолжаем выполнение даже при другой ошибке резервирования
         return;
       }
     }
@@ -197,7 +186,6 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     setSelectedTimechipKey(`${timechip.from}_${timechip.to}`);
   };
 
-  // Показываем первые N слотов (8-12)
   const options = [
     { label: SELECTION_MODE_LABELS[SelectionMode.EMPLOYEE], value: 'name' },
     ...(showDepartments
@@ -327,24 +315,15 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       />
 
       {selectedEmployee && selectionMode === SelectionMode.EMPLOYEE && (
-        <div className='specialist-selection-footer'>
-          {showDoctorInfo && (
-            <Button
-              className='specialist-selection-footer-btn secondary'
-              onClick={handleDoctorInfo}>
-              О враче
-            </Button>
-          )}
-          <Button
-            type='primary'
-            className='specialist-selection-footer-btn primary'
-            onClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}>
-            {selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
-          </Button>
-        </div>
+        <ActionFooter
+          className='specialist-selection-footer'
+          showSecondary={showDoctorInfo}
+          secondaryLabel='О враче'
+          onSecondaryClick={handleDoctorInfo}
+          primaryLabel={selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
+          onPrimaryClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}
+        />
       )}
     </div>
   );
 };
-
-

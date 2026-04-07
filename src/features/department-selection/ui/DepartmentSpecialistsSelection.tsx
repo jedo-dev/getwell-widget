@@ -1,4 +1,3 @@
-import { Button } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   getWidgetState,
@@ -23,7 +22,7 @@ import {
   formatNearestAppointmentDate,
   localDateTimeToIso,
 } from '../../../shared/lib';
-import { DoctorSelectionList, Notification } from '../../../shared/ui';
+import { ActionFooter, DoctorSelectionList, Notification } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
 import './DepartmentSpecialistsSelection.css';
 
@@ -54,7 +53,6 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   const filteredEmployees = useMemo(() => {
     let result = employees;
 
-    // Фильтруем по поисковому запросу
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter((emp) => {
@@ -87,14 +85,12 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
     ? employees.find((emp) => emp.id === selectedEmployeeId)
     : null;
 
-  // Находим ближайший timeslot для выбранного врача
   const selectedEmployeeData = selectedEmployeeId
     ? doctorsWithSchedules.find((d) => d.employee.id === selectedEmployeeId)
     : undefined;
   const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
   const nearestAppointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
 
-  // Загружаем timechips для выбранного врача
   const isOnDepartmentSpecialistsStep =
     widgetState.currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION;
   const {
@@ -104,22 +100,17 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   } = useTimechips(selectedEmployeeId, isOnDepartmentSpecialistsStep, nearestAppointmentDate.date);
 
 
-  // Обработка клика на time-chip
   const handleTimeChipClick = async (timechip: AvailableTimechip) => {
     if (!selectedEmployeeId) return;
 
-    // Сохраняем department_id из timechip, если он есть
     if (timechip.department_id) {
       selectDepartmentOnly(timechip.department_id);
     }
 
-    // Сохраняем выбранного врача (уже выбран)
-    // Сохраняем слот from/to
     const fromIso = localDateTimeToIso(timechip.from);
     const toIso = localDateTimeToIso(timechip.to);
     selectDateTime(fromIso, toIso);
 
-    // Резервируем слот на 5 минут
 
     if (widgetState.config?.apiUrl && selectedDepartment?.id) {
       try {
@@ -134,17 +125,15 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
           uniqueHash: widgetState.reservedTimeslotHash || undefined,
         });
 
-        // Сохраняем unique_hash
         if (result.unique_hash) {
           setReservedTimeslotHash(result.unique_hash);
         }
       } catch (error: any) {
-        console.error('Ошибка резервирования слота:', error);
+        console.error('Error reserving slot:', error);
         if (error.code === 'DUPLICATE_ENTRY' || error.message === 'duplicate_entry') {
           setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
           return;
         }
-        // Продолжаем выполнение даже при другой ошибке резервирования
         return;
       }
     }
@@ -180,23 +169,15 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
         />
       </div>
       {selectedEmployee && (
-        <div className='specialist-selection-footer'>
-          {showDoctorInfo && (
-            <Button
-              className='specialist-selection-footer-btn secondary'
-              onClick={handleDoctorInfo}>
-              О враче
-            </Button>
-          )}
-          <Button
-            type='primary'
-            className='specialist-selection-footer-btn primary'
-            onClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}>
-            {selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
-          </Button>
-        </div>
+        <ActionFooter
+          className='specialist-selection-footer'
+          showSecondary={showDoctorInfo}
+          secondaryLabel='О враче'
+          onSecondaryClick={handleDoctorInfo}
+          primaryLabel={selectedTimechipKey ? 'Далее' : 'Выбрать дату и время'}
+          onPrimaryClick={selectedTimechipKey ? handleContinueToPhoneInput : handleSelectDateTime}
+        />
       )}
     </div>
   );
 };
-

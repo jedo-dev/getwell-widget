@@ -22,7 +22,7 @@ interface DoctorSelectionListProps {
   showEmployeePosition: boolean;
   loadingTimechips: boolean;
   timechips: AvailableTimechip[];
-  timechipsError: string | null;
+  timechipsError: Error | null;
   selectedTimechipKey: string | null;
   onTimechipClick: (timechip: AvailableTimechip) => void;
   onSelectDateTime: () => void;

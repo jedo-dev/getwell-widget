@@ -18,3 +18,4 @@ export type { NotificationProps } from './Notification';
 
 export { ScreenLayout } from './ScreenLayout/ScreenLayout';
 export { DoctorSelectionList } from './DoctorSelectionList';
+export { ActionFooter } from './ActionFooter';
