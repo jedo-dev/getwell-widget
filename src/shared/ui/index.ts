@@ -17,3 +17,4 @@ export { Notification } from './Notification';
 export type { NotificationProps } from './Notification';
 
 export { ScreenLayout } from './ScreenLayout/ScreenLayout';
+export { DoctorSelectionList } from './DoctorSelectionList';

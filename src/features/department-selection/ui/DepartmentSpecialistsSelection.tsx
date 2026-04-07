@@ -1,4 +1,4 @@
-import { Button, Input, List, Radio, Skeleton, Tag } from 'antd';
+import { Button } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   getWidgetState,
@@ -6,7 +6,6 @@ import {
   goToDoctorInfo,
   goToPhoneInput,
   selectDateTime,
-  selectDepartment,
   selectDepartmentOnly,
   selectEmployee,
   setReservedTimeslotHash,
@@ -22,12 +21,10 @@ import {
   findNearestTimeslot,
   formatEmployeeFullName,
   formatNearestAppointmentDate,
-  formatTimeFromDateTime,
   localDateTimeToIso,
 } from '../../../shared/lib';
-import { Avatar, EmptyState, Notification } from '../../../shared/ui';
+import { DoctorSelectionList, Notification } from '../../../shared/ui';
 import { Department, Employee } from '../../../types';
-import SearchIcon from '../../../img/search.svg';
 import './DepartmentSpecialistsSelection.css';
 
 export interface DepartmentSpecialistsSelectionProps {
@@ -154,12 +151,6 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
 
     setSelectedTimechipKey(`${timechip.from}_${timechip.to}`);
   };
-
-  // Показываем первые N слотов (8-12)
-  const MAX_VISIBLE_SLOTS = 10;
-  const visibleTimechips = timechips.slice(0, MAX_VISIBLE_SLOTS);
-  const hasTimechips = visibleTimechips.length > 0;
-
   return (
     <div className='department-specialists-selection'>
       {notification && (
@@ -171,149 +162,23 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
         />
       )}
       <div className='department-specialists-selection-content'>
-        <Input
-          placeholder='Поиск'
-          prefix={
-            <img
-              src={SearchIcon}
-              alt=''
-              aria-hidden='true'
-              className='department-specialists-selection-search-icon'
-            />
-          }
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className='department-specialists-selection-search'
+        <DoctorSelectionList
+          baseClass='department-specialists-selection'
+          employees={filteredEmployees}
+          doctorsWithSchedules={doctorsWithSchedules}
+          selectedEmployeeId={selectedEmployeeId}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onEmployeeSelect={handleEmployeeSelect}
+          showEmployeePosition={showEmployeePosition}
+          loadingTimechips={loadingTimechips}
+          timechips={timechips}
+          timechipsError={timechipsError}
+          selectedTimechipKey={selectedTimechipKey}
+          onTimechipClick={handleTimeChipClick}
+          onSelectDateTime={handleSelectDateTime}
         />
-
-        {filteredEmployees.length > 0 ? (
-          <List
-            className='department-specialists-selection-list'
-            dataSource={filteredEmployees}
-            renderItem={(employee) => {
-              const isSelected = selectedEmployeeId === employee.id;
-              const fullName = formatEmployeeFullName(employee);
-              const isCurrentEmployee = isSelected && employee.id === selectedEmployeeId;
-              const doctorData = doctorsWithSchedules.find((d) => d.employee.id === employee.id);
-              const nearestTimeslot = findNearestTimeslot(doctorData);
-              const appointmentDate = formatNearestAppointmentDate(nearestTimeslot?.from || null);
-              const hasAppointment = !!appointmentDate.date;
-
-              return (
-                <List.Item
-                  className={`department-specialists-selection-item ${
-                    isSelected ? 'selected' : ''
-                  } ${!hasAppointment ? 'disabled' : ''}`}
-                  onClick={() => {
-                    // Отключаем клик, если нет ближайшей записи
-                    if (hasAppointment) {
-                      handleEmployeeSelect(employee.id);
-                    }
-                  }}>
-                  <div className='department-specialists-selection-item-content'>
-                    <div className='department-specialists-selection-item-content-left'>
-                      <div className='department-specialists-selection-item-left'>
-                        <Avatar
-                          src={employee.photo}
-                          alt={fullName}
-                          size='medium'
-                          className='department-specialists-selection-avatar'
-                        />
-                        <div className='department-specialists-selection-item-info'>
-                          <div className='department-specialists-selection-item-name'>
-                            {fullName}
-                          </div>
-                          {showEmployeePosition && (
-                            <div className='department-specialists-selection-item-specialization'>
-                              {employee.specialization}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className='department-specialists-selection-item-appointment'>
-                        Ближайшее время приёма: <Tag>{appointmentDate.text}</Tag>
-                      </div>
-                      {isCurrentEmployee && (
-                        <>
-                          {loadingTimechips && (
-                            <div className='department-specialists-selection-time-slots'>
-                              <Skeleton.Button active size='small' block={false} />
-                              <Skeleton.Button active size='small' block={false} />
-                              <Skeleton.Button active size='small' block={false} />
-                            </div>
-                          )}
-                          {!loadingTimechips && hasTimechips && (
-                            <div className='department-specialists-selection-time-slots'>
-                              {visibleTimechips.map((timechip, index) => {
-                                const timeStr = formatTimeFromDateTime(timechip.from);
-                                const isDisabled = timechip.is_limited;
-                                return (
-                                  <button
-                                    key={`${timechip.from}-${index}`}
-                                    className={`department-specialists-selection-time-slot ${
-                                      selectedTimechipKey === `${timechip.from}_${timechip.to}`
-                                        ? 'selected'
-                                        : ''
-                                    } ${
-                                      isDisabled ? 'disabled' : ''
-                                    }`}
-                                    type='button'
-                                    disabled={isDisabled}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (!isDisabled) {
-                                        handleTimeChipClick(timechip);
-                                      }
-                                    }}>
-                                    {timeStr}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                          {!loadingTimechips && !hasTimechips && !timechipsError && (
-                            <div className='department-specialists-selection-no-slots'>
-                              <div className='department-specialists-selection-no-slots-text'>
-                                Нет слотов на сегодня
-                              </div>
-                              <Button
-                                type='link'
-                                className='department-specialists-selection-select-date-btn'
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSelectDateTime();
-                                }}>
-                                Выбрать дату и время
-                              </Button>
-                            </div>
-                          )}
-                          {!loadingTimechips && timechipsError && (
-                            <div className='department-specialists-selection-no-slots'>
-                              <Button
-                                type='link'
-                                className='department-specialists-selection-select-date-btn'
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSelectDateTime();
-                                }}>
-                                Выбрать дату и время
-                              </Button>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    <Radio checked={isSelected} />
-                  </div>
-                </List.Item>
-              );
-            }}
-          />
-        ) : (
-          <EmptyState description='Специалисты не найдены' />
-        )}
       </div>
-
       {selectedEmployee && (
         <div className='specialist-selection-footer'>
           {showDoctorInfo && (
