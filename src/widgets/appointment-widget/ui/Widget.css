@@ -57,13 +57,14 @@
   button {
     position: absolute;
 
-    left: -60px;
+    left: -72px;
     background: white !important;
     border-radius: 50% !important;
     aspect-ratio: 1 / 1;
     height: auto !important;
     top: 10px;
     @media (max-width: 768px) {
+      left: -60px;
     }
     .anticon {
       color: var(--widget-text-color);
@@ -108,6 +109,20 @@
   flex-direction: column;
   min-height: 0;
   font-family: Onest;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 0 0 16px 16px;
+}
+
+.getwell-widget-main {
+  flex: 1 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.getwell-widget-inline-footer {
+  margin-top: auto;
 }
 ::-webkit-scrollbar {
   width: 0;

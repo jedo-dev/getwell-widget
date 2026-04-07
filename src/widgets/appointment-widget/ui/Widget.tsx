@@ -567,8 +567,11 @@ export const Widget: React.FC<WidgetProps> = ({
       width={drawerWidth}
       rootClassName='getwell-widget-drawer-root'
       className='getwell-widget-drawer'
-      footer={renderFooter()}>
-      <div className='getwell-widget-content'>{renderContent()}</div>
+      footer={null}>
+      <div className='getwell-widget-content'>
+        <div className='getwell-widget-main'>{renderContent()}</div>
+        <div className='getwell-widget-inline-footer'>{renderFooter()}</div>
+      </div>
     </Drawer>
   );
 };

@@ -9,9 +9,14 @@ import './BranchSelection.css';
 export interface BranchSelectionProps {
   branches: Branch[];
   yandexMapFrameCode?: string;
+  footerContent?: React.ReactNode;
 }
 
-export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yandexMapFrameCode }) => {
+export const BranchSelection: React.FC<BranchSelectionProps> = ({
+  branches,
+  yandexMapFrameCode,
+  footerContent,
+}) => {
   const [activeTab, setActiveTab] = useState<string>('list');
   const iframe = yandexMapFrameCode || `<iframe
                     src='https://yandex.ru/map-widget/v1/?um=constructor%3Ace51b6a918b1215aa4c3d7877ee3f86ef2edf900dc8f1cddb474d718ec719ac1&amp;source=constructor'
@@ -51,25 +56,26 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yand
             children: (
               <div className='branch-selection-content'>
                 {branches.length > 0 ? (
-                  <List
-                    dataSource={branches}
-                    renderItem={(branch) => (
-                      <List.Item
-                        className='branch-item'
-                        onClick={() => handleBranchSelect(branch.id)}>
-                        <div className='branch-item-content'>
-                          <div className='branch-item-info'>
-                            <div className='branch-item-name'>{branch.name}</div>
-                            <div className='branch-item-address'>{branch.address}</div>
+                  <div className='branch-selection-list'>
+                    <List
+                      dataSource={branches}
+                      renderItem={(branch) => (
+                        <List.Item className='branch-item' onClick={() => handleBranchSelect(branch.id)}>
+                          <div className='branch-item-content'>
+                            <div className='branch-item-info'>
+                              <div className='branch-item-name'>{branch.name}</div>
+                              <div className='branch-item-address'>{branch.address}</div>
+                            </div>
+                            <RightOutlined className='branch-item-arrow' />
                           </div>
-                          <RightOutlined className='branch-item-arrow' />
-                        </div>
-                      </List.Item>
-                    )}
-                  />
+                        </List.Item>
+                      )}
+                    />
+                  </div>
                 ) : (
                   <EmptyState description='Филиалы не найдены' />
                 )}
+                {footerContent && <div className='branch-selection-powered'>{footerContent}</div>}
               </div>
             ),
           },
@@ -78,9 +84,7 @@ export const BranchSelection: React.FC<BranchSelectionProps> = ({ branches, yand
             label: 'На карте',
             children: (
               <div className='branch-selection-content'>
-                <div
-                  className='branch-map-placeholder'
-                  dangerouslySetInnerHTML={{ __html: iframe }}></div>
+                <div className='branch-map-placeholder' dangerouslySetInnerHTML={{ __html: iframe }}></div>
               </div>
             ),
           },
