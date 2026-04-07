@@ -209,7 +209,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
           <Radio.Group
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className='add-pet-modal-gender'>
+            className='add-pet-modal-gender gw-segmented gw-segmented--pill'>
             {petGenders.map((g) => (
               <Radio.Button key={g.code} value={g.code}>
                 {PET_GENDER_LABELS[g.code as Gender] || g.name}
@@ -241,7 +241,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       </div>
 
       <div className='add-pet-modal-footer'>
-        <Button type='primary' className='add-pet-modal-save-btn' block onClick={handleSave}>
+        <Button type='primary' className='add-pet-modal-save-btn gw-primary-btn' block onClick={handleSave}>
           Сохранить
         </Button>
       </div>

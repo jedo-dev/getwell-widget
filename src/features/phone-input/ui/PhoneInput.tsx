@@ -274,7 +274,7 @@ export const PhoneInput: React.FC = () => {
       <div className='phone-input-footer'>
         <Button
           type='primary'
-          className='phone-input-submit-btn'
+          className='phone-input-submit-btn gw-primary-btn'
           block
           onClick={handleSubmit}
           disabled={checkingOwner}

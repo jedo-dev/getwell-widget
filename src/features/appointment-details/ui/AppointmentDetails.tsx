@@ -740,7 +740,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <Radio.Group
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className='appointment-details-gender-group'>
+                  className='appointment-details-gender-group gw-segmented'>
                   <Radio.Button value={Gender.MALE}>{GENDER_LABELS[Gender.MALE]}</Radio.Button>
                   <Radio.Button value={Gender.FEMALE}>{GENDER_LABELS[Gender.FEMALE]}</Radio.Button>
                 </Radio.Group>
@@ -853,7 +853,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <Radio.Group
                   value={petGender}
                   onChange={(e) => setPetGender(e.target.value)}
-                  className='appointment-details-gender-group'>
+                  className='appointment-details-gender-group gw-segmented'>
                   <Radio.Button value={Gender.FEMALE}>Женский</Radio.Button>
                   <Radio.Button value={Gender.MALE}>Мужской</Radio.Button>
                 </Radio.Group>
@@ -921,7 +921,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           <div className='appointment-details-footer'>
             <Button
               type='primary'
-              className='appointment-details-submit-btn'
+              className='appointment-details-submit-btn gw-primary-btn'
               block
               onClick={handleSubmit}
               disabled={

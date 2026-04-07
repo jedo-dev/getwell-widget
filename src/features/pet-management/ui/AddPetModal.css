@@ -156,49 +156,10 @@
 }
 
 .add-pet-modal-gender {
-  width: 100%;
-  display: flex;
-  background: #f4f4f5;
-  border-radius: 64px;
-  overflow: hidden;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper {
-  flex: 1;
-  height: 44px;
-  line-height: 44px;
-  border: none;
-  border-radius: 0;
-  background: #f4f4f5;
-  color: #101828;
-  font-family: 'Onest', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  text-align: center;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper::before {
-  display: none;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper:first-child {
-  border-radius: 64px 0 0 64px;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper:last-child {
-  border-radius: 0 64px 64px 0;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-  background: #344054;
-  color: #ffffff;
-  font-weight: 500;
-  box-shadow: none;
-}
-
-.add-pet-modal-gender .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-  background: #344054;
-  color: #ffffff;
+  --gw-segmented-radius: 64px;
+  --gw-segmented-height: 44px;
+  --gw-segmented-font-size: 16px;
+  --gw-segmented-active-hover-bg: #344054;
 }
 
 .add-pet-modal-error {
@@ -212,19 +173,8 @@
 }
 
 .add-pet-modal-save-btn {
-  height: 48px;
-  border-radius: 64px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Onest', sans-serif;
-  background: #344054;
-  border-color: #344054;
-}
-
-.add-pet-modal-save-btn:hover,
-.add-pet-modal-save-btn:focus {
-  background: #2d3b4f !important;
-  border-color: #2d3b4f !important;
+  --gw-btn-radius: 64px;
+  --gw-btn-hover-bg: #2d3b4f;
 }
 
 .add-pet-modal-line-input.error,

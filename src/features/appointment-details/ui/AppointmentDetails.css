@@ -396,24 +396,9 @@
 }
 
 .appointment-details-submit-btn {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Onest', sans-serif;
-  background-color: #101828;
-  border-color: #101828;
-  border-radius: 8px;
-}
-
-.appointment-details-submit-btn:hover:not(:disabled) {
-  background-color: #344054;
-  border-color: #344054;
-}
-
-.appointment-details-submit-btn:disabled {
-  background-color: #d0d5dd;
-  border-color: #d0d5dd;
-  color: #98a2b3;
+  --gw-btn-radius: 8px;
+  --gw-btn-hover-bg: #344054;
+  --gw-btn-disabled-bg: #d0d5dd;
 }
 
 .appointment-details-field {
@@ -445,39 +430,10 @@
 }
 
 .appointment-details-gender-group {
-  width: 100%;
-  display: flex;
-  /* gap: 8px; */
-}
-
-.appointment-details-gender-group .ant-radio-button-wrapper {
-  flex: 1;
-  text-align: center;
-  height: 48px;
-  line-height: 46px;
-  border-radius: 6px;
-  font-size: 14px;
-  background: #f4f4f5;
-}
-
-.appointment-details-gender-group .ant-radio-button-wrapper:first-child {
-  border-radius: 8px 0 0 8px;
-}
-
-.appointment-details-gender-group .ant-radio-button-wrapper:last-child {
-  border-radius: 0 8px 8px 0;
-}
-
-.appointment-details-gender-group .ant-radio-button-wrapper-checked {
-  background-color: #344054;
-  border-color: #344054;
-  color: #fff;
-}
-
-.appointment-details-gender-group .ant-radio-button-wrapper-checked:hover {
-  background-color: #434343;
-  border-color: #434343;
-  color: #fff;
+  --gw-segmented-radius: 8px;
+  --gw-segmented-height: 48px;
+  --gw-segmented-font-size: 14px;
+  --gw-segmented-active-hover-bg: #434343;
 }
 
 .appointment-details-pet-title {

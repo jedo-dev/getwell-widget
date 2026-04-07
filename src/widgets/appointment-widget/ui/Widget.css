@@ -2,6 +2,7 @@
 @import '../../../styles/fonts.css';
 /* Импорт темы */
 @import '../../../styles/theme.css';
+@import '../../../styles/ui-primitives.css';
 
 .getwell-widget-drawer {
   z-index: 10000;
