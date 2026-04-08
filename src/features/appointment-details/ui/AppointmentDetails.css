@@ -430,7 +430,7 @@
 }
 
 .appointment-details-gender-group {
-  --gw-segmented-radius: 64px;
+  --gw-segmented-radius: 26px;
   --gw-segmented-height: 52px;
   --gw-segmented-font-size: 16px;
   --gw-segmented-text-color: var(--widget-text-tertiary);
@@ -438,6 +438,8 @@
   --gw-segmented-active-bg: var(--widget-button-primary);
   --gw-segmented-active-hover-bg: var(--widget-button-primary);
   --gw-segmented-active-color: var(--widget-button-text);
+  border-radius: 26px;
+  overflow: hidden;
 }
 
 .appointment-details-gender-group .ant-radio-button-wrapper {
