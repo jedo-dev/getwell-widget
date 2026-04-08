@@ -152,21 +152,28 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
       selectDepartmentOnly(timechip.department_id);
     }
 
+    const latestState = getWidgetState();
+    const departmentIdForReservation =
+      timechip.department_id ??
+      latestState.selectedDepartmentId ??
+      selectedDepartmentId ??
+      undefined;
+
     const fromIso = localDateTimeToIso(timechip.from);
     const toIso = localDateTimeToIso(timechip.to);
     selectDateTime(fromIso, toIso);
 
-    if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId) {
+    if (latestState.config?.apiUrl && departmentIdForReservation) {
       try {
         const result = await schedulesApi.reserveTimeslot({
-          apiUrl: widgetState.config.apiUrl,
+          apiUrl: latestState.config.apiUrl,
           timeslot: {
             from: timechip.from,
             to: timechip.to,
           },
-          departmentId: widgetState.selectedDepartmentId,
+          departmentId: departmentIdForReservation,
           employeeId: selectedEmployeeId,
-          uniqueHash: widgetState.reservedTimeslotHash || undefined,
+          uniqueHash: latestState.reservedTimeslotHash || undefined,
         });
 
         if (result.unique_hash) {
