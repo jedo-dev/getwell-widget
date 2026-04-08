@@ -168,7 +168,7 @@
   flex-direction: column;
   background-color: #ffffff;
   border-radius: 16px 16px 0 0;
-
+  position: relative;
 }
 
 .date-time-selection-calendar {
@@ -319,6 +319,7 @@
   flex-direction: column;
   gap: 20px;
   padding: 20px;
+  padding-bottom: 96px;
   flex: 1;
 }
 
@@ -423,24 +424,10 @@
 }
 
 .date-time-selection-footer {
-  background-color: #ffffff;
-  padding: 20px;
-  margin-top: auto;
-}
-
-.date-time-selection-next-btn {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Onest', sans-serif;
-  line-height: 24px;
-  background-color: #344054;
-  border-color: #344054;
-  border-radius: 64px;
-  color: #ffffff;
-}
-
-.date-time-selection-next-btn:hover {
-  background-color: #1f2937;
-  border-color: #1f2937;
+  --gw-action-footer-padding: 20px;
+  --gw-action-footer-gap: 12px;
+  --gw-action-footer-primary-flex: 1;
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
 }

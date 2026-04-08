@@ -21,7 +21,7 @@ import {
   isPastDate,
   isToday,
 } from '../../../shared/lib';
-import { Avatar, Notification, ScreenLayout } from '../../../shared/ui';
+import { ActionFooter, Avatar, Notification, ScreenLayout } from '../../../shared/ui';
 import { Employee } from '../../../types';
 import './DateTimeSelection.css';
 
@@ -294,7 +294,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           departmentId: widgetState.selectedDepartmentId || undefined,
         });
 
-        const slots: TimeSlot[] = (timechips || []).map((t) => {
+        const slots: TimeSlot[] = (timechips || [])
+          .filter((t) => !t.is_limited)
+          .map((t) => {
           // from: "YYYY-MM-DD HH:mm:ss"
           const isoFrom = localDateTimeToIso(t.from);
           const isoTo = localDateTimeToIso(t.to);
@@ -309,7 +311,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
             isLimited: t.is_limited,
             departmentId: t.department_id,
           };
-        });
+          });
 
         // Сортировка по времени
         slots.sort((a, b) => a.fromIso.localeCompare(b.fromIso));
@@ -519,16 +521,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                 })
               )}
             </div>
+            {selectedTime ? (
+              <ActionFooter
+                className='date-time-selection-footer'
+                primaryLabel='Далее'
+                onPrimaryClick={goToPhoneInput}
+              />
+            ) : null}
           </div>
-        }
-        footer={
-          selectedTime ? (
-            <div className='date-time-selection-footer'>
-              <Button type='primary' className='date-time-selection-next-btn' block onClick={goToPhoneInput}>
-                Далее
-              </Button>
-            </div>
-          ) : null
         }
       />
     </>
