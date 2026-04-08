@@ -30,5 +30,5 @@
 }
 
 .gw-field-required {
-  color: #ff4d4f;
+  color: var(--widget-field-label-color);
 }

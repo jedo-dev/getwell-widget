@@ -136,8 +136,10 @@
 }
 
 .add-pet-modal-line-select .ant-select-selection-placeholder,
-.add-pet-modal-line-datepicker .ant-picker-input > input::placeholder {
+.add-pet-modal-datepicker .ant-picker-input > input::placeholder {
   color: #777777;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .add-pet-modal-date-icon {
@@ -145,9 +147,10 @@
   font-size: 14px;
 }
 
-.add-pet-modal-line-datepicker .ant-picker-input > input {
+.add-pet-modal-datepicker .ant-picker-input > input {
   font-family: 'Onest', sans-serif;
   font-size: 16px;
+  line-height: 24px;
   color: #101828;
 }
 
