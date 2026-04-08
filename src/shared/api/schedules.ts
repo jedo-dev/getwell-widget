@@ -30,10 +30,22 @@ export interface ExternalDoctorApiData {
   is_owner_tenant: boolean;
   job_position_for_documents: JobPositionForDocuments | null;
   roles: unknown[];
-  photo?: string | null;
+  photo?: string | ExternalFilePhoto | null;
   email?: string | null;
   info?: string | null;
   date_of_dismissal?: string | null;
+}
+
+export interface ExternalFilePhoto {
+  id: number;
+  name: string;
+  mime_type?: string;
+  size?: number;
+  uploaded_at?: string;
+  original_link?: string;
+  download_link?: string;
+  webp_preview_link?: string;
+  jpeg_preview_link?: string;
 }
 
 export interface NearestAvailableTimeslot {
@@ -72,12 +84,27 @@ function mapDoctorToEmployee(a: { employee: ExternalDoctorApiData }): Employee {
     firstName: d.name || '',
     lastName: d.surname || '',
     patronymic: d.patronymic || undefined,
-    photo: d.photo || undefined,
+    photo: resolveDoctorPhoto(d.photo),
     position,
     specialization: position,
     information: d.info || undefined,
     showInWidget: true,
   };
+}
+
+export function resolveDoctorPhoto(
+  photo: ExternalDoctorApiData['photo'],
+): string | undefined {
+  if (!photo) return undefined;
+  if (typeof photo === 'string') return photo;
+
+  return (
+    photo.webp_preview_link ||
+    photo.jpeg_preview_link ||
+    photo.original_link ||
+    photo.download_link ||
+    undefined
+  );
 }
 
 export const schedulesApi = {

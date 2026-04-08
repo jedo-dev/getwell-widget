@@ -13,7 +13,7 @@ import { PrivacyPolicy } from '../../../features/privacy-policy';
 import { SpecialistSelection } from '../../../features/specialist-selection';
 import { goBack, selectBranch } from '../../../lib/widget-manager';
 import { branchesApi, departmentsApi } from '../../../shared/api';
-import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
+import { AvailableDoctorsData, resolveDoctorPhoto, schedulesApi } from '../../../shared/api/schedules';
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
@@ -40,7 +40,7 @@ export const Widget: React.FC<WidgetProps> = ({
       firstName: d.name || '',
       lastName: d.surname || '',
       patronymic: d.patronymic || undefined,
-      photo: d.photo || undefined,
+      photo: resolveDoctorPhoto(d.photo),
       position,
       specialization: position,
       information: d.info || undefined,
