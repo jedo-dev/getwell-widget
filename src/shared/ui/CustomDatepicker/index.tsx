@@ -46,7 +46,7 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
       required={Boolean(text)}
       hasValue={hasValue}
       isActive={open}
-      hidePlaceholderWhenActive={false}>
+      hidePlaceholderWhenActive={hasValue}>
       <DatePicker
         {...rest}
         size='large'
