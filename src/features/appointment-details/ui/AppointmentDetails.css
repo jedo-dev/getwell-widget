@@ -459,10 +459,38 @@
   margin-bottom: 16px;
 }
 
+.appointment-details--new-user .appointment-details-field {
+  margin-bottom: 16px;
+}
+
+.appointment-details--new-user .appointment-details-field:last-child {
+  margin-bottom: 0;
+}
+
+.appointment-details--new-user .appointment-details-gender-section {
+  margin-bottom: 16px;
+}
+
+.appointment-details--new-user .appointment-details-pet-section {
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.appointment-details--new-user .appointment-details-pet-title {
+  margin-bottom: 0;
+}
+
 .appointment-details--new-user .appointment-details-consents {
   padding: 0;
   margin-bottom: 0;
   background: transparent;
   border-radius: 0;
   gap: 12px;
+}
+
+.appointment-details--new-user .appointment-details-footer {
+  padding: 20px 0 0;
+  margin-top: 0;
+  background: transparent;
+  border-radius: 0;
 }

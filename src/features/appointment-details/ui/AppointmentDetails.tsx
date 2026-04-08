@@ -908,14 +908,12 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               </a>
             </Checkbox>
 
-            {!isNewUser && (
-              <Checkbox
-                checked={consentMarketing}
-                onChange={(e) => setConsentMarketing(e.target.checked)}
-                className='appointment-details-consent-checkbox'>
-                Согласен на получение сообщений и информационно-рекламной рассылки
-              </Checkbox>
-            )}
+            <Checkbox
+              checked={consentMarketing}
+              onChange={(e) => setConsentMarketing(e.target.checked)}
+              className='appointment-details-consent-checkbox'>
+              Согласен на получение сообщений и информационно-рекламной рассылки
+            </Checkbox>
           </div>
 
           <div className='appointment-details-footer'>
