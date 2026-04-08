@@ -4,7 +4,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import { getWidgetState } from '../../../lib/widget-manager';
 import { patientsApi } from '../../../shared/api';
-import { Gender, PET_GENDER_LABELS } from '../../../shared/constants';
+import { Gender } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
@@ -25,15 +25,33 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [species, setSpecies] = useState<number | null>(null);
   const [breed, setBreed] = useState<number | null>(null);
-  const [gender, setGender] = useState<string>(Gender.MALE);
+  const [gender, setGender] = useState<string>(Gender.FEMALE);
   const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const femaleGenderCode = useMemo(() => {
+    const direct = petGenders.find((g) => g.code === Gender.FEMALE);
+    if (direct) return direct.code;
+    const byName = petGenders.find((g) => /female|жен|самк/i.test(g.name));
+    return byName?.code || Gender.FEMALE;
+  }, [petGenders]);
+
+  const maleGenderCode = useMemo(() => {
+    const direct = petGenders.find((g) => g.code === Gender.MALE);
+    if (direct) return direct.code;
+    const byName = petGenders.find((g) => /male|муж|самец/i.test(g.name));
+    return byName?.code || Gender.MALE;
+  }, [petGenders]);
+
   useEffect(() => {
-    if (petGenders.length > 0 && !petGenders.find((g) => g.code === gender)) {
-      setGender(petGenders[0].code);
+    if (!petGenders.length) {
+      return;
     }
-  }, [petGenders, gender]);
+
+    if (gender !== femaleGenderCode && gender !== maleGenderCode) {
+      setGender(femaleGenderCode);
+    }
+  }, [petGenders, gender, femaleGenderCode, maleGenderCode]);
 
   useEffect(() => {
     if (!open) {
@@ -135,7 +153,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
     setName('');
     setSpecies(null);
     setBreed(null);
-    setGender(petGenders[0]?.code || Gender.MALE);
+    setGender(femaleGenderCode);
     setBirthDate(null);
     setErrors({});
     onClose();
@@ -210,11 +228,8 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             value={gender}
             onChange={(e) => setGender(e.target.value)}
             className='add-pet-modal-gender gw-segmented gw-segmented--pill'>
-            {petGenders.map((g) => (
-              <Radio.Button key={g.code} value={g.code}>
-                {PET_GENDER_LABELS[g.code as Gender] || g.name}
-              </Radio.Button>
-            ))}
+            <Radio.Button value={femaleGenderCode}>Самка</Radio.Button>
+            <Radio.Button value={maleGenderCode}>Самец</Radio.Button>
           </Radio.Group>
         </div>
 
