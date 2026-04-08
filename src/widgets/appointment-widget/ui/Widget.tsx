@@ -15,6 +15,7 @@ import { goBack, selectBranch } from '../../../lib/widget-manager';
 import { branchesApi, departmentsApi } from '../../../shared/api';
 import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
+import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
 import './Widget.css';
 
@@ -31,6 +32,31 @@ export const Widget: React.FC<WidgetProps> = ({
   widgetState,
   withoutDrawer = false,
 }) => {
+  const mapDoctorDataToEmployee = (doctor: AvailableDoctorsData): Employee => {
+    const d = doctor.employee;
+    const position = d.job_position_for_documents?.name || '';
+    return {
+      id: d.id,
+      firstName: d.name || '',
+      lastName: d.surname || '',
+      patronymic: d.patronymic || undefined,
+      photo: d.photo || undefined,
+      position,
+      specialization: position,
+      information: d.info || undefined,
+      showInWidget: true,
+    };
+  };
+
+  const getEmployeesFromSchedules = (data: AvailableDoctorsData[]): Employee[] => {
+    const mapped = data.map(mapDoctorDataToEmployee);
+    const unique = new Map<number, Employee>();
+    mapped.forEach((emp) => unique.set(emp.id, emp));
+    return Array.from(unique.values()).sort((a, b) =>
+      formatEmployeeFullName(a).localeCompare(formatEmployeeFullName(b), 'ru'),
+    );
+  };
+
   const [drawerWidth, setDrawerWidth] = useState<number | string>(600);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -157,15 +183,11 @@ export const Widget: React.FC<WidgetProps> = ({
             return;
           }
 
-          const doctors = await schedulesApi.getAvailableDoctors({
-            apiUrl: widgetState.config.apiUrl,
-            filialId: widgetState.selectedBranchId!,
-          });
           const doctorsWithSchedulesData = await schedulesApi.getAvailableDoctorsWithSchedules({
             apiUrl: widgetState.config.apiUrl,
             filialId: widgetState.selectedBranchId!,
           });
-          setEmployees(doctors);
+          setEmployees(getEmployeesFromSchedules(doctorsWithSchedulesData));
           setDoctorsWithSchedules(doctorsWithSchedulesData);
         } catch (error) {
           console.error('Ошибка загрузки доступных врачей:', error);
@@ -218,17 +240,12 @@ export const Widget: React.FC<WidgetProps> = ({
             return;
           }
 
-          const doctors = await schedulesApi.getAvailableDoctors({
-            apiUrl: widgetState.config.apiUrl,
-            filialId: widgetState.selectedBranchId!,
-            departmentId: widgetState.selectedDepartmentId!,
-          });
           const doctorsWithSchedulesData = await schedulesApi.getAvailableDoctorsWithSchedules({
             apiUrl: widgetState.config.apiUrl,
             filialId: widgetState.selectedBranchId!,
             departmentId: widgetState.selectedDepartmentId!,
           });
-          setEmployees(doctors);
+          setEmployees(getEmployeesFromSchedules(doctorsWithSchedulesData));
           setDoctorsWithSchedules(doctorsWithSchedulesData);
         } catch (error) {
           console.error('Ошибка загрузки врачей отделения:', error);
