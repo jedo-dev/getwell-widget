@@ -1,6 +1,7 @@
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getWidgetState, openGetWellWidget } from '../../../lib/widget-manager';
+import { branchesApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import {
   formatDate,
@@ -36,8 +37,34 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   const widgetState = getWidgetState();
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [resolvedBranch, setResolvedBranch] = useState<Branch | null>(selectedBranch);
   const [loadingPet, setLoadingPet] = useState<boolean>(false);
-  const defaultImage = '';
+
+  useEffect(() => {
+    setResolvedBranch(selectedBranch);
+
+    const loadBranchDetails = async () => {
+      if (!selectedBranch?.id) {
+        return;
+      }
+
+      if (selectedBranch.phone && selectedBranch.schedule) {
+        return;
+      }
+
+      try {
+        const branchDetails = await branchesApi.getById(selectedBranch.id);
+        if (branchDetails) {
+          setResolvedBranch({ ...selectedBranch, ...branchDetails });
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки филиала для подтверждения:', error);
+      }
+    };
+
+    loadBranchDetails();
+  }, [selectedBranch]);
+
   useEffect(() => {
     const loadPet = async () => {
       if (!phone || !selectedPetId) {
@@ -69,15 +96,15 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   };
 
   const handleBuildRoute = () => {
-    if (!selectedBranch) return;
+    if (!resolvedBranch) return;
     // TODO: Реализовать построение маршрута
-    const address = encodeURIComponent(selectedBranch.address);
+    const address = encodeURIComponent(resolvedBranch.address);
     window.open(`https://yandex.ru/maps/?text=${address}`, '_blank');
   };
 
   const handleCall = () => {
-    if (!selectedBranch) return;
-    window.location.href = `tel:${selectedBranch.phone.replace(/[^\d+]/g, '')}`;
+    if (!resolvedBranch?.phone) return;
+    window.location.href = `tel:${resolvedBranch.phone.replace(/[^\d+]/g, '')}`;
   };
 
   const handleBookAgain = () => {
@@ -104,7 +131,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     selectedEmployee && {
       key: 'employee',
-      icon: <IconWrapper src={UserIcon} />,
+      icon: <IconWrapper src={UserIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
       title: fullName,
       description: null,
       action: showDoctorInfo ? {
@@ -117,7 +144,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     },
     dateTimeInfo && {
       key: 'datetime',
-      icon: <IconWrapper src={CalendarIcon} />,
+      icon: <IconWrapper src={CalendarIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
       title: `${formattedDate}`,
       description: null,
       action: {
@@ -125,30 +152,32 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
         onClick: handleAddToCalendar,
       },
     },
-    selectedBranch && {
+    resolvedBranch && {
       key: 'address',
-      icon: <IconWrapper src={LocationIcon} />,
-      title: selectedBranch.address,
+      icon: <IconWrapper src={LocationIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      title: resolvedBranch.address,
       description: null,
       action: {
         text: 'Построить маршрут',
         onClick: handleBuildRoute,
       },
     },
-    selectedBranch && {
+    resolvedBranch && {
       key: 'phone',
-      icon: <IconWrapper src={mobileIcon} />,
-      title: selectedBranch.phone,
+      icon: <IconWrapper src={mobileIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      title: resolvedBranch.phone || 'Не указан',
       description: null,
-      action: {
-        text: 'Позвонить',
-        onClick: handleCall,
-      },
+      action: resolvedBranch.phone
+        ? {
+            text: 'Позвонить',
+            onClick: handleCall,
+          }
+        : null,
     },
-    selectedBranch && {
+    resolvedBranch && {
       key: 'schedule',
-      icon: <IconWrapper src={watchIcon} />,
-      title: selectedBranch.schedule || 'Рабочие часы',
+      icon: <IconWrapper src={watchIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      title: resolvedBranch.schedule || 'Рабочие часы',
       description: null,
       action: null,
     },
@@ -209,7 +238,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       <div className='appointment-confirmation-footer'>
         <Button
           type='primary'
-          className='appointment-confirmation-book-again-btn'
+          className='appointment-confirmation-book-again-btn gw-primary-btn'
           block
           onClick={handleBookAgain}
           size='large'>

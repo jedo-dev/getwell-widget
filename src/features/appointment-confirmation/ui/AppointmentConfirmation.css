@@ -1,8 +1,9 @@
 .appointment-confirmation {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 0;
   gap: 0;
+  background: #ffffff;
 }
 
 /* Main Image Container */
@@ -57,30 +58,31 @@
 
 /* Appointment Info Container */
 .appointment-confirmation-info-container {
-  padding: 45px 0 15px 0;
+  padding: 52px 20px 16px;
   text-align: center;
   background-color: #ffffff;
   margin-bottom: 0;
 }
 
 .appointment-confirmation-title {
-  font-size: 32px;
+  font-size: 48px;
   font-weight: 500;
   font-family: 'Onest', sans-serif;
-  line-height: 40px;
-  color: #101828;
-  margin: 0 0 20px 0;
+  line-height: 56px;
+  color: var(--widget-text-color);
+  margin: 0 0 8px;
+  letter-spacing: -0.96px;
 }
 
 .appointment-confirmation-time-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 16px;
   font-family: 'Onest', sans-serif;
   line-height: 20px;
-  color: #777777;
+  color: var(--widget-text-tertiary);
 }
 
 .appointment-confirmation-day {
@@ -98,10 +100,10 @@
 
 /* Details Container */
 .appointment-confirmation-details-container {
-  flex: 1;
+  flex: 0 0 auto;
   overflow-y: auto;
   background-color: #ffffff;
-  padding: 0;
+  padding: 0 0 8px;
 }
 
 .appointment-confirmation-details-list {
@@ -111,8 +113,8 @@
 }
 
 .appointment-confirmation-detail-item {
-  padding: 20px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--widget-border-color);
 }
 
 .appointment-confirmation-detail-item:last-child {
@@ -121,15 +123,15 @@
 
 .appointment-confirmation-detail-content {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 12px;
   width: 100%;
 }
 
 .appointment-confirmation-detail-icon {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,17 +154,17 @@
 
 .appointment-confirmation-detail-title {
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 500;
   font-family: 'Onest', sans-serif;
   line-height: 24px;
-  color: #101828;
+  color: var(--widget-text-color);
   word-break: break-word;
 }
 
 .appointment-confirmation-detail-action {
   background: none;
   border: none;
-  color: #1890ff;
+  color: var(--widget-link-color);
   font-size: 14px;
   font-family: 'Onest', sans-serif;
   line-height: 20px;
@@ -171,6 +173,7 @@
   flex-shrink: 0;
   text-decoration: underline;
   white-space: nowrap;
+  margin-top: 2px;
 }
 
 .appointment-confirmation-detail-action:hover {
@@ -180,28 +183,11 @@
 .appointment-confirmation-footer {
   padding: 20px;
   background-color: #ffffff;
-  /* border-radius: 0 0 16px 16px; */
   margin-top: 0;
+  border-top: 1px solid var(--widget-border-color);
 }
 
 .appointment-confirmation-book-again-btn {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Onest', sans-serif;
-  background-color: #344054;
-  border-color: #344054;
-  border-radius: 8px;
-}
-
-.appointment-confirmation-book-again-btn:hover:not(:disabled) {
-  background-color: #344054;
-  border-color: #344054;
-}
-
-.appointment-confirmation-book-again-btn:disabled {
-  background-color: #d0d5dd;
-  border-color: #d0d5dd;
-  color: #98a2b3;
+  --gw-btn-radius: 64px;
 }
 

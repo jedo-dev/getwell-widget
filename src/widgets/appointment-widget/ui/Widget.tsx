@@ -69,6 +69,9 @@ export const Widget: React.FC<WidgetProps> = ({
   const nextStepsHeaderImage = isMobileViewport
     ? widgetState.config?.mobileImageUrl || widgetState.config?.desktopImageUrl
     : widgetState.config?.desktopImageUrl || widgetState.config?.mobileImageUrl;
+  const confirmationHeaderImage = isMobileViewport
+    ? widgetState.config?.mobileImageUrl || widgetState.config?.desktopImageUrl
+    : widgetState.config?.desktopImageUrl || widgetState.config?.mobileImageUrl;
 
   const isOffline =
     widgetState.config?.offlineMode === true ||
@@ -371,7 +374,13 @@ export const Widget: React.FC<WidgetProps> = ({
       case WidgetStep.APPOINTMENT_CONFIRMATION:
         return (
           <div className='appointment-confirmation-image-container'>
-            <img src={undefined} alt='' className='appointment-confirmation-image' />
+            {confirmationHeaderImage ? (
+              <img
+                src={confirmationHeaderImage}
+                alt='Appointment confirmation header'
+                className='appointment-confirmation-image'
+              />
+            ) : null}
 
             <div className='appointment-confirmation-success-icon'>
               <CheckCircleOutlined />
@@ -409,6 +418,7 @@ export const Widget: React.FC<WidgetProps> = ({
   const isCollapsedHeader =
     widgetState.currentStep === WidgetStep.NEXT_STEPS && !nextStepsHeaderImage;
   const isNextStepsStep = widgetState.currentStep === WidgetStep.NEXT_STEPS;
+  const shouldShowGlobalFooter = widgetState.currentStep !== WidgetStep.APPOINTMENT_CONFIRMATION;
   const renderContent = () => {
     console.log('***', widgetState, '***');
     const { currentStep } = widgetState;
@@ -587,7 +597,9 @@ export const Widget: React.FC<WidgetProps> = ({
       footer={null}>
       <div className='getwell-widget-content'>
         <div className='getwell-widget-main'>{renderContent()}</div>
-        <div className='getwell-widget-inline-footer'>{renderFooter()}</div>
+        {shouldShowGlobalFooter ? (
+          <div className='getwell-widget-inline-footer'>{renderFooter()}</div>
+        ) : null}
       </div>
     </Drawer>
   );
