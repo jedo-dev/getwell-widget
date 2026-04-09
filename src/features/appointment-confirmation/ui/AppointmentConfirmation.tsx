@@ -44,18 +44,19 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     setResolvedBranch(selectedBranch);
 
     const loadBranchDetails = async () => {
-      if (!selectedBranch?.id) {
+      const branchId = selectedBranch?.id ?? widgetState.selectedBranchId ?? null;
+      if (!branchId) {
         return;
       }
 
-      if (selectedBranch.phone && selectedBranch.schedule) {
+      if (selectedBranch?.phone && selectedBranch.schedule) {
         return;
       }
 
       try {
-        const branchDetails = await branchesApi.getById(selectedBranch.id);
+        const branchDetails = await branchesApi.getById(branchId);
         if (branchDetails) {
-          setResolvedBranch({ ...selectedBranch, ...branchDetails });
+          setResolvedBranch((prev) => ({ ...(prev || {}), ...branchDetails }));
         }
       } catch (error) {
         console.error('Ошибка загрузки филиала для подтверждения:', error);
@@ -63,11 +64,11 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     };
 
     loadBranchDetails();
-  }, [selectedBranch]);
+  }, [selectedBranch, widgetState.selectedBranchId]);
 
   useEffect(() => {
     const loadPet = async () => {
-      if (!phone || !selectedPetId) {
+      if (!selectedPetId) {
         setSelectedPet(null);
         return;
       }
@@ -84,7 +85,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     };
 
     loadPet();
-  }, [phone, selectedPetId]);
+  }, [selectedPetId]);
 
   const dateTimeInfo = formatDateTime(selectedDateTime);
   const fullName = selectedEmployee ? formatEmployeeFullName(selectedEmployee) : '';
@@ -115,8 +116,16 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   const formattedDate = dateTime ? formatDate(dateTime) : '';
   const formattedTime = dateTime ? formatTime(dateTime) : '';
 
-  const appointmentItems = [
-    selectedPet && {
+  const appointmentItems: Array<{
+    key: string;
+    icon: React.ReactNode;
+    title: string;
+    description: string | null;
+    action: { text: string; onClick: () => void } | null;
+  }> = [];
+
+  if (selectedPet) {
+    appointmentItems.push({
       key: 'pet',
       icon: <span className='appointment-confirmation-paw-icon'>🐾</span>,
       title: selectedPet.name,
@@ -124,70 +133,116 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       action: {
         text: 'Подробнее',
         onClick: () => {
-          // TODO: Открыть модальное окно с информацией о питомце
           console.log('Подробнее о питомце');
         },
       },
-    },
-    selectedEmployee && {
+    });
+  }
+
+  if (selectedEmployee) {
+    appointmentItems.push({
       key: 'employee',
-      icon: <IconWrapper src={UserIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      icon: (
+        <IconWrapper
+          src={UserIcon}
+          size={32}
+          iconSize={16}
+          withBackground={false}
+          color='var(--widget-text-secondary)'
+        />
+      ),
       title: fullName,
       description: null,
-      action: showDoctorInfo ? {
-        text: 'Подробнее',
-        onClick: () => {
-          // TODO: Открыть модальное окно с информацией о враче
-          console.log('Подробнее о враче');
-        },
-      } : null,
-    },
-    dateTimeInfo && {
+      action: showDoctorInfo
+        ? {
+            text: 'Подробнее',
+            onClick: () => {
+              console.log('Подробнее о враче');
+            },
+          }
+        : null,
+    });
+  }
+
+  if (dateTimeInfo) {
+    appointmentItems.push({
       key: 'datetime',
-      icon: <IconWrapper src={CalendarIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      icon: (
+        <IconWrapper
+          src={CalendarIcon}
+          size={32}
+          iconSize={16}
+          withBackground={false}
+          color='var(--widget-text-secondary)'
+        />
+      ),
       title: `${formattedDate}`,
       description: null,
       action: {
         text: 'Добавить в календарь',
         onClick: handleAddToCalendar,
       },
-    },
-    resolvedBranch && {
+    });
+  }
+
+  if (resolvedBranch) {
+    appointmentItems.push({
       key: 'address',
-      icon: <IconWrapper src={LocationIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      icon: (
+        <IconWrapper
+          src={LocationIcon}
+          size={32}
+          iconSize={16}
+          withBackground={false}
+          color='var(--widget-text-secondary)'
+        />
+      ),
       title: resolvedBranch.address,
       description: null,
       action: {
         text: 'Построить маршрут',
         onClick: handleBuildRoute,
       },
-    },
-    resolvedBranch && {
+    });
+
+    const branchPhone = resolvedBranch.phone || '';
+    appointmentItems.push({
       key: 'phone',
-      icon: <IconWrapper src={mobileIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
-      title: resolvedBranch.phone || 'Не указан',
+      icon: (
+        <IconWrapper
+          src={mobileIcon}
+          size={32}
+          iconSize={16}
+          withBackground={false}
+          color='var(--widget-text-secondary)'
+        />
+      ),
+      title: branchPhone || 'Не указан',
       description: null,
-      action: resolvedBranch.phone
+      action: branchPhone
         ? {
             text: 'Позвонить',
             onClick: handleCall,
           }
         : null,
-    },
-    resolvedBranch && {
+    });
+
+    appointmentItems.push({
       key: 'schedule',
-      icon: <IconWrapper src={watchIcon} size={32} iconSize={16} style={{ border: '1px solid var(--widget-border-secondary)' }} />,
+      icon: (
+        <IconWrapper
+          src={watchIcon}
+          size={32}
+          iconSize={16}
+          withBackground={false}
+          color='var(--widget-text-secondary)'
+        />
+      ),
       title: resolvedBranch.schedule || 'Рабочие часы',
       description: null,
       action: null,
-    },
-  ].filter(Boolean) as Array<{
-    key: string;
-    icon: React.ReactNode;
-    title: string;
-    description: string | null;
-    action: { text: string; onClick: () => void } | null;
-  }>;
+    });
+  }
 
   return (
     <div className='appointment-confirmation'>
