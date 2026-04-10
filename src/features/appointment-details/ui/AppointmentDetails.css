@@ -332,17 +332,18 @@
 
 .appointment-details-pet-add-btn {
   height: 48px;
-  background-color: #ffffff;
-  border: 1px solid #d0d5dd;
+  background-color: #f2f4f7;
+  border: none;
   color: #101828;
-  border-radius: 8px;
+  border-radius: 24px;
   font-size: 16px;
+  font-weight: 500;
   font-family: 'Onest', sans-serif;
 }
 
 .appointment-details-pet-add-btn:hover {
-  background-color: #f9fafb;
-  border-color: #98a2b3;
+  background-color: #eaecf0 !important;
+  color: #101828 !important;
 }
 
 .appointment-details-symptoms {
