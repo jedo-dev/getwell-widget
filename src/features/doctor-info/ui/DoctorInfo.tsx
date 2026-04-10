@@ -12,6 +12,7 @@ export interface DoctorInfoProps {
 export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+
   if (!employee) {
     return (
       <div className='doctor-info'>
@@ -25,8 +26,7 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
   const fullName = formatEmployeeFullName(employee);
 
   // Стандартная информация о враче, если не указана
-  const defaultInfo =
-    '';
+  const defaultInfo = '';
   const doctorInfo = employee.information || defaultInfo;
 
   return (
@@ -49,7 +49,9 @@ export const DoctorInfo: React.FC<DoctorInfoProps> = ({ employee }) => {
 
         <div className='doctor-info-about-card'>
           <div className='doctor-info-section'>
-            <h3 className='doctor-info-section-title'>О враче</h3>
+            <h3 className='doctor-info-section-title'>
+              {doctorInfo && <h3 className='doctor-info-section-title'>О враче</h3>}
+            </h3>
             <div className='doctor-info-text'>
               {doctorInfo.split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
