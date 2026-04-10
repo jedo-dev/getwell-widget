@@ -11,9 +11,9 @@ import {
 import { AvailableDoctorsData, schedulesApi } from '../../../shared/api/schedules';
 import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../shared/constants';
 import {
+  findNearestTimeslot,
   formatDate,
   formatEmployeeFullName,
-  findNearestTimeslot,
   formatLocalDateTime,
   formatLocalMidnight,
   formatMonthYear,
@@ -297,20 +297,20 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
         const slots: TimeSlot[] = (timechips || [])
           .filter((t) => !t.is_limited)
           .map((t) => {
-          // from: "YYYY-MM-DD HH:mm:ss"
-          const isoFrom = localDateTimeToIso(t.from);
-          const isoTo = localDateTimeToIso(t.to);
-          const fromDate = new Date(isoFrom);
-          const hh = String(fromDate.getHours()).padStart(2, '0');
-          const mm = String(fromDate.getMinutes()).padStart(2, '0');
-          return {
-            time: `${hh}:${mm}`,
-            period: getPeriod(fromDate.getHours()),
-            fromIso: isoFrom,
-            toIso: isoTo,
-            isLimited: t.is_limited,
-            departmentId: t.department_id,
-          };
+            // from: "YYYY-MM-DD HH:mm:ss"
+            const isoFrom = localDateTimeToIso(t.from);
+            const isoTo = localDateTimeToIso(t.to);
+            const fromDate = new Date(isoFrom);
+            const hh = String(fromDate.getHours()).padStart(2, '0');
+            const mm = String(fromDate.getMinutes()).padStart(2, '0');
+            return {
+              time: `${hh}:${mm}`,
+              period: getPeriod(fromDate.getHours()),
+              fromIso: isoFrom,
+              toIso: isoTo,
+              isLimited: t.is_limited,
+              departmentId: t.department_id,
+            };
           });
 
         // Сортировка по времени
@@ -408,7 +408,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                     <IconWrapper src={CalendarIcon} size={48} withBackground={false} />
                   </div>
                   <div className='date-time-selection-selected-info'>
-                    <div className='date-time-selection-selected-date'>{formatDate(selectedDate)}</div>
+                    <div className='date-time-selection-selected-date'>
+                      {formatDate(selectedDate)}
+                    </div>
                     <div className='date-time-selection-selected-time'>{selectedTime}</div>
                   </div>
                 </div>
@@ -420,7 +422,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           <div className='date-time-selection-content'>
             <div className='date-time-selection-calendar'>
               <div className='date-time-selection-calendar-header'>
-                <div className='date-time-selection-calendar-month'>{formatMonthYear(currentMonth)}</div>
+                <div className='date-time-selection-calendar-month'>
+                  {formatMonthYear(currentMonth)}
+                </div>
                 <div className='date-time-selection-calendar-nav-group'>
                   <button
                     className='date-time-selection-calendar-nav'
@@ -444,7 +448,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 
               <div className='date-time-selection-calendar-days'>
                 {calendarDays.map((date, index) => {
-                  if (!date) return <div key={index} className='date-time-selection-calendar-day empty' />;
+                  if (!date)
+                    return <div key={index} className='date-time-selection-calendar-day empty' />;
 
                   const isPast = isPastDate(date);
                   const isCurrentMonthDay = isCurrentMonth(date, currentMonth);
@@ -460,7 +465,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                     ${isSelectedDay ? 'selected' : ''} 
                     ${isTodayDay ? 'today' : ''}`}
                       onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
-                      <span className='date-time-selection-calendar-day-number'>{date.getDate()}</span>
+                      <span className='date-time-selection-calendar-day-number'>
+                        {date.getDate()}
+                      </span>
                     </div>
                   );
                 })}
@@ -477,7 +484,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
               {showEmptySlotsState ? (
                 <div className='date-time-selection-empty-state'>
                   <div className='date-time-selection-empty-title'>
-                    На выбранную дату нет свободного времени
+                    Сегодня нет свободного времени
                   </div>
                   {nearestAvailableDateLabel && (
                     <div className='date-time-selection-empty-subtitle'>
