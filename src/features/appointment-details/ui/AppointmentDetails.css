@@ -483,11 +483,11 @@
 }
 
 .appointment-details-consent-checkbox--error .ant-checkbox-inner {
-  border-color: #ff4d4f !important;
+  border-color: #667085 !important;
 }
 
 .appointment-details-consent-checkbox--error .ant-checkbox + span {
-  color: #d92d20;
+  color: inherit;
 }
 
 .appointment-details-field-error {
@@ -496,6 +496,17 @@
   font-size: 12px;
   line-height: 16px;
   color: #f04438;
+}
+
+.appointment-details-consent-required {
+  margin-top: -14px;
+  margin-left: 26px;
+  font-family: 'Onest', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: #f04438;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 

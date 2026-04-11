@@ -398,7 +398,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         return;
       }
       if (!selectedPatientTypeId) {
-        message.error('Пожалуйста, выберите тип животного');
+        message.error('Пожалуйста, выберите вид');
         return;
       }
       if (!selectedBreedId) {
@@ -847,7 +847,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   </div>
                 ) : (
                   <CustomSelector
-                    text='Тип животного'
+                    text='Вид'
                     value={selectedPatientTypeId}
                     status={patientTypeHasValidationError ? 'error' : undefined}
                     onChange={(value) => {
@@ -965,6 +965,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 обработку персональных данных
               </a>
             </Checkbox>
+            {consentHasValidationError && (
+              <div className='appointment-details-consent-required'>Обязательное поле</div>
+            )}
 
             <Checkbox
               checked={consentMarketing}
