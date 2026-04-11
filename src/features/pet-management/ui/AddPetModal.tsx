@@ -247,7 +247,6 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             disabledDate={(current) => Boolean(current && current.isAfter(maxBirthDate))}
             format='DD.MM.YYYY'
             style={{ width: '100%' }}
-            inputReadOnly
             variant='outlined'
             suffixIcon={<CalendarOutlined className='add-pet-modal-date-icon' />}
           />

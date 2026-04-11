@@ -38,20 +38,30 @@ const dayOfWeekToDayjsMap: Record<DayOfWeek, number> = {
 
 const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) => {
   const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const hasValue = !!rest.value;
+  const isFieldActive = open || focused;
 
   return (
     <FormField
       label={text}
       required={Boolean(text)}
       hasValue={hasValue}
-      isActive={open}
-      hidePlaceholderWhenActive={hasValue}>
+      isActive={isFieldActive}
+      hidePlaceholderWhenActive>
       <DatePicker
         {...rest}
         size='large'
         open={open}
         onOpenChange={setOpen}
+        onFocus={(e) => {
+          setFocused(true);
+          rest.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          rest.onBlur?.(e);
+        }}
         placeholder=' '
         onChange={(date) => {
           rest.onChange?.(date, date?.format('YYYY-MM-DD'));
@@ -68,7 +78,6 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
         allowClear={false}
         mode='date'
         variant='borderless'
-        inputReadOnly
       />
     </FormField>
   );
