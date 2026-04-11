@@ -208,27 +208,27 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       },
     });
 
-    const branchPhone = resolvedBranch.phone || '';
-    appointmentItems.push({
-      key: 'phone',
-      icon: (
-        <IconWrapper
-          src={mobileIcon}
-          size={32}
-          iconSize={16}
-          withBackground={false}
-          color='var(--widget-text-secondary)'
-        />
-      ),
-      title: branchPhone || 'Не указан',
-      description: null,
-      action: branchPhone
-        ? {
-            text: 'Позвонить',
-            onClick: handleCall,
-          }
-        : null,
-    });
+    const branchPhone = (resolvedBranch.phone || '').trim();
+    if (branchPhone) {
+      appointmentItems.push({
+        key: 'phone',
+        icon: (
+          <IconWrapper
+            src={mobileIcon}
+            size={32}
+            iconSize={16}
+            withBackground={false}
+            color='var(--widget-text-secondary)'
+          />
+        ),
+        title: branchPhone,
+        description: null,
+        action: {
+          text: 'Позвонить',
+          onClick: handleCall,
+        },
+      });
+    }
 
     appointmentItems.push({
       key: 'schedule',
