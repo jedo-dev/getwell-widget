@@ -1,6 +1,7 @@
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { getWidgetState, openGetWellWidget } from '../../../lib/widget-manager';
+import { getWidgetState, goToDoctorInfo, openGetWellWidget } from '../../../lib/widget-manager';
+import { WidgetStep } from '../../../shared/constants';
 import { branchesApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import {
@@ -112,6 +113,10 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     openGetWellWidget();
   };
 
+  const handleDoctorInfo = () => {
+    goToDoctorInfo(WidgetStep.APPOINTMENT_CONFIRMATION);
+  };
+
   const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
   const formattedTime = dateTime ? formatTime(dateTime) : '';
@@ -156,9 +161,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       action: showDoctorInfo
         ? {
             text: 'Подробнее',
-            onClick: () => {
-              console.log('Подробнее о враче');
-            },
+            onClick: handleDoctorInfo,
           }
         : null,
     });
@@ -277,6 +280,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
                   </div>
                   {item.action && (
                     <button
+                      type='button'
                       className='appointment-confirmation-detail-action'
                       onClick={item.action.onClick}>
                       {item.action.text}

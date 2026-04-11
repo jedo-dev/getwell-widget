@@ -164,20 +164,21 @@
 .appointment-confirmation-detail-action {
   background: none;
   border: none;
-  color: var(--widget-link-color);
+  color: var(--widget-text-secondary);
   font-size: 14px;
+  font-weight: 500;
   font-family: 'Onest', sans-serif;
-  line-height: 20px;
+  line-height: 24px;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  text-decoration: underline;
+  text-decoration: none;
   white-space: nowrap;
   margin-top: 2px;
 }
 
 .appointment-confirmation-detail-action:hover {
-  color: #40a9ff;
+  color: var(--widget-text-color);
 }
 
 .appointment-confirmation-footer {

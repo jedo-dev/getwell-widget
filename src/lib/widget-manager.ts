@@ -9,6 +9,7 @@ let widgetState: WidgetState = {
   config: null,
   initialized: false,
   currentStep: WidgetStep.BRANCH_SELECTION,
+  doctorInfoReturnStep: null,
   selectedBranchId: null,
   selectedEmployeeId: null,
   selectedDepartmentId: null,
@@ -231,6 +232,7 @@ export function openGetWellWidget(): void {
     isOpen: true,
     currentStep:
       shouldSkipBranchSelection ? WidgetStep.NEXT_STEPS : forcedStep ?? WidgetStep.BRANCH_SELECTION,
+    doctorInfoReturnStep: null,
     selectedBranchId: shouldSkipBranchSelection ? singleBranchId : forcedBranchId,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
@@ -269,6 +271,7 @@ export function resetGetWellWidget(): void {
     config: null,
     initialized: false,
     currentStep: WidgetStep.BRANCH_SELECTION,
+    doctorInfoReturnStep: null,
     selectedBranchId: null,
     selectedEmployeeId: null,
     selectedDepartmentId: null,
@@ -493,11 +496,17 @@ export function goToAppointmentConfirmation(): void {
 /**
  * Переход к экрану информации о враче
  */
-export function goToDoctorInfo(): void {
+export function goToDoctorInfo(returnStep?: WidgetStep): void {
   if (widgetState.config?.render?.lockStep) return;
+  const fallbackReturnStep =
+    widgetState.currentStep === WidgetStep.DOCTOR_INFO
+      ? widgetState.doctorInfoReturnStep ?? WidgetStep.SPECIALIST_SELECTION
+      : widgetState.currentStep;
+
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.DOCTOR_INFO,
+    doctorInfoReturnStep: returnStep ?? fallbackReturnStep,
   };
 
   notifyStateChange();
@@ -598,12 +607,15 @@ export async function goBack(): Promise<void> {
     };
   } else if (currentStep === 'doctor-info') {
     // Определяем, откуда мы пришли - из specialist-selection или department-specialists-selection
-    const previousStep = widgetState.selectedDepartmentId
-      ? WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION
-      : WidgetStep.SPECIALIST_SELECTION;
+    const previousStep =
+      widgetState.doctorInfoReturnStep ??
+      (widgetState.selectedDepartmentId
+        ? WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION
+        : WidgetStep.SPECIALIST_SELECTION);
     widgetState = {
       ...widgetState,
       currentStep: previousStep,
+      doctorInfoReturnStep: null,
     };
   } else if (currentStep === 'department-specialists-selection') {
     widgetState = {

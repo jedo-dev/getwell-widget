@@ -174,6 +174,7 @@ export interface WidgetState {
   config: WidgetConfig | null;
   initialized: boolean;
   currentStep: WidgetStep;
+  doctorInfoReturnStep?: WidgetStep | null;
   selectedBranchId: number | null;
   selectedEmployeeId: number | null;
   selectedDepartmentId: number | null;
