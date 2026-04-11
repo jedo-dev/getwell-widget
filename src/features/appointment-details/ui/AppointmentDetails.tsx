@@ -739,6 +739,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   status={firstNameHasValidationError ? 'error' : undefined}
                   required
                 />
+                {firstNameHasValidationError && (
+                  <div className='appointment-details-field-error'>Введите Имя</div>
+                )}
               </div>
               <div className='appointment-details-field'>
                 <CustomInput
@@ -748,6 +751,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   status={lastNameHasValidationError ? 'error' : undefined}
                   required
                 />
+                {lastNameHasValidationError && (
+                  <div className='appointment-details-field-error'>Введите Фамилию</div>
+                )}
               </div>
               <div className='appointment-details-field'>
                 <CustomInput
@@ -757,6 +763,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   status={patronymicHasValidationError ? 'error' : undefined}
                   required
                 />
+                {patronymicHasValidationError && (
+                  <div className='appointment-details-field-error'>Введите Отчество</div>
+                )}
               </div>
               <div className='appointment-details-gender-section'>
                 <Radio.Group
@@ -796,6 +805,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                       label: pet.name,
                     }))}
                   />
+                  {selectedPetHasValidationError && (
+                    <div className='appointment-details-field-error'>Выберите питомца</div>
+                  )}
                   <Button className='appointment-details-pet-add-btn' onClick={handleAddNewPet}>
                     Внести нового питомца
                   </Button>
@@ -824,6 +836,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   status={petNameHasValidationError ? 'error' : undefined}
                   required
                 />
+                {petNameHasValidationError && (
+                  <div className='appointment-details-field-error'>Введите Кличку</div>
+                )}
               </div>
               <div className='appointment-details-field'>
                 {loadingBreeds ? (
@@ -852,6 +867,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     disabled={patientTypes.length === 0}
                   />
                 )}
+                {patientTypeHasValidationError && (
+                  <div className='appointment-details-field-error'>Выберите вид</div>
+                )}
               </div>
 
               <div className='appointment-details-field'>
@@ -877,6 +895,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   }))}
                   disabled={!selectedPatientTypeId || availableBreeds.length === 0}
                 />
+                {breedHasValidationError && (
+                  <div className='appointment-details-field-error'>Выберите породу</div>
+                )}
               </div>
               <div className='appointment-details-gender-section'>
                 <Radio.Group
@@ -901,6 +922,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   format='DD.MM.YYYY'
                   style={{ width: '100%' }}
                 />
+                {petBirthDateHasValidationError && (
+                  <div className='appointment-details-field-error'>Выберите дату рождения</div>
+                )}
               </div>
               <div className='appointment-details-field'>
                 <CustomTextArea

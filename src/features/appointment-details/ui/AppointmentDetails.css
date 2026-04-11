@@ -458,6 +458,28 @@
 .appointment-details-field .ant-picker-status-error,
 .appointment-details-pet-select--error {
   border-bottom-color: #ff4d4f !important;
+  border-radius: unset;
+  background: #fff3f3;
+}
+
+.appointment-details-field .ant-select-status-error .ant-select-selector,
+.appointment-details-field .ant-picker-status-error .ant-picker-input > input {
+  background: #fff3f3;
+  border-radius: unset;
+}
+
+.appointment-details-field .gw-field-container:has(.ant-input-status-error) .gw-field-placeholder,
+.appointment-details-field .gw-field-container:has(.ant-select-status-error) .gw-field-placeholder,
+.appointment-details-field .gw-field-container:has(.ant-picker-status-error) .gw-field-placeholder,
+.appointment-details-pet-select--error .gw-field-placeholder {
+  color: #f28587;
+}
+
+.appointment-details-field .gw-field-container:has(.ant-input-status-error) .gw-field-required,
+.appointment-details-field .gw-field-container:has(.ant-select-status-error) .gw-field-required,
+.appointment-details-field .gw-field-container:has(.ant-picker-status-error) .gw-field-required,
+.appointment-details-pet-select--error .gw-field-required {
+  color: #f28587;
 }
 
 .appointment-details-consent-checkbox--error .ant-checkbox-inner {
@@ -466,6 +488,14 @@
 
 .appointment-details-consent-checkbox--error .ant-checkbox + span {
   color: #d92d20;
+}
+
+.appointment-details-field-error {
+  margin-top: 6px;
+  font-family: 'Onest', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: #f04438;
 }
 
 
