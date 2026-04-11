@@ -204,6 +204,12 @@
 .phone-input-phone-input-container .ant-input::placeholder {
   color: var(--widget-text-color);
   opacity: 1;
+  font-size: 16px;
+  font-family: 'Onest', sans-serif;
+  line-height: 24px;
+  color: #101828;
+  font-weight: 400;
+  flex: 1;
 }
 
 .phone-input-input {
@@ -234,6 +240,14 @@
 .phone-input-phone-icon {
   font-size: 20px;
   color: var(--widget-text-tertiary);
+}
+
+.phone-input-phone-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #52c41a;
+  font-size: 16px;
 }
 
 .phone-input-error {

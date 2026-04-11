@@ -1,3 +1,4 @@
+import { CheckOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import CalendarIcon from '../../../img/calendar.svg';
@@ -256,6 +257,13 @@ export const PhoneInput: React.FC = () => {
               placeholder='Введите номер телефона'
               value={phone}
               onChange={handlePhoneChange}
+              suffix={
+                ownerData !== null ? (
+                  <span className='phone-input-phone-check' aria-label='Номер подтвержден'>
+                    <CheckOutlined />
+                  </span>
+                ) : undefined
+              }
               maxLength={32}
               size='large'
               autoFocus
