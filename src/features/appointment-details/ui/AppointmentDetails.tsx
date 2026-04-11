@@ -104,6 +104,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     appointmentDetailsDraft?.consentMarketing ?? false,
   );
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState<boolean>(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
 
   // Поля для нового пользователя
   const [firstName, setFirstName] = useState<string>(appointmentDetailsDraft?.firstName || '');
@@ -365,7 +366,11 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!validatePhone()) {
+    setHasAttemptedSubmit(true);
+
+    const phoneValidation = validatePhoneUtil(phone);
+    if (!phoneValidation.isValid) {
+      setPhoneError(phoneValidation.error || '');
       message.error('Пожалуйста, введите корректный номер телефона');
       return;
     }
@@ -597,6 +602,19 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   };
 
   const isOwnerRecognized = Boolean(ownerData && !isNewUser);
+  const phoneValidationResult = validatePhoneUtil(phone);
+  const phoneHasValidationError = hasAttemptedSubmit && !phoneValidationResult.isValid;
+  const firstNameHasValidationError = hasAttemptedSubmit && isNewUser && !firstName.trim();
+  const lastNameHasValidationError = hasAttemptedSubmit && isNewUser && !lastName.trim();
+  const patronymicHasValidationError = hasAttemptedSubmit && isNewUser && !patronymic.trim();
+  const genderHasValidationError = hasAttemptedSubmit && isNewUser && !gender;
+  const selectedPetHasValidationError = hasAttemptedSubmit && !isNewUser && !selectedPetId;
+  const petNameHasValidationError = hasAttemptedSubmit && isNewUser && !petName.trim();
+  const patientTypeHasValidationError = hasAttemptedSubmit && isNewUser && !selectedPatientTypeId;
+  const breedHasValidationError = hasAttemptedSubmit && isNewUser && !selectedBreedId;
+  const petGenderHasValidationError = hasAttemptedSubmit && isNewUser && !petGender;
+  const petBirthDateHasValidationError = hasAttemptedSubmit && isNewUser && !petBirthDate;
+  const consentHasValidationError = hasAttemptedSubmit && !consentPersonalData;
 
   const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => ({
     selectedPetId,
@@ -685,6 +703,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   value={phone}
                   onChange={handlePhoneChange}
                   onBlur={handlePhoneConfirm}
+                  status={phoneHasValidationError ? 'error' : undefined}
                   maxLength={32}
                   size='large'
                   autoFocus
@@ -717,6 +736,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Имя'
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  status={firstNameHasValidationError ? 'error' : undefined}
                   required
                 />
               </div>
@@ -725,6 +745,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Фамилия'
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  status={lastNameHasValidationError ? 'error' : undefined}
                   required
                 />
               </div>
@@ -733,6 +754,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Отчество'
                   value={patronymic}
                   onChange={(e) => setPatronymic(e.target.value)}
+                  status={patronymicHasValidationError ? 'error' : undefined}
                   required
                 />
               </div>
@@ -740,7 +762,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <Radio.Group
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className='appointment-details-gender-group gw-segmented'>
+                  className={`appointment-details-gender-group gw-segmented ${
+                    genderHasValidationError ? 'appointment-details-gender-group--error' : ''
+                  }`}>
                   <Radio.Button value={Gender.MALE}>{GENDER_LABELS[Gender.MALE]}</Radio.Button>
                   <Radio.Button value={Gender.FEMALE}>{GENDER_LABELS[Gender.FEMALE]}</Radio.Button>
                 </Radio.Group>
@@ -756,7 +780,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <>
                   <CustomSelector
                     text='Питомец'
-                    className='appointment-details-pet-select'
+                    className={`appointment-details-pet-select ${
+                      selectedPetHasValidationError ? 'appointment-details-pet-select--error' : ''
+                    }`}
                     value={selectedPetId}
                     onChange={(value) => {
                       setSelectedPetId(value);
@@ -795,6 +821,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Кличка'
                   value={petName}
                   onChange={(e) => setPetName(e.target.value)}
+                  status={petNameHasValidationError ? 'error' : undefined}
                   required
                 />
               </div>
@@ -807,6 +834,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   <CustomSelector
                     text='Тип животного'
                     value={selectedPatientTypeId}
+                    status={patientTypeHasValidationError ? 'error' : undefined}
                     onChange={(value) => {
                       if (value) {
                         selectPatientType(value);
@@ -830,6 +858,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomSelector
                   text='Порода'
                   value={selectedBreedId}
+                  status={breedHasValidationError ? 'error' : undefined}
                   onChange={(value) => {
                     if (value) {
                       selectBreed(value);
@@ -853,7 +882,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <Radio.Group
                   value={petGender}
                   onChange={(e) => setPetGender(e.target.value)}
-                  className='appointment-details-gender-group gw-segmented'>
+                  className={`appointment-details-gender-group gw-segmented ${
+                    petGenderHasValidationError ? 'appointment-details-gender-group--error' : ''
+                  }`}>
                   <Radio.Button value={Gender.FEMALE}>Женский</Radio.Button>
                   <Radio.Button value={Gender.MALE}>Мужской</Radio.Button>
                 </Radio.Group>
@@ -862,6 +893,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomDatepicker
                   text='Дата рождения'
                   value={petBirthDate}
+                  status={petBirthDateHasValidationError ? 'error' : undefined}
                   onChange={(date) => {
                     setPetBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
                   }}
@@ -886,7 +918,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             <Checkbox
               checked={consentPersonalData}
               onChange={(e) => setConsentPersonalData(e.target.checked)}
-              className='appointment-details-consent-checkbox'>
+              className={`appointment-details-consent-checkbox ${
+                consentHasValidationError ? 'appointment-details-consent-checkbox--error' : ''
+              }`}>
               Согласен на{' '}
               <a
                 href={
@@ -921,23 +955,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               type='primary'
               className='appointment-details-submit-btn gw-primary-btn'
               block
-              onClick={handleSubmit}
-              disabled={
-                !phone ||
-                phoneError !== '' ||
-                !consentPersonalData ||
-                (isNewUser
-                  ? !firstName ||
-                    !lastName ||
-                    !patronymic ||
-                    !gender ||
-                    !petName ||
-                    !selectedPatientTypeId ||
-                    !selectedBreedId ||
-                    !petGender ||
-                    !petBirthDate
-                  : !selectedPetId)
-              }>
+              onClick={handleSubmit}>
               Записаться
             </Button>
           </div>

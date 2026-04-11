@@ -449,6 +449,25 @@
   line-height: 24px;
 }
 
+.appointment-details-gender-group--error {
+  box-shadow: 0 0 0 1px #ff4d4f inset;
+}
+
+.appointment-details-field .ant-input-status-error,
+.appointment-details-field .ant-select-status-error,
+.appointment-details-field .ant-picker-status-error,
+.appointment-details-pet-select--error {
+  border-bottom-color: #ff4d4f !important;
+}
+
+.appointment-details-consent-checkbox--error .ant-checkbox-inner {
+  border-color: #ff4d4f !important;
+}
+
+.appointment-details-consent-checkbox--error .ant-checkbox + span {
+  color: #d92d20;
+}
+
 
 .appointment-details-pet-title {
   font-size: 16px;

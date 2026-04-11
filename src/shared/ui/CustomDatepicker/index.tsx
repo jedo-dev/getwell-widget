@@ -54,13 +54,13 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
         size='large'
         open={open}
         onOpenChange={setOpen}
-        onFocus={(e) => {
+        onFocus={(e,b) => {
           setFocused(true);
-          rest.onFocus?.(e);
+          rest.onFocus?.(e,b);
         }}
-        onBlur={(e) => {
+        onBlur={(e,b) => {
           setFocused(false);
-          rest.onBlur?.(e);
+          rest.onBlur?.(e,b);
         }}
         placeholder=' '
         onChange={(date) => {
