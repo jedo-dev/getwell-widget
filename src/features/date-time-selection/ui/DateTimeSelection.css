@@ -5,7 +5,8 @@
 }
 
 .date-time-selection .gw-screen-layout__content {
-  background: linear-gradient(#ffffff00, #ffffff);
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(#ffffff, #ffffff);
 }
 
 .date-time-selection-header {

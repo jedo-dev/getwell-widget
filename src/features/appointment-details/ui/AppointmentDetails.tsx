@@ -1,4 +1,4 @@
-import { CheckOutlined, DownOutlined } from '@ant-design/icons';
+﻿import { CheckOutlined, DownOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -26,7 +26,7 @@ import {
   formatTime,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
-import { Avatar } from '../../../shared/ui';
+import { ActionFooter, Avatar } from '../../../shared/ui';
 import CustomDatepicker from '../../../shared/ui/CustomDatepicker';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
@@ -182,7 +182,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     }
     const normalizedCurrentGender = normalizeGenderValue(petGender);
     const hasCurrentGender = petGenders.some(
-      (g) => g.code === normalizedCurrentGender || normalizeGenderValue(g.name) === normalizedCurrentGender,
+      (g) =>
+        g.code === normalizedCurrentGender ||
+        normalizeGenderValue(g.name) === normalizedCurrentGender,
     );
     if (!hasCurrentGender || !normalizedCurrentGender) {
       setPetGender(Gender.FEMALE);
@@ -723,7 +725,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <div className='appointment-details-phone-display-content'>
                   <span className='appointment-details-phone-number'>{phone}</span>
                   {isOwnerRecognized && (
-                    <span className='appointment-details-phone-check' aria-label='Номер подтвержден'>
+                    <span
+                      className='appointment-details-phone-check'
+                      aria-label='Номер подтвержден'>
                       <CheckOutlined />
                     </span>
                   )}
@@ -985,17 +989,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             </Checkbox>
           </div>
 
-          <div className='appointment-details-footer'>
-            <Button
-              type='primary'
-              className='appointment-details-submit-btn gw-primary-btn'
-              block
-              onClick={handleSubmit}>
-              Записаться
-            </Button>
-          </div>
         </div>
       </div>
+      <ActionFooter
+        className='appointment-details-footer specialist-selection-footer'
+        primaryLabel='Записаться'
+        onPrimaryClick={handleSubmit}
+      />
     </div>
   );
 };
