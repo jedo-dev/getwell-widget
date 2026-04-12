@@ -569,8 +569,12 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       }
     }
 
+    if (selectedPetId) {
+      selectPet(selectedPetId);
+    }
+
     // Переход к экрану подтверждения
-    goToAppointmentConfirmation();
+    goToAppointmentConfirmation(buildAppointmentDetailsDraft());
   };
 
   const handleAddNewPet = () => {
@@ -616,23 +620,27 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const petBirthDateHasValidationError = hasAttemptedSubmit && isNewUser && !petBirthDate;
   const consentHasValidationError = hasAttemptedSubmit && !consentPersonalData;
 
-  const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => ({
-    selectedPetId,
-    selectedPatientTypeId,
-    selectedBreedId,
-    firstName,
-    lastName,
-    patronymic,
-    gender,
-    petName,
-    petSpecies,
-    petBreed,
-    petGender,
-    petBirthDate: petBirthDate?.format('YYYY-MM-DD') ?? null,
-    symptoms,
-    consentPersonalData,
-    consentMarketing,
-  });
+  const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => {
+    const selectedPetData = pets.find((pet) => pet.id === selectedPetId);
+
+    return {
+      selectedPetId,
+      selectedPatientTypeId,
+      selectedBreedId,
+      firstName,
+      lastName,
+      patronymic,
+      gender,
+      petName: isNewUser ? petName : selectedPetData?.name || '',
+      petSpecies: isNewUser ? petSpecies : selectedPetData?.species || '',
+      petBreed: isNewUser ? petBreed : selectedPetData?.breed || '',
+      petGender,
+      petBirthDate: petBirthDate?.format('YYYY-MM-DD') ?? null,
+      symptoms,
+      consentPersonalData,
+      consentMarketing,
+    };
+  };
 
   return (
     <div className={`appointment-details ${isNewUser ? 'appointment-details--new-user' : ''}`}>

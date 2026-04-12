@@ -482,12 +482,14 @@ export function selectPet(petId: number): void {
 /**
  * Переход к подтверждению записи
  */
-export function goToAppointmentConfirmation(): void {
+export function goToAppointmentConfirmation(
+  draft?: WidgetState['appointmentDetailsDraft'],
+): void {
   if (widgetState.config?.render?.lockStep) return;
   widgetState = {
     ...widgetState,
     currentStep: WidgetStep.APPOINTMENT_CONFIRMATION,
-    appointmentDetailsDraft: undefined,
+    appointmentDetailsDraft: draft ?? widgetState.appointmentDetailsDraft,
   };
 
   notifyStateChange();

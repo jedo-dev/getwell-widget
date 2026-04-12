@@ -1,9 +1,9 @@
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { getWidgetState, goToDoctorInfo, openGetWellWidget } from '../../../lib/widget-manager';
-import { WidgetStep } from '../../../shared/constants';
 import { branchesApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
+import { WidgetStep } from '../../../shared/constants';
 import {
   formatDate,
   formatDateTime,
@@ -14,11 +14,11 @@ import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, Pet } from '../../../types';
 import './AppointmentConfirmation.css';
 
-
 import LocationIcon from '../../../img/confirmation-icon/addres.svg';
 import CalendarIcon from '../../../img/confirmation-icon/calendar.svg';
 import UserIcon from '../../../img/confirmation-icon/doctor.svg';
 import mobileIcon from '../../../img/confirmation-icon/mobile.svg';
+import pawIcon from '../../../img/confirmation-icon/pet.svg';
 import watchIcon from '../../../img/confirmation-icon/watch.svg';
 export interface AppointmentConfirmationProps {
   selectedBranch: Branch | null;
@@ -39,6 +39,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 }) => {
   const widgetState = getWidgetState();
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
+  const appointmentDraft = widgetState.appointmentDetailsDraft;
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [resolvedBranch, setResolvedBranch] = useState<Branch | null>(selectedBranch);
   const [loadingPet, setLoadingPet] = useState<boolean>(false);
@@ -122,6 +123,40 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
   const formattedTime = dateTime ? formatTime(dateTime) : '';
+  const normalizeSchedule = (schedule?: string): string => {
+    if (!schedule) return 'Рабочие часы';
+
+    const parts = schedule
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    if (parts.length < 2) {
+      return schedule;
+    }
+
+    const timePattern = /(\d{1,2}:\d{2})\s*[-–—]\s*(\d{1,2}:\d{2})/;
+    const ranges = parts
+      .map((part) => {
+        const match = part.match(timePattern);
+        if (!match) return null;
+        return `${match[1]}-${match[2]}`;
+      })
+      .filter(Boolean) as string[];
+
+    if (ranges.length !== parts.length) {
+      return schedule;
+    }
+
+    const firstRange = ranges[0];
+    const isSameEveryDay = ranges.every((range) => range === firstRange);
+    if (!isSameEveryDay) {
+      return schedule;
+    }
+
+    const [from, to] = firstRange.split('-');
+    return `ежедневно ${from} - ${to}`;
+  };
 
   const appointmentItems: Array<{
     key: string;
@@ -131,19 +166,33 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     action: { text: string; onClick: () => void } | null;
   }> = [];
 
-  if (selectedPet) {
-    const petDescription = [selectedPet.species, selectedPet.breed].filter(Boolean).join(' • ');
+  const fallbackPetName = appointmentDraft?.petName?.trim() || '';
+  const fallbackPetSpecies = String(appointmentDraft?.petSpecies || '').trim();
+  const fallbackPetBreed = appointmentDraft?.petBreed?.trim() || '';
+  const displayPetName = selectedPet?.name || fallbackPetName;
+  const displayPetDescription = [
+    selectedPet?.species || fallbackPetSpecies,
+    selectedPet?.breed || fallbackPetBreed,
+  ]
+    .map((value) => (value ? String(value).trim() : ''))
+    .filter(Boolean)
+    .join(' • ');
+
+  if (displayPetName) {
     appointmentItems.push({
       key: 'pet',
-      icon: <span className='appointment-confirmation-paw-icon'>🐾</span>,
-      title: selectedPet.name,
-      description: petDescription || null,
-      action: {
-        text: 'Подробнее',
-        onClick: () => {
-          console.log('Подробнее о питомце');
-        },
-      },
+      icon: (
+        <IconWrapper
+          src={pawIcon}
+          size={32}
+          iconSize={16}
+          withBackground={false}
+          color='var(--widget-text-secondary)'
+        />
+      ),
+      title: displayPetName,
+      description: displayPetDescription || null,
+      action: null,
     });
   }
 
@@ -182,7 +231,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
           color='var(--widget-text-secondary)'
         />
       ),
-      title: `${formattedDate}`,
+      title: `${formattedDate}${formattedTime ? `, ${formattedTime}` : ''}`,
       description: null,
       action: {
         text: 'Добавить в календарь',
@@ -244,7 +293,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
           color='var(--widget-text-secondary)'
         />
       ),
-      title: resolvedBranch.schedule || 'Рабочие часы',
+      title: normalizeSchedule(resolvedBranch.schedule),
       description: null,
       action: null,
     });
@@ -282,7 +331,15 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
                 <div className='appointment-confirmation-detail-content'>
                   <div className='appointment-confirmation-detail-icon'>{item.icon}</div>
                   <div className='appointment-confirmation-detail-text'>
-                    <div className='appointment-confirmation-detail-title'>{item.title}</div>
+                    <div
+                      className={`appointment-confirmation-detail-title${
+                        item.key === 'address'
+                          ? ' appointment-confirmation-detail-title--address'
+                          : ''
+                      }`}
+                      title={item.key === 'address' ? item.title : undefined}>
+                      {item.title}
+                    </div>
                   </div>
                   {!item.action && item.description ? (
                     <span className='appointment-confirmation-detail-description'>
@@ -305,11 +362,10 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       </div>
 
       {/* Footer */}
-      <div className='appointment-confirmation-footer'>
+      <div className='gw-action-footer specialist-selection-footer appointment-confirmation-footer'>
         <Button
           type='primary'
-          className='appointment-confirmation-book-again-btn gw-primary-btn'
-          block
+          className='gw-action-footer-btn gw-action-footer-btn--primary appointment-confirmation-book-again-btn gw-primary-btn'
           onClick={handleBookAgain}
           size='large'>
           Записаться ещё
