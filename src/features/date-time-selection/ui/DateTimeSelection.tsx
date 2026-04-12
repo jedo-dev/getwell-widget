@@ -530,7 +530,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
             </div>
             {selectedTime ? (
               <ActionFooter
-                className='date-time-selection-footer'
+                className='date-time-selection-footer specialist-selection-footer'
                 primaryLabel='Далее'
                 onPrimaryClick={goToPhoneInput}
               />
