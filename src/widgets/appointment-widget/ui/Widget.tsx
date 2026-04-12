@@ -1,4 +1,4 @@
-import { CheckCircleOutlined, LeftOutlined } from '@ant-design/icons';
+import { LeftOutlined } from '@ant-design/icons';
 import { Drawer, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { AppointmentConfirmation } from '../../../features/appointment-confirmation';
@@ -17,6 +17,7 @@ import { AvailableDoctorsData, resolveDoctorPhoto, schedulesApi } from '../../..
 import { SelectionMode, WidgetStep } from '../../../shared/constants';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
+import finishIcon from '../../../img/finish.svg';
 import './Widget.css';
 
 export interface WidgetProps {
@@ -373,7 +374,12 @@ export const Widget: React.FC<WidgetProps> = ({
 
       case WidgetStep.APPOINTMENT_CONFIRMATION:
         return (
-          <div className='appointment-confirmation-image-container'>
+          <div
+            className={`appointment-confirmation-image-container ${
+              confirmationHeaderImage
+                ? 'appointment-confirmation-image-container--with-image'
+                : 'appointment-confirmation-image-container--no-image'
+            }`}>
             {confirmationHeaderImage ? (
               <img
                 src={confirmationHeaderImage}
@@ -383,7 +389,7 @@ export const Widget: React.FC<WidgetProps> = ({
             ) : null}
 
             <div className='appointment-confirmation-success-icon'>
-              <CheckCircleOutlined />
+              <img src={finishIcon} alt='Успешно' className='appointment-confirmation-success-image' />
             </div>
           </div>
         );
@@ -418,6 +424,8 @@ export const Widget: React.FC<WidgetProps> = ({
   const isCollapsedHeader =
     widgetState.currentStep === WidgetStep.NEXT_STEPS && !nextStepsHeaderImage;
   const isNextStepsStep = widgetState.currentStep === WidgetStep.NEXT_STEPS;
+  const isAppointmentConfirmationStep =
+    widgetState.currentStep === WidgetStep.APPOINTMENT_CONFIRMATION;
   const shouldShowGlobalFooter = widgetState.currentStep !== WidgetStep.APPOINTMENT_CONFIRMATION;
   const renderContent = () => {
     console.log('***', widgetState, '***');
@@ -529,6 +537,7 @@ export const Widget: React.FC<WidgetProps> = ({
           selectedDateTime={widgetState.selectedTimeSlot}
           phone={widgetState.phone}
           selectedPetId={widgetState.selectedPetId}
+          hasHeaderImage={Boolean(confirmationHeaderImage)}
         />
       );
     }
@@ -571,7 +580,12 @@ export const Widget: React.FC<WidgetProps> = ({
           {renderReturnBtn()}
           {renderStepTitle()}
         </div>
-        <div className='getwell-widget-fullscreen-content'>{renderContent()}</div>
+        <div
+          className={`getwell-widget-fullscreen-content ${
+            isAppointmentConfirmationStep ? 'getwell-widget-fullscreen-content--confirmation' : ''
+          }`}>
+          {renderContent()}
+        </div>
         <div className='getwell-widget-fullscreen-footer'>{renderFooter()}</div>
       </div>
     );
@@ -595,8 +609,16 @@ export const Widget: React.FC<WidgetProps> = ({
       rootClassName='getwell-widget-drawer-root'
       className='getwell-widget-drawer'
       footer={null}>
-      <div className='getwell-widget-content'>
-        <div className='getwell-widget-main'>{renderContent()}</div>
+      <div
+        className={`getwell-widget-content ${
+          isAppointmentConfirmationStep ? 'getwell-widget-content--confirmation' : ''
+        }`}>
+        <div
+          className={`getwell-widget-main ${
+            isAppointmentConfirmationStep ? 'getwell-widget-main--confirmation' : ''
+          }`}>
+          {renderContent()}
+        </div>
         {shouldShowGlobalFooter ? (
           <div className='getwell-widget-inline-footer'>{renderFooter()}</div>
         ) : null}

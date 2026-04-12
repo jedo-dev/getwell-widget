@@ -122,6 +122,15 @@
   flex-direction: column;
 }
 
+.getwell-widget-content--confirmation {
+  overflow: hidden;
+  border-radius:0 0 16px 16px
+}
+
+.getwell-widget-main--confirmation {
+  overflow: hidden;
+}
+
 .getwell-widget-inline-footer {
   margin-top: auto;
 }
@@ -227,6 +236,10 @@
   background: white;
   border-radius: 16px;
   padding: 24px;
+}
+
+.getwell-widget-fullscreen-content--confirmation {
+  overflow: hidden;
 }
 
 .getwell-widget-fullscreen-footer {

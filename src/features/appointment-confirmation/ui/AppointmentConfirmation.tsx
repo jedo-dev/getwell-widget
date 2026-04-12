@@ -26,6 +26,7 @@ export interface AppointmentConfirmationProps {
   selectedDateTime: string | null;
   phone: string | null;
   selectedPetId: number | null;
+  hasHeaderImage?: boolean;
 }
 
 export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = ({
@@ -34,6 +35,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   selectedDateTime,
   phone,
   selectedPetId,
+  hasHeaderImage = false,
 }) => {
   const widgetState = getWidgetState();
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
@@ -130,11 +132,12 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   }> = [];
 
   if (selectedPet) {
+    const petDescription = [selectedPet.species, selectedPet.breed].filter(Boolean).join(' • ');
     appointmentItems.push({
       key: 'pet',
       icon: <span className='appointment-confirmation-paw-icon'>🐾</span>,
       title: selectedPet.name,
-      description: null,
+      description: petDescription || null,
       action: {
         text: 'Подробнее',
         onClick: () => {
@@ -252,7 +255,10 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       {/* Main Image Container */}
 
       {/* Appointment Info Container */}
-      <div className='appointment-confirmation-info-container'>
+      <div
+        className={`appointment-confirmation-info-container${
+          hasHeaderImage ? ' appointment-confirmation-info-container--with-image' : ''
+        }`}>
         <h2 className='appointment-confirmation-title'>Вы записаны на приём</h2>
         {dateTimeInfo && (
           <div className='appointment-confirmation-time-container'>
@@ -278,6 +284,11 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
                   <div className='appointment-confirmation-detail-text'>
                     <div className='appointment-confirmation-detail-title'>{item.title}</div>
                   </div>
+                  {!item.action && item.description ? (
+                    <span className='appointment-confirmation-detail-description'>
+                      {item.description}
+                    </span>
+                  ) : null}
                   {item.action && (
                     <button
                       type='button'
