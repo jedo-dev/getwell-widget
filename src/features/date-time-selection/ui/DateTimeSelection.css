@@ -398,7 +398,10 @@
 }
 
 .date-time-selection-time-slot {
-  padding: 11px 15px;
+  width: 73px;
+  height: 42px;
+  min-width: 73px;
+  padding: 0;
   border: none;
   border-radius: 64px;
   background-color: #f4f4f5;
@@ -408,7 +411,10 @@
   line-height: 20px;
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 73px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 73px;
   text-align: center;
 }
 
