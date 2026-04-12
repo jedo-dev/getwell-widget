@@ -4,6 +4,10 @@
   height: 100%;
 }
 
+.date-time-selection .gw-screen-layout__content {
+  background: linear-gradient(#ffffff00, #ffffff);
+}
+
 .date-time-selection-header {
   display: flex;
   align-items: center;

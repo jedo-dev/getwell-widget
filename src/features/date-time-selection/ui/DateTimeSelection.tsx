@@ -419,114 +419,117 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           ) : null
         }
         content={
-          <div className='date-time-selection-content'>
-            <div className='date-time-selection-calendar'>
-              <div className='date-time-selection-calendar-header'>
-                <div className='date-time-selection-calendar-month'>
-                  {formatMonthYear(currentMonth)}
-                </div>
-                <div className='date-time-selection-calendar-nav-group'>
-                  <button
-                    className='date-time-selection-calendar-nav'
-                    onClick={handlePrevMonth}
-                    disabled={!canGoToPrevMonth}>
-                    <LeftOutlined />
-                  </button>
-                  <button className='date-time-selection-calendar-nav' onClick={handleNextMonth}>
-                    <RightOutlined />
-                  </button>
-                </div>
-              </div>
-
-              <div className='date-time-selection-calendar-weekdays'>
-                {DAYS_OF_WEEK_SHORT.map((day: string) => (
-                  <div key={day} className='date-time-selection-calendar-weekday'>
-                    {day}
+          <>
+            {' '}
+            <div className='date-time-selection-content'>
+              <div className='date-time-selection-calendar'>
+                <div className='date-time-selection-calendar-header'>
+                  <div className='date-time-selection-calendar-month'>
+                    {formatMonthYear(currentMonth)}
                   </div>
-                ))}
-              </div>
+                  <div className='date-time-selection-calendar-nav-group'>
+                    <button
+                      className='date-time-selection-calendar-nav'
+                      onClick={handlePrevMonth}
+                      disabled={!canGoToPrevMonth}>
+                      <LeftOutlined />
+                    </button>
+                    <button className='date-time-selection-calendar-nav' onClick={handleNextMonth}>
+                      <RightOutlined />
+                    </button>
+                  </div>
+                </div>
 
-              <div className='date-time-selection-calendar-days'>
-                {calendarDays.map((date, index) => {
-                  if (!date)
-                    return <div key={index} className='date-time-selection-calendar-day empty' />;
+                <div className='date-time-selection-calendar-weekdays'>
+                  {DAYS_OF_WEEK_SHORT.map((day: string) => (
+                    <div key={day} className='date-time-selection-calendar-weekday'>
+                      {day}
+                    </div>
+                  ))}
+                </div>
 
-                  const isPast = isPastDate(date);
-                  const isCurrentMonthDay = isCurrentMonth(date, currentMonth);
-                  const isSelectedDay = isSelected(date);
-                  const isTodayDay = isToday(date);
+                <div className='date-time-selection-calendar-days'>
+                  {calendarDays.map((date, index) => {
+                    if (!date)
+                      return <div key={index} className='date-time-selection-calendar-day empty' />;
 
-                  return (
-                    <div
-                      key={index}
-                      className={`date-time-selection-calendar-day 
+                    const isPast = isPastDate(date);
+                    const isCurrentMonthDay = isCurrentMonth(date, currentMonth);
+                    const isSelectedDay = isSelected(date);
+                    const isTodayDay = isToday(date);
+
+                    return (
+                      <div
+                        key={index}
+                        className={`date-time-selection-calendar-day 
                     ${!isCurrentMonthDay ? 'other-month' : ''} 
                     ${isPast ? 'past' : ''} 
                     ${isSelectedDay ? 'selected' : ''} 
                     ${isTodayDay ? 'today' : ''}`}
-                      onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
-                      <span className='date-time-selection-calendar-day-number'>
-                        {date.getDate()}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className='date-time-selection-times'>
-              {loadingSlots && (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
-                  <Spin size='large' />
-                </div>
-              )}
-
-              {showEmptySlotsState ? (
-                <div className='date-time-selection-empty-state'>
-                  <div className='date-time-selection-empty-title'>
-                    Сегодня нет свободного времени
-                  </div>
-                  {nearestAvailableDateLabel && (
-                    <div className='date-time-selection-empty-subtitle'>
-                      Ближайшая доступная дата: {nearestAvailableDateLabel}
-                    </div>
-                  )}
-                  {nearestAvailableDate && (
-                    <Button
-                      type='primary'
-                      className='date-time-selection-empty-btn'
-                      onClick={handleGoToNearestDate}>
-                      Перейти к ближайшей дате
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                !loadingSlots &&
-                (Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
-                  if (groupedTimeSlots[period].length === 0) return null;
-
-                  return (
-                    <div key={period} className='date-time-selection-time-group'>
-                      <div className='date-time-selection-time-group-label'>
-                        {TIME_PERIOD_LABELS[period]}
+                        onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
+                        <span className='date-time-selection-calendar-day-number'>
+                          {date.getDate()}
+                        </span>
                       </div>
-                      <div className='date-time-selection-time-group-slots'>
-                        {groupedTimeSlots[period].map((slot) => (
-                          <button
-                            key={slot.fromIso}
-                            className={`date-time-selection-time-slot 
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className='date-time-selection-times'>
+                {loadingSlots && (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
+                    <Spin size='large' />
+                  </div>
+                )}
+
+                {showEmptySlotsState ? (
+                  <div className='date-time-selection-empty-state'>
+                    <div className='date-time-selection-empty-title'>
+                      Сегодня нет свободного времени
+                    </div>
+                    {nearestAvailableDateLabel && (
+                      <div className='date-time-selection-empty-subtitle'>
+                        Ближайшая доступная дата: {nearestAvailableDateLabel}
+                      </div>
+                    )}
+                    {nearestAvailableDate && (
+                      <Button
+                        type='primary'
+                        className='date-time-selection-empty-btn'
+                        onClick={handleGoToNearestDate}>
+                        Перейти к ближайшей дате
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  !loadingSlots &&
+                  (Object.keys(groupedTimeSlots) as TimePeriod[]).map((period) => {
+                    if (groupedTimeSlots[period].length === 0) return null;
+
+                    return (
+                      <div key={period} className='date-time-selection-time-group'>
+                        <div className='date-time-selection-time-group-label'>
+                          {TIME_PERIOD_LABELS[period]}
+                        </div>
+                        <div className='date-time-selection-time-group-slots'>
+                          {groupedTimeSlots[period].map((slot) => (
+                            <button
+                              key={slot.fromIso}
+                              className={`date-time-selection-time-slot 
                         ${selectedSlotKey === slot.fromIso ? 'selected' : ''}
                         ${slot.isLimited ? 'disabled' : ''}`}
-                            disabled={slot.isLimited}
-                            onClick={() => handleTimeSelect(slot)}>
-                            {slot.time}
-                          </button>
-                        ))}
+                              disabled={slot.isLimited}
+                              onClick={() => handleTimeSelect(slot)}>
+                              {slot.time}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
             {selectedTime ? (
               <ActionFooter
@@ -535,7 +538,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                 onPrimaryClick={goToPhoneInput}
               />
             ) : null}
-          </div>
+          </>
         }
       />
     </>
