@@ -433,7 +433,7 @@ export const Widget: React.FC<WidgetProps> = ({
     if (currentStep === WidgetStep.BRANCH_SELECTION) {
       if (loadingBranches) {
         return (
-          <div className='loader'>
+          <div className='loader loader-gap'>
             <Spin size='large' />
           </div>
         );
@@ -454,7 +454,7 @@ export const Widget: React.FC<WidgetProps> = ({
     if (currentStep === WidgetStep.SPECIALIST_SELECTION) {
       if (loadingEmployees || loadingDepartments) {
         return (
-          <div className='loader'>
+          <div className='loader loader-gap '>
             <Spin size='large' />
           </div>
         );
@@ -474,7 +474,7 @@ export const Widget: React.FC<WidgetProps> = ({
     if (currentStep === WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION) {
       if (loadingEmployees) {
         return (
-          <div className='loader'>
+          <div className='loader  loader-gap'>
             <Spin size='large' />
           </div>
         );

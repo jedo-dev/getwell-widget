@@ -5,8 +5,7 @@
   height: -webkit-fill-available;
   min-height: 0;
   gap: 2px;
-  background: white;
-  margin-top: 2px;
+  background: linear-gradient(#ffffff00, #ffffff);
 }
 
 .appointment-details-header {
@@ -553,7 +552,7 @@
 }
 
 .appointment-details--new-user .appointment-details-appointment-details {
-  display: none;
+  /* display: none; */
 }
 
 .appointment-details--new-user .appointment-details-user-data {

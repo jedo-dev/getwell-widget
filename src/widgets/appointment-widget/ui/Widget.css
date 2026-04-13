@@ -302,3 +302,7 @@
   border-radius: 16px 16px 0 0;
   align-items: center;
 }
+
+.loader-gap {
+    margin-top: 2px;
+  }
