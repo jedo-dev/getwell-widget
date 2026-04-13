@@ -600,8 +600,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const dateTimeInfo = formatDateTime(selectedDateTime);
   const fullName = selectedEmployee ? formatEmployeeFullName(selectedEmployee) : '';
   const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
+  const dateTimeTo = widgetState.selectedTimeSlotTo ? new Date(widgetState.selectedTimeSlotTo) : null;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
-  const formattedTime = dateTime ? formatTime(dateTime) : '';
+  const formattedTime = dateTime
+    ? dateTimeTo
+      ? `${formatTime(dateTime)} – ${formatTime(dateTimeTo)}`
+      : formatTime(dateTime)
+    : '';
 
   const handleBack = () => {
     goBack();

@@ -77,6 +77,20 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
       restoredDate.getMinutes(),
     ).padStart(2, '0')}`;
   });
+  const [selectedTimeTo, setSelectedTimeTo] = useState<string | null>(() => {
+    if (!widgetState.selectedTimeSlotTo) {
+      return null;
+    }
+
+    const restoredDateTo = new Date(widgetState.selectedTimeSlotTo);
+    if (Number.isNaN(restoredDateTo.getTime())) {
+      return null;
+    }
+
+    return `${String(restoredDateTo.getHours()).padStart(2, '0')}:${String(
+      restoredDateTo.getMinutes(),
+    ).padStart(2, '0')}`;
+  });
   const [selectedSlotKey, setSelectedSlotKey] = useState<string | null>(
     widgetState.selectedTimeSlot,
   );
@@ -90,6 +104,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
     setSelectedTime(null);
+    setSelectedTimeTo(null);
     setSelectedSlotKey(null);
     selectDateTime(null, null);
   };
@@ -118,6 +133,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
     setCurrentMonth(month);
     setSelectedDate(nextSelectedDate);
     setSelectedTime(null);
+    setSelectedTimeTo(null);
     setSelectedSlotKey(null);
     selectDateTime(null, null);
   };
@@ -131,6 +147,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 
   const handleTimeSelect = async (slot: TimeSlot) => {
     setSelectedTime(slot.time);
+    const slotToDate = new Date(slot.toIso);
+    setSelectedTimeTo(
+      Number.isNaN(slotToDate.getTime())
+        ? null
+        : `${String(slotToDate.getHours()).padStart(2, '0')}:${String(
+            slotToDate.getMinutes(),
+          ).padStart(2, '0')}`,
+    );
     setSelectedSlotKey(slot.fromIso);
     if (slot) {
       // Сохраняем department_id из слота, если он есть
@@ -177,6 +201,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           if (isDuplicate) {
             setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
             setSelectedTime(null);
+            setSelectedTimeTo(null);
             setSelectedSlotKey(null);
             // Отменяем выбор времени в состоянии виджета
             selectDateTime(null, null);
@@ -411,7 +436,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                     <div className='date-time-selection-selected-date'>
                       {formatDate(selectedDate)}
                     </div>
-                    <div className='date-time-selection-selected-time'>{selectedTime}</div>
+                    <div className='date-time-selection-selected-time'>
+                      {selectedTimeTo ? `${selectedTime} – ${selectedTimeTo}` : selectedTime}
+                    </div>
                   </div>
                 </div>
               )}
