@@ -15,13 +15,13 @@ export const DAYS_OF_WEEK: readonly string[] = [
  * Сокращенные названия дней недели
  */
 export const DAYS_OF_WEEK_SHORT: readonly string[] = [
-  'Вс',
   'Пн',
   'Вт',
   'Ср',
   'Чт',
   'Пт',
   'Сб',
+  'Вс',
 ] as const;
 
 /**
