@@ -442,3 +442,45 @@
   bottom: 0;
   z-index: 6;
 }
+
+@media (max-width: 768px) {
+  .date-time-selection-doctor-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .date-time-selection-doctor-left {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .date-time-selection-doctor-info {
+    min-width: 0;
+  }
+
+  .date-time-selection-doctor-name {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+    word-break: break-word;
+    line-height: 22px;
+  }
+
+  .date-time-selection-doctor-right {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .date-time-selection-calendar-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .date-time-selection-selected-info {
+    min-width: 0;
+  }
+}

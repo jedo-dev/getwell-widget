@@ -509,7 +509,8 @@ export const Widget: React.FC<WidgetProps> = ({
     }
 
     if (currentStep === WidgetStep.PHONE_INPUT) {
-      return <PhoneInput />;
+      const selectedEmployee = getSelectedEmployee();
+      return <PhoneInput selectedEmployee={selectedEmployee} />;
     }
 
     if (currentStep === WidgetStep.APPOINTMENT_DETAILS) {

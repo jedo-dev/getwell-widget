@@ -21,17 +21,25 @@ import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, WidgetState } from '../../../types';
 import './PhoneInput.css';
 
-export const PhoneInput: React.FC = () => {
+interface PhoneInputProps {
+  selectedEmployee?: Employee | null;
+}
+
+export const PhoneInput: React.FC<PhoneInputProps> = ({ selectedEmployee = null }) => {
   const widgetState = getWidgetState();
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const [phone, setPhone] = useState<string>('');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isNewUser, setIsNewUser] = useState<boolean>(false);
   const [branch, setBranch] = useState<Branch | null>(null);
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [employee, setEmployee] = useState<Employee | null>(selectedEmployee);
   const [loading, setLoading] = useState<boolean>(true);
   const [checkingOwner, setCheckingOwner] = useState<boolean>(false);
   const [ownerData, setOwnerData] = useState<WidgetState['ownerData'] | null>(null);
+
+  useEffect(() => {
+    setEmployee(selectedEmployee);
+  }, [selectedEmployee]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,7 +59,7 @@ export const PhoneInput: React.FC = () => {
       }
 
       // Загружаем врача
-      if (state.selectedEmployeeId) {
+      if (!selectedEmployee && state.selectedEmployeeId) {
         try {
           const employeeData = await employeesApi.getById(state.selectedEmployeeId);
           if (employeeData) {
@@ -66,7 +74,7 @@ export const PhoneInput: React.FC = () => {
     };
 
     loadData();
-  }, []);
+  }, [selectedEmployee]);
 
   const handleBack = () => {
     goBack();
