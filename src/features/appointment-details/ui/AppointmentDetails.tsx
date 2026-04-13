@@ -15,6 +15,7 @@ import {
   subscribeToStateChange,
 } from '../../../lib/widget-manager';
 import { patientsApi, recordsApi } from '../../../shared/api';
+import { ownersApi } from '../../../shared/api/owners';
 import { petsApi } from '../../../shared/api/pets';
 import { Gender, GENDER_LABELS, PetSpecies } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
@@ -24,6 +25,7 @@ import {
   formatEmployeeFullName,
   formatPhone,
   formatTime,
+  normalizePhoneForLookup,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
 import { ActionFooter, Avatar } from '../../../shared/ui';
@@ -91,6 +93,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const [phone, setPhone] = useState<string>(initialPhone || '');
   const [phoneError, setPhoneError] = useState<string>('');
   const [isPhoneEditing, setIsPhoneEditing] = useState<boolean>(false);
+  const [isCurrentNewUser, setIsCurrentNewUser] = useState<boolean>(isNewUser);
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedPetId, setSelectedPetId] = useState<number | null>(
     appointmentDetailsDraft?.selectedPetId ?? widgetState.selectedPetId ?? null,
@@ -105,6 +108,10 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   );
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState<boolean>(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsCurrentNewUser(isNewUser);
+  }, [isNewUser]);
 
   // Поля для нового пользователя
   const [firstName, setFirstName] = useState<string>(appointmentDetailsDraft?.firstName || '');
@@ -145,7 +152,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     const unsubscribe = subscribeToStateChange((state) => {
       setSelectedPatientTypeId(state.selectedPatientTypeId);
       setSelectedBreedId(state.selectedBreedId);
-      setOwnerData(state.ownerData ?? null);
     });
     return unsubscribe;
   }, []);
@@ -232,7 +238,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         setSelectedPetId(null);
       }
       setLoadingPets(false);
-    } else if (!isNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
+    } else if (!isCurrentNewUser && phone && phone.replace(/[^\d]/g, '').length === 11) {
       // Fallback: загружаем питомцев через API, если нет данных владельца
       const loadPets = async () => {
         setLoadingPets(true);
@@ -262,7 +268,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       loadPets();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone, isNewUser]);
+  }, [phone, isCurrentNewUser]);
 
   useEffect(() => {
     // Обновляем телефон при изменении из пропсов
@@ -273,7 +279,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
   useEffect(() => {
     // Заполняем данные пользователя из ownerData, если они есть
-    if (ownerData && !isNewUser) {
+    if (ownerData && !isCurrentNewUser) {
       // Заполняем поля пользователя из ownerData
       if (ownerData.name && !firstName) {
         setFirstName(ownerData.name);
@@ -291,11 +297,11 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isNewUser, ownerData, firstName, lastName, patronymic, gender]);
+  }, [isCurrentNewUser, ownerData, firstName, lastName, patronymic, gender]);
 
   // Загрузка пород при входе на шаг (только для нового пользователя и в online режиме)
   useEffect(() => {
-    if (!isNewUser) return;
+    if (!isCurrentNewUser) return;
 
     const state = getWidgetState();
     const config = state.config;
@@ -331,22 +337,66 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     };
 
     loadBreeds();
-  }, [isNewUser]);
+  }, [isCurrentNewUser]);
+
+  const resetOwnerDependentState = () => {
+    setOwnerData(null);
+    setPets([]);
+    setSelectedPetId(null);
+  };
+
+  const lookupOwnerByPhone = async (phoneNumber: string) => {
+    const normalizedPhone = normalizePhoneForLookup(phoneNumber);
+    if (normalizedPhone.length < 10) {
+      setIsCurrentNewUser(true);
+      resetOwnerDependentState();
+      return;
+    }
+
+    const state = getWidgetState();
+    const apiUrl = state.config?.apiUrl;
+    if (!apiUrl) {
+      setIsCurrentNewUser(true);
+      resetOwnerDependentState();
+      return;
+    }
+
+    try {
+      const response = await ownersApi.getByPhone({ apiUrl, phone: phoneNumber });
+      const owner = response.data?.[0] ?? null;
+      if (owner) {
+        setOwnerData(owner);
+        setIsCurrentNewUser(false);
+      } else {
+        setIsCurrentNewUser(true);
+        resetOwnerDependentState();
+      }
+    } catch (error) {
+      console.error('Ошибка при проверке владельца:', error);
+      setIsCurrentNewUser(true);
+      resetOwnerDependentState();
+    }
+  };
 
   const handlePhoneEdit = () => {
     setIsPhoneEditing(true);
+    resetOwnerDependentState();
   };
 
-  const handlePhoneConfirm = () => {
-    if (validatePhone()) {
-      setIsPhoneEditing(false);
+  const handlePhoneConfirm = async () => {
+    if (!validatePhone()) {
+      return;
     }
+
+    await lookupOwnerByPhone(phone);
+    setIsPhoneEditing(false);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const formatted = formatPhone(value);
     setPhone(formatted);
+    resetOwnerDependentState();
 
     // Валидация
     const validation = validatePhoneUtil(formatted);
@@ -377,7 +427,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       return;
     }
 
-    if (isNewUser) {
+    if (isCurrentNewUser) {
       // Валидация для нового пользователя
       if (!firstName.trim()) {
         message.error('Пожалуйста, введите имя');
@@ -434,8 +484,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       employee: selectedEmployee,
       dateTime: selectedDateTime,
       phone: phone.replace(/[^\d]/g, ''),
-      isNewUser,
-      clientData: isNewUser
+      isNewUser: isCurrentNewUser,
+      clientData: isCurrentNewUser
         ? {
             firstName,
             lastName,
@@ -444,7 +494,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           }
         : undefined,
       petId: selectedPetId,
-      petData: isNewUser
+      petData: isCurrentNewUser
         ? {
             name: petName,
             species: petSpecies,
@@ -495,19 +545,19 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         };
 
         // Определяем, какой вариант запроса использовать
-        const ownerData = state.ownerData;
+        const currentOwnerData = ownerData;
         let payload;
 
         const selectedPet = pets.find((pet) => pet.id === selectedPetId);
 
-        if (!isNewUser && ownerData?.id && selectedPetId && !selectedPet?.isLocal) {
+        if (!isCurrentNewUser && currentOwnerData?.id && selectedPetId && !selectedPet?.isLocal) {
           // Вариант для авторизованного пользователя: используем ID
           payload = {
             appointment: appointmentData,
             patient_id: selectedPetId,
-            owner_id: ownerData.id,
+            owner_id: currentOwnerData.id,
           };
-        } else if (!isNewUser && ownerData?.id && selectedPet?.isLocal) {
+        } else if (!isCurrentNewUser && currentOwnerData?.id && selectedPet?.isLocal) {
           const petGenderItem = petGenders.find(
             (g) => g.code === selectedPet.gender || g.name === selectedPet.gender,
           );
@@ -526,9 +576,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               gender_id: getId(petGenderCode),
               birth_date: selectedPet.birthDate,
             },
-            owner_id: ownerData.id,
+            owner_id: currentOwnerData.id,
           };
-        } else if (isNewUser) {
+        } else if (isCurrentNewUser) {
           // Вариант для неавторизованного пользователя: используем полные данные
           // Находим gender_id для питомца из petGenders
           const petGenderItem = petGenders.find(
@@ -612,19 +662,21 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     goBack();
   };
 
-  const isOwnerRecognized = Boolean(ownerData && !isNewUser);
+  const isOwnerRecognized = Boolean(ownerData && !isCurrentNewUser);
   const phoneValidationResult = validatePhoneUtil(phone);
   const phoneHasValidationError = hasAttemptedSubmit && !phoneValidationResult.isValid;
-  const firstNameHasValidationError = hasAttemptedSubmit && isNewUser && !firstName.trim();
-  const lastNameHasValidationError = hasAttemptedSubmit && isNewUser && !lastName.trim();
-  const patronymicHasValidationError = hasAttemptedSubmit && isNewUser && !patronymic.trim();
-  const genderHasValidationError = hasAttemptedSubmit && isNewUser && !gender;
-  const selectedPetHasValidationError = hasAttemptedSubmit && !isNewUser && !selectedPetId;
-  const petNameHasValidationError = hasAttemptedSubmit && isNewUser && !petName.trim();
-  const patientTypeHasValidationError = hasAttemptedSubmit && isNewUser && !selectedPatientTypeId;
-  const breedHasValidationError = hasAttemptedSubmit && isNewUser && !selectedBreedId;
-  const petGenderHasValidationError = hasAttemptedSubmit && isNewUser && !petGender;
-  const petBirthDateHasValidationError = hasAttemptedSubmit && isNewUser && !petBirthDate;
+  const firstNameHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !firstName.trim();
+  const lastNameHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !lastName.trim();
+  const patronymicHasValidationError =
+    hasAttemptedSubmit && isCurrentNewUser && !patronymic.trim();
+  const genderHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !gender;
+  const selectedPetHasValidationError = hasAttemptedSubmit && !isCurrentNewUser && !selectedPetId;
+  const petNameHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !petName.trim();
+  const patientTypeHasValidationError =
+    hasAttemptedSubmit && isCurrentNewUser && !selectedPatientTypeId;
+  const breedHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !selectedBreedId;
+  const petGenderHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !petGender;
+  const petBirthDateHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !petBirthDate;
   const consentHasValidationError = hasAttemptedSubmit && !consentPersonalData;
 
   const buildAppointmentDetailsDraft = (): NonNullable<WidgetState['appointmentDetailsDraft']> => {
@@ -638,9 +690,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
       lastName,
       patronymic,
       gender,
-      petName: isNewUser ? petName : selectedPetData?.name || '',
-      petSpecies: isNewUser ? petSpecies : selectedPetData?.species || '',
-      petBreed: isNewUser ? petBreed : selectedPetData?.breed || '',
+      petName: isCurrentNewUser ? petName : selectedPetData?.name || '',
+      petSpecies: isCurrentNewUser ? petSpecies : selectedPetData?.species || '',
+      petBreed: isCurrentNewUser ? petBreed : selectedPetData?.breed || '',
       petGender,
       petBirthDate: petBirthDate?.format('YYYY-MM-DD') ?? null,
       symptoms,
@@ -650,7 +702,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   };
 
   return (
-    <div className={`appointment-details ${isNewUser ? 'appointment-details--new-user' : ''}`}>
+    <div
+      className={`appointment-details ${isCurrentNewUser ? 'appointment-details--new-user' : ''}`}>
       <AddPetModal
         open={isAddPetModalOpen}
         onClose={() => setIsAddPetModalOpen(false)}
@@ -746,7 +799,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           </div>
 
           {/* Name Input */}
-          {isNewUser ? (
+          {isCurrentNewUser ? (
             <>
               <div className='appointment-details-field'>
                 <CustomInput
@@ -842,7 +895,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
             </div>
           )}
 
-          {isNewUser && (
+          {isCurrentNewUser && (
             <div className='appointment-details-pet-section'>
               <div className='appointment-details-pet-title'>Питомец</div>
               <div className='appointment-details-field'>
