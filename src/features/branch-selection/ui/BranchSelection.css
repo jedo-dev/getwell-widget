@@ -179,3 +179,9 @@
     max-width: 300px;
   }
 }
+@media (max-width: 450px) {
+  .branch-item-info {
+    max-width: 280px;
+  }
+}
+
