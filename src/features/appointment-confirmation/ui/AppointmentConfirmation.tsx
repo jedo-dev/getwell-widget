@@ -184,8 +184,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       icon: (
         <IconWrapper
           src={pawIcon}
-          size={32}
-          iconSize={16}
+          size={24}
+          iconSize={24}
           withBackground={false}
           color='var(--widget-text-secondary)'
         />
@@ -202,8 +202,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       icon: (
         <IconWrapper
           src={UserIcon}
-          size={32}
-          iconSize={16}
+          size={24}
+          iconSize={24}
           withBackground={false}
           color='var(--widget-text-secondary)'
         />
@@ -225,8 +225,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       icon: (
         <IconWrapper
           src={CalendarIcon}
-          size={32}
-          iconSize={16}
+          size={24}
+          iconSize={24}
           withBackground={false}
           color='var(--widget-text-secondary)'
         />
@@ -246,8 +246,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       icon: (
         <IconWrapper
           src={LocationIcon}
-          size={32}
-          iconSize={16}
+          size={24}
+          iconSize={24}
           withBackground={false}
           color='var(--widget-text-secondary)'
         />
@@ -267,8 +267,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
         icon: (
           <IconWrapper
             src={mobileIcon}
-            size={32}
-            iconSize={16}
+            size={24}
+            iconSize={24}
             withBackground={false}
             color='var(--widget-text-secondary)'
           />
@@ -287,8 +287,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       icon: (
         <IconWrapper
           src={watchIcon}
-          size={32}
-          iconSize={16}
+          size={24}
+          iconSize={24}
           withBackground={false}
           color='var(--widget-text-secondary)'
         />
