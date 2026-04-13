@@ -201,6 +201,8 @@
 }
 
 .specialist-selection-item-name {
+  text-overflow: ellipsis;
+  overflow: hidden;
   font-family: Onest;
   font-weight: 500;
   font-style: Medium;

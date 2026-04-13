@@ -339,7 +339,6 @@ export const Widget: React.FC<WidgetProps> = ({
 
   const renderStepTitle = () => {
     const { currentStep, selectionMode } = widgetState;
-    const selectedDepartment = getSelectedDepartment();
 
     switch (currentStep) {
       case WidgetStep.BRANCH_SELECTION:
@@ -358,7 +357,7 @@ export const Widget: React.FC<WidgetProps> = ({
           : 'Выберите специалиста';
 
       case WidgetStep.DEPARTMENT_SPECIALISTS_SELECTION:
-        return selectedDepartment ? selectedDepartment.name : 'Выберите специалиста';
+        return 'Выберите специалиста';
 
       case WidgetStep.DOCTOR_INFO:
         return 'Информация';
