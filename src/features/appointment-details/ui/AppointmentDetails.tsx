@@ -2,7 +2,8 @@
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import CalendarIcon from '../../../img/calendar-no-bg-add.svg';
+import CalendarIcon from '../../../img/calendar.svg';
+import CalendarIconNon from '../../../img/calendar-no-bg-add.svg';
 import {
   getWidgetState,
   goBack,
@@ -1018,9 +1019,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   allowClear={{ clearIcon: <CloseOutlined /> }}
                   suffixIcon={
                     <IconWrapper
-                      src={CalendarIcon}
-                      size={40}
-                      iconSize={40}
+                      src={CalendarIconNon}
+                      size={24}
+                      iconSize={24}
                       withBackground={false}
                       color='var(--widget-text-tertiary)'
                       style={{ pointerEvents: 'none' }}
