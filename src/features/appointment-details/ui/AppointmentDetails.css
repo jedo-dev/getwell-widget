@@ -403,13 +403,25 @@
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  border: 1.5px solid #667085;
+  border: 1.5px solid var(--widget-border-tertiary);
   background: #ffffff;
 }
 
 .appointment-details-consent-checkbox .ant-checkbox-checked .ant-checkbox-inner {
-  background: #344054;
-  border-color: #344054;
+  background: var(--widget-button-primary);
+  border-color: var(--widget-button-primary);
+}
+
+.appointment-details-consent-checkbox .ant-checkbox-checked:hover .ant-checkbox-inner,
+.appointment-details-consent-checkbox .ant-checkbox-wrapper:hover .ant-checkbox-checked .ant-checkbox-inner {
+  background: var(--widget-button-primary);
+  border-color: var(--widget-button-primary);
+}
+
+.appointment-details-consent-checkbox .ant-checkbox-input:focus-visible + .ant-checkbox-inner {
+  border-color: var(--widget-button-primary);
+  outline: none;
+  box-shadow: none;
 }
 
 .appointment-details-consent-link {

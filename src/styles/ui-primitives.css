@@ -7,10 +7,11 @@
   --gw-segmented-text-color: #101828;
   --gw-segmented-bg: #f4f4f5;
   --gw-segmented-active-bg: var(--widget-button-primary);
-  --gw-segmented-active-hover-bg: #434343;
+  --gw-segmented-active-hover-bg: var(--widget-button-primary-hover);
   --gw-segmented-active-color: #ffffff;
   width: 100%;
   display: flex;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .gw-segmented .ant-radio-button-wrapper {
@@ -25,6 +26,7 @@
   font-weight: var(--gw-segmented-font-weight);
   color: var(--gw-segmented-text-color);
   background: var(--gw-segmented-bg);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .gw-segmented .ant-radio-button-wrapper:first-child {
@@ -51,6 +53,38 @@
   background-color: var(--gw-segmented-active-hover-bg);
   border-color: var(--gw-segmented-active-hover-bg);
   color: var(--gw-segmented-active-color);
+}
+
+.gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active,
+.gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus,
+.gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within,
+.gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-visible {
+  background-color: var(--gw-segmented-active-bg);
+  border-color: var(--gw-segmented-active-bg);
+  color: var(--gw-segmented-active-color);
+  box-shadow: none;
+}
+
+.gw-segmented
+  .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):not(
+    .ant-radio-button-wrapper-disabled
+  ):active,
+.gw-segmented
+  .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):not(
+    .ant-radio-button-wrapper-disabled
+  ):focus,
+.gw-segmented
+  .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):not(
+    .ant-radio-button-wrapper-disabled
+  ):focus-within,
+.gw-segmented
+  .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):not(
+    .ant-radio-button-wrapper-disabled
+  ):focus-visible {
+  background-color: var(--gw-segmented-bg);
+  border-color: transparent;
+  color: var(--gw-segmented-text-color);
+  box-shadow: none;
 }
 
 .gw-segmented--pill {
