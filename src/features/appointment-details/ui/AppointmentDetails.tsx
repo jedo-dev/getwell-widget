@@ -884,6 +884,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
 
                   <CustomTextArea
                     text='Расскажите о ваших симптомах'
+                    className='appointment-details-symptoms-textarea'
                     value={symptoms}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setSymptoms(e.target.value)
@@ -999,6 +1000,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               <div className='appointment-details-field'>
                 <CustomTextArea
                   text='Расскажите о ваших симптомах'
+                  className='appointment-details-symptoms-textarea'
                   value={symptoms}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setSymptoms(e.target.value)
