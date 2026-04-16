@@ -6,22 +6,7 @@ import { apiClient } from './instance';
  * Моковые данные питомцев
  */
 const MOCK_PETS: Pet[] = [
-  {
-    id: 1,
-    name: 'Тюбик',
-    species: 'Собака',
-    breed: 'Лабрадор',
-    age: 3,
-    weight: 25,
-  },
-  {
-    id: 2,
-    name: 'Мурка',
-    species: 'Кошка',
-    breed: 'Британская',
-    age: 2,
-    weight: 4,
-  },
+  
 ];
 
 /**
@@ -50,7 +35,7 @@ export const petsApi = {
     // return await apiClient.get<Pet>(`/pets/${id}`);
 
     // Моковая реализация
-    const pet = [].find((p) => p.id === id);
+    const pet = MOCK_PETS.find((p) => p.id === id);
     return pet || null;
   },
 
@@ -66,7 +51,7 @@ export const petsApi = {
       ...pet,
       id: Date.now(),
     };
-    [].push(newPet);
+    MOCK_PETS.push(newPet);
     return newPet;
   },
 
@@ -78,7 +63,7 @@ export const petsApi = {
     // return await apiClient.put<Pet>(`/pets/${id}`, pet);
 
     // Моковая реализация
-    const index = [].findIndex((p) => p.id === id);
+    const index = MOCK_PETS.findIndex((p) => p.id === id);
     if (index === -1) {
       throw new Error(`Pet with id ${id} not found`);
     }

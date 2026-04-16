@@ -253,7 +253,11 @@ export const schedulesApi = {
     }
 
     if (res.status === 'error') {
-      if (res.reason === 'duplicate_entry') {
+      const isDuplicateEntryReason =
+        res.reason === 'duplicate_entry' ||
+        res.reason === 'business_invariant:timeslot_is_already_in_database';
+
+      if (isDuplicateEntryReason) {
         const error = new Error(res.reason || 'Time slot is already reserved');
         (error as any).code = 'DUPLICATE_ENTRY';
         throw error;
