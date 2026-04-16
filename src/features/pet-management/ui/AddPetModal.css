@@ -151,6 +151,39 @@
   color: #101828;
 }
 
+/* Показываем clear-иконки всегда при заполненном значении и не скрываем базовые иконки */
+.add-pet-modal .ant-input-clear-icon {
+  opacity: 1 !important;
+}
+
+.add-pet-modal .ant-select .ant-select-clear {
+  opacity: 1 !important;
+  inset-inline-end: 36px;
+}
+
+.add-pet-modal .ant-select .ant-select-arrow {
+  opacity: 1 !important;
+}
+
+.add-pet-modal .ant-select .ant-select-selector {
+  padding-inline-end: 56px !important;
+}
+
+.add-pet-modal .ant-picker .ant-picker-clear {
+  opacity: 1 !important;
+  inset-inline-end: 50px;
+}
+
+.add-pet-modal .ant-picker .ant-picker-suffix {
+  opacity: 1 !important;
+  inset-inline-end: 8px;
+  position: absolute;
+}
+
+.add-pet-modal .ant-picker .ant-picker-input > input {
+  padding-inline-end: 60px !important;
+}
+
 .add-pet-modal-gender-field {
   padding-top: 8px;
 }

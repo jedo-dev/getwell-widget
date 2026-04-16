@@ -1,8 +1,8 @@
-﻿import { CheckOutlined, DownOutlined } from '@ant-design/icons';
+﻿import { CheckOutlined, CloseOutlined, DownOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import CalendarIcon from '../../../img/calendar.svg';
+import CalendarIcon from '../../../img/calendar-no-bg-add.svg';
 import {
   getWidgetState,
   goBack,
@@ -650,7 +650,9 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const dateTimeInfo = formatDateTime(selectedDateTime);
   const fullName = selectedEmployee ? formatEmployeeFullName(selectedEmployee) : '';
   const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
-  const dateTimeTo = widgetState.selectedTimeSlotTo ? new Date(widgetState.selectedTimeSlotTo) : null;
+  const dateTimeTo = widgetState.selectedTimeSlotTo
+    ? new Date(widgetState.selectedTimeSlotTo)
+    : null;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
   const formattedTime = dateTime
     ? dateTimeTo
@@ -667,8 +669,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const phoneHasValidationError = hasAttemptedSubmit && !phoneValidationResult.isValid;
   const firstNameHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !firstName.trim();
   const lastNameHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !lastName.trim();
-  const patronymicHasValidationError =
-    hasAttemptedSubmit && isCurrentNewUser && !patronymic.trim();
+  const patronymicHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !patronymic.trim();
   const genderHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !gender;
   const selectedPetHasValidationError = hasAttemptedSubmit && !isCurrentNewUser && !selectedPetId;
   const petNameHasValidationError = hasAttemptedSubmit && isCurrentNewUser && !petName.trim();
@@ -805,6 +806,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Имя'
                   value={firstName}
+                  allowClear={{ clearIcon: <CloseOutlined /> }}
                   onChange={(e) => setFirstName(e.target.value)}
                   status={firstNameHasValidationError ? 'error' : undefined}
                   required
@@ -817,6 +819,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Фамилия'
                   value={lastName}
+                  allowClear={{ clearIcon: <CloseOutlined /> }}
                   onChange={(e) => setLastName(e.target.value)}
                   status={lastNameHasValidationError ? 'error' : undefined}
                   required
@@ -829,6 +832,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Отчество'
                   value={patronymic}
+                  allowClear={{ clearIcon: <CloseOutlined /> }}
                   onChange={(e) => setPatronymic(e.target.value)}
                   status={patronymicHasValidationError ? 'error' : undefined}
                   required
@@ -903,6 +907,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Кличка'
                   value={petName}
+                  allowClear={{ clearIcon: <CloseOutlined /> }}
                   onChange={(e) => setPetName(e.target.value)}
                   status={petNameHasValidationError ? 'error' : undefined}
                   required
@@ -922,19 +927,24 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     value={selectedPatientTypeId}
                     status={patientTypeHasValidationError ? 'error' : undefined}
                     onChange={(value) => {
-                      if (value) {
+                      if (typeof value === 'number') {
                         selectPatientType(value);
                         setSelectedPatientTypeId(value);
                         // Сбрасываем породу при смене типа
                         setSelectedBreedId(undefined);
                         setPetBreed('');
+                        return;
                       }
+                      setSelectedPatientTypeId(undefined);
+                      setSelectedBreedId(undefined);
+                      setPetBreed('');
                     }}
                     options={patientTypes.map((type) => ({
                       value: type.id,
                       label: type.name,
                     }))}
                     suffixIcon={<DownOutlined />}
+                    allowClear={{ clearIcon: <CloseOutlined /> }}
                     disabled={patientTypes.length === 0}
                   />
                 )}
@@ -949,7 +959,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   value={selectedBreedId}
                   status={breedHasValidationError ? 'error' : undefined}
                   onChange={(value) => {
-                    if (value) {
+                    if (typeof value === 'number') {
                       selectBreed(value);
                       setSelectedBreedId(value);
                       // Сохраняем название породы для обратной совместимости
@@ -957,9 +967,13 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                       if (breed) {
                         setPetBreed(breed.name);
                       }
+                      return;
                     }
+                    setSelectedBreedId(undefined);
+                    setPetBreed('');
                   }}
                   suffixIcon={<DownOutlined />}
+                  allowClear={{ clearIcon: <CloseOutlined /> }}
                   options={availableBreeds.map((breed) => ({
                     value: breed.id,
                     label: breed.name,
@@ -986,6 +1000,17 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Дата рождения'
                   value={petBirthDate}
                   status={petBirthDateHasValidationError ? 'error' : undefined}
+                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  suffixIcon={
+                    <IconWrapper
+                      src={CalendarIcon}
+                      size={40}
+                      iconSize={40}
+                      withBackground={false}
+                      color='var(--widget-text-tertiary)'
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  }
                   onChange={(date) => {
                     setPetBirthDate(date && date.isAfter(maxBirthDate) ? null : date);
                   }}
@@ -1048,7 +1073,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
               Согласен на получение сообщений и информационно-рекламной рассылки
             </Checkbox>
           </div>
-
         </div>
       </div>
       <ActionFooter

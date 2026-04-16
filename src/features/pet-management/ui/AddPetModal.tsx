@@ -181,6 +181,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             text='Кличка'
             required
             value={name}
+            allowClear={{ clearIcon: <CloseOutlined /> }}
             onChange={(e) => {
               setName(e.target.value);
               if (errors.name) {
@@ -197,13 +198,20 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             text='Вид'
             value={species}
             onChange={(value) => {
-              setSpecies(typeof value === 'number' ? value : Number(value));
+              const parsedValue =
+                typeof value === 'number'
+                  ? value
+                  : typeof value === 'string'
+                    ? Number(value)
+                    : null;
+              setSpecies(Number.isFinite(parsedValue) ? parsedValue : null);
               setBreed(null);
               if (errors.species) {
                 setErrors({ ...errors, species: '' });
               }
             }}
             options={speciesOptions}
+            allowClear={{ clearIcon: <CloseOutlined /> }}
           />
           {errors.species && <div className='add-pet-modal-error'>{errors.species}</div>}
         </div>
@@ -214,13 +222,20 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             text='Порода'
             value={breed}
             onChange={(value) => {
-              setBreed(typeof value === 'number' ? value : Number(value));
+              const parsedValue =
+                typeof value === 'number'
+                  ? value
+                  : typeof value === 'string'
+                    ? Number(value)
+                    : null;
+              setBreed(Number.isFinite(parsedValue) ? parsedValue : null);
               if (errors.breed) {
                 setErrors({ ...errors, breed: '' });
               }
             }}
             options={breedOptions}
             disabled={!species}
+            allowClear={{ clearIcon: <CloseOutlined /> }}
           />
           {errors.breed && <div className='add-pet-modal-error'>{errors.breed}</div>}
         </div>
@@ -250,6 +265,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             format='DD.MM.YYYY'
             style={{ width: '100%' }}
             variant='outlined'
+            allowClear={{ clearIcon: <CloseOutlined /> }}
             suffixIcon={
               <IconWrapper
                 src={CalendarIcon}

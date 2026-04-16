@@ -471,6 +471,39 @@
   color: #777777;
 }
 
+/* Показываем clear-иконки всегда при заполненном значении и не скрываем базовые иконки */
+.appointment-details-field .ant-input-clear-icon {
+  opacity: 1 !important;
+}
+
+.appointment-details-field .ant-select .ant-select-clear {
+  opacity: 1 !important;
+  inset-inline-end: 36px;
+}
+
+.appointment-details-field .ant-select .ant-select-arrow {
+  opacity: 1 !important;
+}
+
+.appointment-details-field .ant-select .ant-select-selector {
+  padding-inline-end: 56px !important;
+}
+
+.appointment-details-field .ant-picker .ant-picker-clear {
+  opacity: 1 !important;
+  inset-inline-end: 44px;
+}
+
+.appointment-details-field .ant-picker .ant-picker-suffix {
+  opacity: 1 !important;
+  inset-inline-end: 8px;
+  position: absolute;
+}
+
+.appointment-details-field .ant-picker .ant-picker-input > input {
+  padding-inline-end: 68px !important;
+}
+
 .appointment-details-name-icon {
   font-size: 20px;
   color: #344054;

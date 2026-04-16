@@ -71,11 +71,11 @@ const CustomDatepicker: React.FC<CustomDatePickerProps> = ({ text, ...rest }) =>
           width: '100%',
           borderBottom: '1px solid var(--widget-field-line-color)',
         }}
-        suffixIcon={null}
+        suffixIcon={rest.suffixIcon ?? null}
         locale={locale}
         format={'DD.MM.YYYY'}
         showNow={false}
-        allowClear={false}
+        allowClear={rest.allowClear ?? false}
         mode='date'
         variant='borderless'
       />
