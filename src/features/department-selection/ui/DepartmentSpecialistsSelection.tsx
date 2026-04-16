@@ -42,6 +42,9 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
   const widgetState = getWidgetState();
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const selectedBranchTimezone =
+    widgetState.config?.branches?.find((branch) => branch.id === widgetState.selectedBranchId)
+      ?.timezone ?? null;
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string } | null>(null);
   const [selectedTimechipKey, setSelectedTimechipKey] = useState<string | null>(null);
@@ -109,7 +112,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
 
     const fromIso = localDateTimeToIso(timechip.from);
     const toIso = localDateTimeToIso(timechip.to);
-    selectDateTime(fromIso, toIso);
+    selectDateTime(fromIso, toIso, timechip.from, timechip.to);
 
 
     if (widgetState.config?.apiUrl && selectedDepartment?.id) {
@@ -166,6 +169,7 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
           selectedTimechipKey={selectedTimechipKey}
           onTimechipClick={handleTimeChipClick}
           onSelectDateTime={handleSelectDateTime}
+          selectedBranchTimezone={selectedBranchTimezone}
         />
       </div>
       {selectedEmployee && (

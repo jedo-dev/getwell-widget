@@ -9,6 +9,7 @@ import {
   formatDateTime,
   formatEmployeeFullName,
   formatTime,
+  formatUtcToTenantHHmm,
 } from '../../../shared/lib';
 import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Branch, Employee, Pet } from '../../../types';
@@ -121,8 +122,18 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   };
 
   const dateTime = selectedDateTime ? new Date(selectedDateTime) : null;
+  const selectedBranchTimezone =
+    resolvedBranch?.timezone ??
+    widgetState.config?.branches?.find((branch) => branch.id === widgetState.selectedBranchId)
+      ?.timezone ??
+    null;
+  const selectedTimeSlotRaw = widgetState.selectedTimeSlotRaw;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
-  const formattedTime = dateTime ? formatTime(dateTime) : '';
+  const formattedTime = selectedTimeSlotRaw
+    ? formatUtcToTenantHHmm(selectedTimeSlotRaw, selectedBranchTimezone)
+    : dateTime
+      ? formatTime(dateTime)
+      : '';
   const normalizeSchedule = (schedule?: string): string => {
     if (!schedule) return 'Рабочие часы';
 

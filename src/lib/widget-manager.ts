@@ -15,6 +15,8 @@ let widgetState: WidgetState = {
   selectedDepartmentId: null,
   selectedTimeSlot: null,
   selectedTimeSlotTo: null,
+  selectedTimeSlotRaw: null,
+  selectedTimeSlotToRaw: null,
   phone: null,
   selectedPetId: null,
   selectedPatientTypeId: undefined,
@@ -239,6 +241,8 @@ export function openGetWellWidget(): void {
     selectionMode: undefined,
     selectedTimeSlot: null,
     selectedTimeSlotTo: null,
+    selectedTimeSlotRaw: null,
+    selectedTimeSlotToRaw: null,
     phone: null,
     selectedPetId: null,
     selectedPatientTypeId: undefined,
@@ -278,6 +282,8 @@ export function resetGetWellWidget(): void {
     selectionMode: undefined,
     selectedTimeSlot: null,
     selectedTimeSlotTo: null,
+    selectedTimeSlotRaw: null,
+    selectedTimeSlotToRaw: null,
     phone: null,
     selectedPetId: null,
     selectedPatientTypeId: undefined,
@@ -399,11 +405,19 @@ export function goToDateTimeSelection(): void {
 /**
  * Выбор даты и времени
  */
-export function selectDateTime(dateTime: string | null, dateTimeTo?: string | null): void {
+export function selectDateTime(
+  dateTime: string | null,
+  dateTimeTo?: string | null,
+  rawDateTime?: string | null,
+  rawDateTimeTo?: string | null,
+): void {
   widgetState = {
     ...widgetState,
     selectedTimeSlot: dateTime,
     selectedTimeSlotTo: dateTimeTo === undefined ? widgetState.selectedTimeSlotTo : dateTimeTo,
+    selectedTimeSlotRaw: rawDateTime === undefined ? widgetState.selectedTimeSlotRaw : rawDateTime,
+    selectedTimeSlotToRaw:
+      rawDateTimeTo === undefined ? widgetState.selectedTimeSlotToRaw : rawDateTimeTo,
   };
 
   notifyStateChange();
@@ -699,6 +713,8 @@ export function applyConfig(
       selectionMode: undefined,
       selectedTimeSlot: null,
       selectedTimeSlotTo: null,
+      selectedTimeSlotRaw: null,
+      selectedTimeSlotToRaw: null,
       phone: null,
       selectedPetId: null,
       selectedPatientTypeId: undefined,

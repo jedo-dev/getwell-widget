@@ -6,7 +6,7 @@ import {
   findNearestTimeslot,
   formatEmployeeFullName,
   formatNearestAppointmentDate,
-  formatTimeFromDateTime,
+  formatUtcToTenantHHmm,
 } from '../../lib';
 import { Employee } from '../../../types';
 import { Avatar, EmptyState } from '..';
@@ -26,6 +26,10 @@ interface DoctorSelectionListProps {
   selectedTimechipKey: string | null;
   onTimechipClick: (timechip: AvailableTimechip) => void;
   onSelectDateTime: () => void;
+  selectedBranchTimezone?: {
+    name?: string | null;
+    code?: string | null;
+  } | null;
   emptyDescription?: string;
 }
 
@@ -46,6 +50,7 @@ export const DoctorSelectionList: React.FC<DoctorSelectionListProps> = ({
   selectedTimechipKey,
   onTimechipClick,
   onSelectDateTime,
+  selectedBranchTimezone,
   emptyDescription = 'Специалисты не найдены',
 }) => {
   const visibleTimechips = timechips.slice(0, MAX_VISIBLE_SLOTS);
@@ -121,7 +126,10 @@ export const DoctorSelectionList: React.FC<DoctorSelectionListProps> = ({
                         {!loadingTimechips && hasTimechips && (
                           <div className={`${baseClass}-time-slots`}>
                             {visibleTimechips.map((timechip, index) => {
-                              const timeStr = formatTimeFromDateTime(timechip.from);
+                              const timeStr = formatUtcToTenantHHmm(
+                                timechip.from,
+                                selectedBranchTimezone,
+                              );
                               const isDisabled = timechip.is_limited;
                               return (
                                 <button

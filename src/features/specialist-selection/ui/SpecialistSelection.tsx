@@ -54,6 +54,8 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const selectedFilial = widgetState.selectedBranchId;
+  const selectedBranchTimezone =
+    widgetState.config?.branches?.find((branch) => branch.id === selectedFilial)?.timezone ?? null;
   const [activeTab, setActiveTab] = useState<string>(
     selectionMode === SelectionMode.DEPARTMENT && showDepartments ? 'department' : 'name',
   );
@@ -162,7 +164,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
 
     const fromIso = localDateTimeToIso(timechip.from);
     const toIso = localDateTimeToIso(timechip.to);
-    selectDateTime(fromIso, toIso);
+    selectDateTime(fromIso, toIso, timechip.from, timechip.to);
 
     if (latestState.config?.apiUrl && departmentIdForReservation) {
       try {
@@ -258,6 +260,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
                   selectedTimechipKey={selectedTimechipKey}
                   onTimechipClick={handleTimeChipClick}
                   onSelectDateTime={handleSelectDateTime}
+                  selectedBranchTimezone={selectedBranchTimezone}
                 />
               </div>
             ),

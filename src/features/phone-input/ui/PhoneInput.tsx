@@ -12,6 +12,7 @@ import {
   formatEmployeeFullName,
   formatPhone,
   formatTime,
+  formatUtcToTenantHHmm,
   normalizePhoneForLookup,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
@@ -190,12 +191,20 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ selectedEmployee = null 
   const state = getWidgetState();
   const dateTime = state.selectedTimeSlot ? new Date(state.selectedTimeSlot) : null;
   const dateTimeTo = state.selectedTimeSlotTo ? new Date(state.selectedTimeSlotTo) : null;
+  const selectedTimeSlotRaw = state.selectedTimeSlotRaw;
+  const selectedTimeSlotToRaw = state.selectedTimeSlotToRaw;
+  const selectedBranchTimezone = branch?.timezone ?? null;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
-  const formattedTime = dateTime
-    ? dateTimeTo
-      ? `${formatTime(dateTime)} – ${formatTime(dateTimeTo)}`
-      : formatTime(dateTime)
-    : '';
+  const formattedTime =
+    dateTime && selectedTimeSlotRaw
+      ? selectedTimeSlotToRaw
+        ? `${formatUtcToTenantHHmm(selectedTimeSlotRaw, selectedBranchTimezone)} : ${formatUtcToTenantHHmm(selectedTimeSlotToRaw, selectedBranchTimezone)}`
+        : formatUtcToTenantHHmm(selectedTimeSlotRaw, selectedBranchTimezone)
+      : dateTime
+        ? dateTimeTo
+          ? `${formatTime(dateTime)} : ${formatTime(dateTimeTo)}`
+          : formatTime(dateTime)
+        : '';
   const fullName = formatEmployeeFullName(employee);
 
   if (loading) {

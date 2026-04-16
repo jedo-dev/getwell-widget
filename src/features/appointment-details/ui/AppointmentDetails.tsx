@@ -25,6 +25,7 @@ import {
   formatEmployeeFullName,
   formatPhone,
   formatTime,
+  formatUtcToTenantHHmm,
   normalizePhoneForLookup,
   validatePhone as validatePhoneUtil,
 } from '../../../shared/lib';
@@ -512,6 +513,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     const state = getWidgetState();
     const apiUrl = state.config?.apiUrl;
     const toIso = state.selectedTimeSlotTo;
+    const fromRaw = state.selectedTimeSlotRaw;
+    const toRaw = state.selectedTimeSlotToRaw;
     const departmentId = state.selectedDepartmentId;
 
     if (
@@ -538,8 +541,8 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         const appointmentData = {
           department_id: departmentId,
           employee_id: selectedEmployee.id,
-          from: await isoToLocal(selectedDateTime),
-          to: await isoToLocal(toIso),
+          from: fromRaw || (await isoToLocal(selectedDateTime)),
+          to: toRaw || (await isoToLocal(toIso)),
           comment: symptoms || undefined,
           rsrv_timeslot_unq_hash: state.reservedTimeslotHash || undefined,
         };
@@ -653,12 +656,20 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
   const dateTimeTo = widgetState.selectedTimeSlotTo
     ? new Date(widgetState.selectedTimeSlotTo)
     : null;
+  const selectedTimeSlotRaw = widgetState.selectedTimeSlotRaw;
+  const selectedTimeSlotToRaw = widgetState.selectedTimeSlotToRaw;
+  const selectedBranchTimezone = selectedBranch?.timezone ?? null;
   const formattedDate = dateTime ? formatDate(dateTime) : '';
-  const formattedTime = dateTime
-    ? dateTimeTo
-      ? `${formatTime(dateTime)} – ${formatTime(dateTimeTo)}`
-      : formatTime(dateTime)
-    : '';
+  const formattedTime =
+    dateTime && selectedTimeSlotRaw
+      ? selectedTimeSlotToRaw
+        ? `${formatUtcToTenantHHmm(selectedTimeSlotRaw, selectedBranchTimezone)} – ${formatUtcToTenantHHmm(selectedTimeSlotToRaw, selectedBranchTimezone)}`
+        : formatUtcToTenantHHmm(selectedTimeSlotRaw, selectedBranchTimezone)
+      : dateTime
+        ? dateTimeTo
+          ? `${formatTime(dateTime)} – ${formatTime(dateTimeTo)}`
+          : formatTime(dateTime)
+        : '';
 
   const handleBack = () => {
     goBack();

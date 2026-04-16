@@ -14,9 +14,9 @@ import {
   findNearestTimeslot,
   formatDate,
   formatEmployeeFullName,
-  formatLocalDateTime,
   formatLocalMidnight,
   formatMonthYear,
+  formatUtcToTenantHHmm,
   isCurrentMonth,
   isPastDate,
   isToday,
@@ -35,7 +35,10 @@ export interface DateTimeSelectionProps {
 
 interface TimeSlot {
   time: string;
+  timeTo: string;
   period: TimePeriod;
+  fromRaw: string;
+  toRaw: string;
   fromIso: string;
   toIso: string;
   isLimited?: boolean;
@@ -47,6 +50,13 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   selectedEmployeeData,
 }) => {
   const widgetState = getWidgetState();
+  const selectedBranch = widgetState.config?.branches?.find(
+    (branch) => branch.id === widgetState.selectedBranchId,
+  );
+  const selectedBranchTimezone = selectedBranch?.timezone ?? null;
+  const selectedBranchTimezoneKey = `${selectedBranchTimezone?.name || ''}|${
+    selectedBranchTimezone?.code || ''
+  }`;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
   const initialSelectedDate = useMemo(() => {
     if (widgetState.selectedTimeSlot) {
@@ -147,14 +157,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 
   const handleTimeSelect = async (slot: TimeSlot) => {
     setSelectedTime(slot.time);
-    const slotToDate = new Date(slot.toIso);
-    setSelectedTimeTo(
-      Number.isNaN(slotToDate.getTime())
-        ? null
-        : `${String(slotToDate.getHours()).padStart(2, '0')}:${String(
-            slotToDate.getMinutes(),
-          ).padStart(2, '0')}`,
-    );
+    setSelectedTimeTo(slot.timeTo);
     setSelectedSlotKey(slot.fromIso);
     if (slot) {
       // Сохраняем department_id из слота, если он есть
@@ -162,21 +165,17 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
         selectDepartmentOnly(slot.departmentId);
       }
 
-      selectDateTime(slot.fromIso, slot.toIso);
+      selectDateTime(slot.fromIso, slot.toIso, slot.fromRaw, slot.toRaw);
 
       // Резервируем слот на 5 минут
 
       if (widgetState.config?.apiUrl && widgetState.selectedDepartmentId && selectedEmployee?.id) {
         try {
-          // Преобразуем ISO строки обратно в локальный формат "YYYY-MM-DD HH:mm:ss"
-          const fromLocal = formatLocalDateTime(new Date(slot.fromIso));
-          const toLocal = formatLocalDateTime(new Date(slot.toIso));
-
           const result = await schedulesApi.reserveTimeslot({
             apiUrl: widgetState.config.apiUrl,
             timeslot: {
-              from: fromLocal,
-              to: toLocal,
+              from: slot.fromRaw,
+              to: slot.toRaw,
             },
             departmentId: widgetState.selectedDepartmentId,
             employeeId: selectedEmployee.id,
@@ -319,18 +318,22 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           departmentId: widgetState.selectedDepartmentId || undefined,
         });
 
-        const slots: TimeSlot[] = (timechips || [])
+      const slots: TimeSlot[] = (timechips || [])
           .filter((t) => !t.is_limited)
           .map((t) => {
             // from: "YYYY-MM-DD HH:mm:ss"
             const isoFrom = localDateTimeToIso(t.from);
             const isoTo = localDateTimeToIso(t.to);
-            const fromDate = new Date(isoFrom);
-            const hh = String(fromDate.getHours()).padStart(2, '0');
-            const mm = String(fromDate.getMinutes()).padStart(2, '0');
+            const fromTime = formatUtcToTenantHHmm(t.from, selectedBranchTimezone);
+            const toTime = formatUtcToTenantHHmm(t.to, selectedBranchTimezone);
+            const parsedHours = Number((fromTime.split(':')[0] || '').trim());
+            const hours = Number.isNaN(parsedHours) ? 0 : parsedHours;
             return {
-              time: `${hh}:${mm}`,
-              period: getPeriod(fromDate.getHours()),
+              time: fromTime,
+              timeTo: toTime,
+              period: getPeriod(hours),
+              fromRaw: t.from,
+              toRaw: t.to,
               fromIso: isoFrom,
               toIso: isoTo,
               isLimited: t.is_limited,
@@ -338,8 +341,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
             };
           });
 
-        // Сортировка по времени
-        slots.sort((a, b) => a.fromIso.localeCompare(b.fromIso));
+        // Сортировка по исходному времени слота
+        slots.sort((a, b) => a.fromRaw.localeCompare(b.fromRaw));
         setApiSlots(slots);
       } catch (e) {
         console.error('Ошибка загрузки слотов времени:', e);
@@ -354,6 +357,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   }, [
     selectedDate,
     selectedEmployee?.id,
+    selectedBranchTimezoneKey,
     widgetState.selectedBranchId,
     widgetState.selectedDepartmentId,
     widgetState.config?.apiUrl,

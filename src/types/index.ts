@@ -11,6 +11,10 @@ export interface Branch {
   address: string;
   phone: string;
   schedule: string;
+  timezone?: {
+    name: string;
+    code: string;
+  } | null;
 }
 
 // Employee (Врач)
@@ -186,6 +190,8 @@ export interface WidgetState {
    */
   selectedTimeSlot: string | null;
   selectedTimeSlotTo: string | null;
+  selectedTimeSlotRaw?: string | null;
+  selectedTimeSlotToRaw?: string | null;
   phone: string | null;
   selectedPetId: number | null;
   selectedPatientTypeId?: number; // выбранный тип животного

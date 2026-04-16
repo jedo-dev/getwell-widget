@@ -7,4 +7,5 @@ export * from './employee-formatting';
 export * from './datetime';
 export * from './schedule-utils';
 export * from './timechip-formatting';
+export * from './tenant-timezone';
 

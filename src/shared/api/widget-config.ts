@@ -1,4 +1,5 @@
 import { Branch, Department, Employee, WidgetConfig } from '../../types';
+import { formatUtcToTenantHHmm } from '../lib/tenant-timezone';
 import { resolveTheme } from '../utils/theme';
 import { formatResidentialAddress } from './address';
 import {
@@ -14,6 +15,7 @@ import {
  */
 function formatSchedule(
   schedules: Array<{ week_day: string; from: string; to: string; is_around_the_clock: boolean }>,
+  timezone?: FilialApiData['timezone'],
 ): string {
   if (!schedules || schedules.length === 0) {
     return '';
@@ -38,16 +40,7 @@ function formatSchedule(
     scheduleMap.get(dayName)!.push(schedule);
   });
 
-  const formatTime = (timeStr: string): string => {
-    try {
-      const date = new Date(timeStr);
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
-    } catch {
-      return '';
-    }
-  };
+  const formatTime = (timeStr: string): string => formatUtcToTenantHHmm(timeStr, timezone);
 
   const scheduleParts: string[] = [];
   scheduleMap.forEach((daySchedules, dayName) => {
@@ -77,7 +70,8 @@ function mapFilialToBranch(filial: FilialApiData): Branch {
     name: filial.name,
     address: formatResidentialAddress(filial.residential_address),
     phone: filial.phone_number || '',
-    schedule: formatSchedule(filial.schedules || []),
+    schedule: formatSchedule(filial.schedules || [], filial.timezone),
+    timezone: filial.timezone,
   };
 }
 

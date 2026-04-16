@@ -1,4 +1,5 @@
 import { Branch } from '../../types';
+import { formatUtcToTenantHHmm } from '../lib/tenant-timezone';
 import { BranchesResponse } from '../types/api';
 import { formatResidentialAddress } from './address';
 import { FilialApiData, getWidgetSettings } from './widget-settings-cache';
@@ -8,6 +9,7 @@ import { FilialApiData, getWidgetSettings } from './widget-settings-cache';
  */
 function formatSchedule(
   schedules: Array<{ week_day: string; from: string; to: string; is_around_the_clock: boolean }>,
+  timezone?: FilialApiData['timezone'],
 ): string {
   if (!schedules || schedules.length === 0) {
     return '';
@@ -37,16 +39,7 @@ function formatSchedule(
   });
 
   // Форматируем время из формата "1969-12-31 21:00:00" в "HH:mm"
-  const formatTime = (timeStr: string): string => {
-    try {
-      const date = new Date(timeStr);
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
-    } catch {
-      return '';
-    }
-  };
+  const formatTime = (timeStr: string): string => formatUtcToTenantHHmm(timeStr, timezone);
 
   // Собираем строку расписания
   const scheduleParts: string[] = [];
@@ -77,7 +70,8 @@ function mapFilialToBranch(filial: FilialApiData): Branch {
     name: filial.name,
     address: formatResidentialAddress(filial.residential_address),
     phone: filial.phone_number || '',
-    schedule: formatSchedule(filial.schedules || []),
+    schedule: formatSchedule(filial.schedules || [], filial.timezone),
+    timezone: filial.timezone,
   };
 }
 
