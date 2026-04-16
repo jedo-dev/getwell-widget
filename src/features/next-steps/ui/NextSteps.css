@@ -85,6 +85,7 @@
   flex: 1;
   background-color: #ffffff;
   border-radius: 16px 16px 0 0;
+  overflow: hidden;
 }
 
 .next-steps-content .ant-list-split .ant-list-item {
@@ -101,11 +102,6 @@
 
 .next-steps-item:hover {
   background-color: #fafafa;
-}
-
-.next-steps-content .ant-list-split .ant-list-item:first-child:hover {
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
 }
 
 .next-steps-item-content {
