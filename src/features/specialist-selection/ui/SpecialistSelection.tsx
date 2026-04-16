@@ -143,6 +143,7 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
     selectedEmployeeId,
     isOnSpecialistSelectionStep && selectionMode === SelectionMode.EMPLOYEE,
     nearestAppointmentDate.date,
+    { includeDepartmentFilter: false },
   );
 
   const handleTimeChipClick = async (timechip: AvailableTimechip) => {

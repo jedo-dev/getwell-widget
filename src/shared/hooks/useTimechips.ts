@@ -23,6 +23,10 @@ interface UseTimechipsResult {
   error: Error | null;
 }
 
+interface UseTimechipsOptions {
+  includeDepartmentFilter?: boolean;
+}
+
 /**
  * Hook for loading timechips with caching.
  */
@@ -30,10 +34,13 @@ export function useTimechips(
   doctorId: number | null,
   enabled: boolean = true,
   date?: string | null, // YYYY-MM-DD HH:mm:ss - optional request date
+  options?: UseTimechipsOptions,
 ): UseTimechipsResult {
   const [timechips, setTimechips] = useState<AvailableTimechip[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+
+  const includeDepartmentFilter = options?.includeDepartmentFilter ?? true;
 
   useEffect(() => {
     if (!enabled || !doctorId) {
@@ -45,7 +52,9 @@ export function useTimechips(
     const widgetState = getWidgetState();
     const apiUrl = widgetState.config?.apiUrl;
     const filialId = widgetState.selectedBranchId;
-    const departmentId = widgetState.selectedDepartmentId ?? undefined;
+    const departmentId = includeDepartmentFilter
+      ? widgetState.selectedDepartmentId ?? undefined
+      : undefined;
 
     if (!apiUrl || !filialId || widgetState.config?.offlineMode) {
       setTimechips([]);
@@ -99,7 +108,7 @@ export function useTimechips(
       .finally(() => {
         setLoading(false);
       });
-  }, [doctorId, enabled, date]);
+  }, [doctorId, enabled, date, includeDepartmentFilter]);
 
   return { timechips, loading, error };
 }
