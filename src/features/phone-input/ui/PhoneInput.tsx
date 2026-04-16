@@ -270,6 +270,10 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({ selectedEmployee = null 
               placeholder='Введите номер телефона'
               value={phone}
               onChange={handlePhoneChange}
+              type='tel'
+              inputMode='numeric'
+              autoComplete='tel'
+              pattern='[0-9]*'
               suffix={
                 ownerData !== null ? (
                   <span className='phone-input-phone-check' aria-label='Номер подтвержден'>
