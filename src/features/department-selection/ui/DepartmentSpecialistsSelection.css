@@ -213,6 +213,29 @@
   color: #777777;
 }
 
+@media (max-width: 768px) {
+  .department-specialists-selection-item-appointment {
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  .department-specialists-selection-item-appointment .ant-tag {
+    margin-inline-end: 0;
+    margin-inline-start: 8px;
+    padding: 0 8px;
+    height: 20px;
+    line-height: 20px;
+    border: none;
+    border-radius: 8px;
+    background: #f2f4f7;
+    color: #344054;
+    font-family: Onest, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+}
+
 .department-specialists-selection-item-content-left {
   display: flex;
   flex-direction: column;
