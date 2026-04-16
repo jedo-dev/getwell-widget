@@ -144,11 +144,6 @@
   line-height: 24px;
 }
 
-.add-pet-modal-date-icon {
-  color: #98a2b3;
-  font-size: 14px;
-}
-
 .add-pet-modal-datepicker .ant-picker-input > input {
   font-family: 'Onest', sans-serif;
   font-size: 16px;

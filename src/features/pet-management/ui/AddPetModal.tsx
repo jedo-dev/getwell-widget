@@ -1,13 +1,15 @@
-﻿import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
+﻿import { CloseOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Modal, Radio, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
+import CalendarIcon from '../../../img/calendar-no-bg.svg';
 import { getWidgetState } from '../../../lib/widget-manager';
 import { patientsApi } from '../../../shared/api';
 import { Gender } from '../../../shared/constants';
 import { usePetGenders } from '../../../shared/hooks/usePetGenders';
 import CustomInput from '../../../shared/ui/CustomInput';
 import CustomSelector from '../../../shared/ui/CustomSelector';
+import IconWrapper from '../../../shared/ui/IconWrapper';
 import { Breed, Pet } from '../../../types';
 import './AddPetModal.css';
 
@@ -248,14 +250,27 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             format='DD.MM.YYYY'
             style={{ width: '100%' }}
             variant='outlined'
-            suffixIcon={<CalendarOutlined className='add-pet-modal-date-icon' />}
+            suffixIcon={
+              <IconWrapper
+                src={CalendarIcon}
+                size={40}
+                iconSize={40}
+                withBackground={false}
+                color='var(--widget-text-tertiary)'
+                style={{ pointerEvents: 'none' }}
+              />
+            }
           />
           {errors.birthDate && <div className='add-pet-modal-error'>{errors.birthDate}</div>}
         </div>
       </div>
 
       <div className='add-pet-modal-footer'>
-        <Button type='primary' className='add-pet-modal-save-btn gw-primary-btn' block onClick={handleSave}>
+        <Button
+          type='primary'
+          className='add-pet-modal-save-btn gw-primary-btn'
+          block
+          onClick={handleSave}>
           Сохранить
         </Button>
       </div>
