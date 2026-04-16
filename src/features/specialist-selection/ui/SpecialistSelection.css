@@ -129,6 +129,8 @@
   cursor: pointer;
   border-radius: 16px 16px 0 0;
   transition: background-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .specialist-selection-item:hover {
@@ -315,6 +317,8 @@
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 
   font-family: Onest;
   font-weight: 400;
@@ -332,13 +336,27 @@
 }
 
 .specialist-selection-time-slot:active {
-  background-color: #d9d9d9;
+  background-color: var(--widget-border-secondary);
+}
+
+.specialist-selection-time-slot:focus,
+.specialist-selection-time-slot:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .specialist-selection-time-slot.selected {
-  background-color: #344054;
-  color: #ffffff;
+  background-color: var(--widget-button-primary);
+  color: var(--widget-button-text);
   font-weight: 500;
+}
+
+.specialist-selection-time-slot.selected:hover,
+.specialist-selection-time-slot.selected:active,
+.specialist-selection-time-slot.selected:focus,
+.specialist-selection-time-slot.selected:focus-visible {
+  background-color: var(--widget-button-primary);
+  color: var(--widget-button-text);
 }
 
 .specialist-selection-time-slot.disabled {
