@@ -228,7 +228,7 @@
   width: 100%;
   padding: 12px 8px;
 
-  border-radius: 8px;
+  border-bottom: 1px solid var(--widget-field-line-color);
   background-color: #ffffff;
 }
 
@@ -272,7 +272,7 @@
   font-family: 'Onest', sans-serif;
   cursor: pointer;
   padding: 0;
-  text-decoration: underline;
+  /* text-decoration: underline; */
   flex-shrink: 0;
 }
 

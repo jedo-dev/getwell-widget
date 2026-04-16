@@ -37,7 +37,7 @@ export const petsApi = {
 
     // Моковая реализация
     return {
-      data: MOCK_PETS,
+      data: [],
       success: true,
     };
   },
@@ -50,7 +50,7 @@ export const petsApi = {
     // return await apiClient.get<Pet>(`/pets/${id}`);
 
     // Моковая реализация
-    const pet = MOCK_PETS.find((p) => p.id === id);
+    const pet = [].find((p) => p.id === id);
     return pet || null;
   },
 
@@ -66,7 +66,7 @@ export const petsApi = {
       ...pet,
       id: Date.now(),
     };
-    MOCK_PETS.push(newPet);
+    [].push(newPet);
     return newPet;
   },
 
@@ -78,7 +78,7 @@ export const petsApi = {
     // return await apiClient.put<Pet>(`/pets/${id}`, pet);
 
     // Моковая реализация
-    const index = MOCK_PETS.findIndex((p) => p.id === id);
+    const index = [].findIndex((p) => p.id === id);
     if (index === -1) {
       throw new Error(`Pet with id ${id} not found`);
     }
