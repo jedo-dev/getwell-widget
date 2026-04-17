@@ -294,6 +294,12 @@
   cursor: not-allowed;
 }
 
+.date-time-selection-calendar-day.unavailable {
+  background-color: #f4f4f5;
+  color: #c9c9c9;
+  cursor: not-allowed;
+}
+
 .date-time-selection-calendar-day.selected {
   background-color: #ffffff;
   box-shadow: inset 0 0 0 2px #344054;
@@ -315,7 +321,7 @@
   color: #ffffff;
 }
 
-.date-time-selection-calendar-day:not(.past):not(.empty):not(.selected):not(.other-month):hover {
+.date-time-selection-calendar-day:not(.past):not(.unavailable):not(.empty):not(.selected):not(.other-month):hover {
   background-color: #f9fafb;
 }
 

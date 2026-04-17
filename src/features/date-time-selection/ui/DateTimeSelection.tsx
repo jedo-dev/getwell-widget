@@ -13,6 +13,7 @@ import { DAYS_OF_WEEK_SHORT, TIME_PERIOD_LABELS, TimePeriod } from '../../../sha
 import {
   findNearestTimeslot,
   formatDate,
+  formatLocalDateTime,
   formatEmployeeFullName,
   formatLocalMidnight,
   formatMonthYear,
@@ -108,8 +109,45 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
     new Date(initialSelectedDate.getFullYear(), initialSelectedDate.getMonth(), 1),
   );
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
+  const [loadingAvailableDates, setLoadingAvailableDates] = useState<boolean>(false);
   const [apiSlots, setApiSlots] = useState<TimeSlot[]>([]);
+  const [availableDateKeys, setAvailableDateKeys] = useState<Set<string>>(new Set());
+  const [hasAvailabilityData, setHasAvailabilityData] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string } | null>(null);
+
+  const formatDateKey = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const getFirstSelectableDateForMonth = (month: Date, dateKeys: Set<string>): Date => {
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDay =
+      year === today.getFullYear() && monthIndex === today.getMonth() ? today.getDate() : 1;
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+    for (let day = startDay; day <= daysInMonth; day += 1) {
+      const candidate = new Date(year, monthIndex, day);
+      const key = formatDateKey(candidate);
+      if (!isPastDate(candidate) && dateKeys.has(key)) {
+        return candidate;
+      }
+    }
+
+    for (let day = startDay; day <= daysInMonth; day += 1) {
+      const candidate = new Date(year, monthIndex, day);
+      if (!isPastDate(candidate)) {
+        return candidate;
+      }
+    }
+
+    return new Date(year, monthIndex, startDay);
+  };
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -233,6 +271,105 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
     const prevMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
     return prevMonth >= currentRealMonth;
   }, [currentMonth, currentRealMonth]);
+
+  useEffect(() => {
+    const loadAvailableDates = async () => {
+      if (widgetState.config?.offlineMode) {
+        setAvailableDateKeys(new Set());
+        setHasAvailabilityData(false);
+        return;
+      }
+
+      if (!widgetState.config?.apiUrl || !widgetState.selectedBranchId) {
+        setAvailableDateKeys(new Set());
+        setHasAvailabilityData(false);
+        return;
+      }
+
+      const periodStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1, 0, 0, 0);
+      const periodEnd = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+      );
+      const from = formatLocalDateTime(periodStart);
+      const to = formatLocalDateTime(periodEnd);
+
+      setLoadingAvailableDates(true);
+      try {
+        const schedules = await schedulesApi.getAvailableDoctorsWithSchedulesByPeriod({
+          apiUrl: widgetState.config.apiUrl,
+          filialId: widgetState.selectedBranchId,
+          from,
+          to,
+          departmentId: widgetState.selectedDepartmentId || undefined,
+          employeeId: selectedEmployee?.id || undefined,
+        });
+
+        const nextAvailableDateKeys = new Set<string>();
+        schedules.forEach((doctor) => {
+          doctor.items?.forEach((item) => {
+            const nearestFrom = item.nearest_available_timeslot?.from;
+            if (!nearestFrom) {
+              return;
+            }
+
+            const [datePart] = nearestFrom.split(' ');
+            if (datePart) {
+              nextAvailableDateKeys.add(datePart);
+            }
+          });
+        });
+
+        setAvailableDateKeys(nextAvailableDateKeys);
+        setHasAvailabilityData(true);
+      } catch (error) {
+        console.error('Ошибка загрузки доступных дат календаря:', error);
+        setAvailableDateKeys(new Set());
+        setHasAvailabilityData(false);
+      } finally {
+        setLoadingAvailableDates(false);
+      }
+    };
+
+    loadAvailableDates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    currentMonth,
+    selectedEmployee?.id,
+    widgetState.selectedBranchId,
+    widgetState.selectedDepartmentId,
+    widgetState.config?.apiUrl,
+    widgetState.config?.offlineMode,
+  ]);
+
+  useEffect(() => {
+    if (!isCurrentMonth(selectedDate, currentMonth)) {
+      return;
+    }
+
+    if (loadingAvailableDates) {
+      return;
+    }
+
+    if (!hasAvailabilityData || availableDateKeys.size === 0) {
+      return;
+    }
+
+    const selectedDateKey = formatDateKey(selectedDate);
+    const isSelectedDateAvailable = availableDateKeys.has(selectedDateKey);
+
+    if (!isSelectedDateAvailable) {
+      const fallbackDate = getFirstSelectableDateForMonth(currentMonth, availableDateKeys);
+      if (fallbackDate.toDateString() !== selectedDate.toDateString()) {
+        handleDateSelect(fallbackDate);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableDateKeys, hasAvailabilityData, loadingAvailableDates, currentMonth]);
 
   // Генерация календаря
   const calendarDays = useMemo(() => {
@@ -488,6 +625,12 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                     const isCurrentMonthDay = isCurrentMonth(date, currentMonth);
                     const isSelectedDay = isSelected(date);
                     const isTodayDay = isToday(date);
+                    const isUnavailable =
+                      isCurrentMonthDay &&
+                      !isPast &&
+                      (loadingAvailableDates ||
+                        (hasAvailabilityData && !availableDateKeys.has(formatDateKey(date))));
+                    const isDisabledDay = isPast || !isCurrentMonthDay || isUnavailable;
 
                     return (
                       <div
@@ -495,9 +638,10 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
                         className={`date-time-selection-calendar-day 
                     ${!isCurrentMonthDay ? 'other-month' : ''} 
                     ${isPast ? 'past' : ''} 
+                    ${isUnavailable ? 'unavailable' : ''} 
                     ${isSelectedDay ? 'selected' : ''} 
                     ${isTodayDay ? 'today' : ''}`}
-                        onClick={() => !isPast && isCurrentMonthDay && handleDateSelect(date)}>
+                        onClick={() => !isDisabledDay && handleDateSelect(date)}>
                         <span className='date-time-selection-calendar-day-number'>
                           {date.getDate()}
                         </span>

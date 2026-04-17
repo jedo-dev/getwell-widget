@@ -169,6 +169,39 @@ export const schedulesApi = {
   },
 
   /**
+   * Получить расписание сотрудников за период.
+   * Используется для блокировки недоступных дат в календаре.
+   */
+  async getAvailableDoctorsWithSchedulesByPeriod(params: {
+    apiUrl: string;
+    filialId: number;
+    from: string; // YYYY-MM-DD HH:mm:ss
+    to: string; // YYYY-MM-DD HH:mm:ss
+    departmentId?: number;
+    employeeId?: number;
+    search?: string;
+  }): Promise<AvailableDoctorsData[]> {
+    const base = normalizeExternalBaseUrl(params.apiUrl);
+    const endpoint = `${base}/widgets/online-appointment/schedules/employees-and-schedules`;
+
+    const query: Record<string, string | number | undefined> = {
+      filial_id: params.filialId,
+      from: params.from,
+      to: params.to,
+      ...(params.departmentId ? { 'filter[departments_id]': params.departmentId } : {}),
+      ...(params.employeeId ? { 'filter[employees_id]': params.employeeId } : {}),
+      ...(params.search ? { 'filter[search]': params.search } : {}),
+    };
+
+    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query);
+    if (res.status !== 'ok') {
+      throw new Error(res.reason || 'Failed to fetch schedules by period');
+    }
+
+    return res.data;
+  },
+
+  /**
    * Получить доступные слоты на день.
    * appointment_type_id у вас статичный (8), но параметр оставляем явным.
    */
