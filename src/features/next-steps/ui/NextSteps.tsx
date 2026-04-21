@@ -20,6 +20,7 @@ export interface NextStepsProps {
 export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
   const widgetState = getWidgetState();
   const showDepartments = widgetState.config?.showDepartments ?? true;
+  const hasCustomLogo = Boolean(widgetState.config?.logoUrl);
 
   const menuItems = [
     {
@@ -57,7 +58,7 @@ export const NextSteps: React.FC<NextStepsProps> = ({ selectedBranch }) => {
               width={60}
               height={60}
               alt={'Логотип'}
-              className='next-steps-branch-image'
+              className={`next-steps-branch-image${hasCustomLogo ? ' next-steps-branch-image--no-padding' : ''}`}
             />
             <div className='next-steps-branch-name'>{selectedBranch.name}</div>
             <div className='next-steps-branch-address'>{selectedBranch.address}</div>
