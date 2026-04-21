@@ -53,7 +53,7 @@ export const DoctorSelectionList: React.FC<DoctorSelectionListProps> = ({
   selectedBranchTimezone,
   emptyDescription = 'Специалисты не найдены',
 }) => {
-  const visibleTimechips = timechips.slice(0, MAX_VISIBLE_SLOTS);
+  const visibleTimechips = timechips;
   const hasTimechips = visibleTimechips.length > 0;
 
   return (
