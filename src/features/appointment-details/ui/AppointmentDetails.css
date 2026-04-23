@@ -5,7 +5,7 @@
   height: -webkit-fill-available;
   min-height: 0;
   gap: 2px;
-  background: linear-gradient(#ffffff00, #ffffff);
+  background: linear-gradient(#f498ad00 25%, #2e9aff00 25% 50%, #ffffff 75%);
 }
 
 .appointment-details-header {
