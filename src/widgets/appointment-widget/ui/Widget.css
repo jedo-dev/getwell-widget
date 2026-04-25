@@ -257,6 +257,38 @@
 }
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
+  .getwell-widget-drawer-root a,
+  .getwell-widget-drawer-root button,
+  .getwell-widget-drawer-root [role='button'],
+  .getwell-widget-drawer-root .ant-btn,
+  .getwell-widget-drawer-root .anticon,
+  .getwell-widget-drawer-root [tabindex],
+  .getwell-widget-fullscreen a,
+  .getwell-widget-fullscreen button,
+  .getwell-widget-fullscreen [role='button'],
+  .getwell-widget-fullscreen .ant-btn,
+  .getwell-widget-fullscreen .anticon,
+  .getwell-widget-fullscreen [tabindex] {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+
+  .getwell-widget-drawer-root a:focus:not(:focus-visible),
+  .getwell-widget-drawer-root button:focus:not(:focus-visible),
+  .getwell-widget-drawer-root [role='button']:focus:not(:focus-visible),
+  .getwell-widget-drawer-root .ant-btn:focus:not(:focus-visible),
+  .getwell-widget-drawer-root .anticon:focus:not(:focus-visible),
+  .getwell-widget-drawer-root [tabindex]:focus:not(:focus-visible),
+  .getwell-widget-fullscreen a:focus:not(:focus-visible),
+  .getwell-widget-fullscreen button:focus:not(:focus-visible),
+  .getwell-widget-fullscreen [role='button']:focus:not(:focus-visible),
+  .getwell-widget-fullscreen .ant-btn:focus:not(:focus-visible),
+  .getwell-widget-fullscreen .anticon:focus:not(:focus-visible),
+  .getwell-widget-fullscreen [tabindex]:focus:not(:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
   .getwell-widget-drawer .ant-drawer-content-wrapper {
     width: 100% !important;
   }

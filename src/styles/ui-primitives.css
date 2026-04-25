@@ -57,8 +57,10 @@
 
 .gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active,
 .gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus,
-.gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within,
-.gw-segmented .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-visible {
+.gw-segmented
+  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within,
+.gw-segmented
+  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-visible {
   background-color: var(--gw-segmented-active-bg);
   border-color: var(--gw-segmented-active-bg);
   color: var(--gw-segmented-active-color);
@@ -164,4 +166,8 @@
 
 .gw-action-footer-btn--primary {
   flex: var(--gw-action-footer-primary-flex);
+}
+.ant-checkbox-label {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }

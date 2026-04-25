@@ -277,6 +277,8 @@
   padding: 12px;
   background-color: #ffffff;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 .date-time-selection-calendar-day.empty {
@@ -321,7 +323,9 @@
   color: #ffffff;
 }
 
-.date-time-selection-calendar-day:not(.past):not(.unavailable):not(.empty):not(.selected):not(.other-month):hover {
+.date-time-selection-calendar-day:not(.past):not(.unavailable):not(.empty):not(.selected):not(
+    .other-month
+  ):hover {
   background-color: #f9fafb;
 }
 
