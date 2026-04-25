@@ -3,9 +3,9 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: #ffffff;
+   background: linear-gradient(#f498ad00 25%, #2e9aff00 25% 50%, #ffffff 75%);
   border-radius: 16px 16px 0 0;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .specialist-selection-header {
@@ -50,17 +50,17 @@
   border-radius: 16px 16px 0 0;
 }
 
-.specialist-selection-tabs .ant-tabs-content,
+/* .specialist-selection-tabs .ant-tabs-content,
 .specialist-selection-tabs .ant-tabs-tabpane {
   background: #ffffff;
-}
+} */
 
 .specialist-selection-content {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  background: #ffffff;
+  /* background: #ffffff; */
   /* gap: 2px; */
   /* margin-top: 2px; */
   height: 100%;
