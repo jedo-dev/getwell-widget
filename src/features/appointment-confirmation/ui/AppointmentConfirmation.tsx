@@ -21,6 +21,7 @@ import UserIcon from '../../../img/confirmation-icon/doctor.svg';
 import mobileIcon from '../../../img/confirmation-icon/mobile.svg';
 import pawIcon from '../../../img/confirmation-icon/pet.svg';
 import watchIcon from '../../../img/confirmation-icon/watch.svg';
+
 export interface AppointmentConfirmationProps {
   selectedBranch: Branch | null;
   selectedEmployee: Employee | null;
@@ -29,6 +30,18 @@ export interface AppointmentConfirmationProps {
   selectedPetId: number | null;
   hasHeaderImage?: boolean;
 }
+
+const DEFAULT_EVENT_DURATION_MINUTES = 30;
+const isValidDate = (value: Date | null): value is Date =>
+  value !== null && !Number.isNaN(value.getTime());
+const toIcsDateTime = (date: Date): string =>
+  date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+const escapeIcsText = (value: string): string =>
+  value
+    .replace(/\\/g, '\\\\')
+    .replace(/\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
 
 export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = ({
   selectedBranch,
@@ -96,9 +109,71 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   const fullName = selectedEmployee ? formatEmployeeFullName(selectedEmployee) : '';
 
   const handleAddToCalendar = () => {
-    if (!selectedDateTime) return;
-    // TODO: Реализовать добавление в календарь
-    console.log('Добавить в календарь', selectedDateTime);
+    const startDate = selectedDateTime ? new Date(selectedDateTime) : null;
+    if (!isValidDate(startDate)) {
+      return;
+    }
+
+    const endDateFromState = widgetState.selectedTimeSlotTo
+      ? new Date(widgetState.selectedTimeSlotTo)
+      : null;
+    const endDate = isValidDate(endDateFromState)
+      ? endDateFromState
+      : new Date(startDate.getTime() + DEFAULT_EVENT_DURATION_MINUTES * 60 * 1000);
+
+    const doctorName = fullName || 'Specialist';
+    const branchName = resolvedBranch?.name?.trim();
+    const branchAddress = resolvedBranch?.address?.trim();
+    const title = branchName
+      ? `Appointment with ${doctorName} (${branchName})`
+      : `Appointment with ${doctorName}`;
+    const descriptionLines = [
+      branchAddress ? `Address: ${branchAddress}` : null,
+      resolvedBranch?.phone ? `Phone: ${resolvedBranch.phone}` : null,
+      dateTimeInfo ? `Date: ${dateTimeInfo.date}, ${dateTimeInfo.time}` : null,
+    ].filter(Boolean) as string[];
+    const description = descriptionLines.join('\n');
+
+    const dtStart = toIcsDateTime(startDate);
+    const dtEnd = toIcsDateTime(endDate);
+    const dtStamp = toIcsDateTime(new Date());
+    const uid = `getwell-${startDate.getTime()}-${Math.random().toString(36).slice(2, 10)}@widget`;
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//GetWell//Appointment Widget//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${dtStamp}`,
+      `DTSTART:${dtStart}`,
+      `DTEND:${dtEnd}`,
+      `SUMMARY:${escapeIcsText(title)}`,
+      description ? `DESCRIPTION:${escapeIcsText(description)}` : null,
+      branchAddress ? `LOCATION:${escapeIcsText(branchAddress)}` : null,
+      'END:VEVENT',
+      'END:VCALENDAR',
+      '',
+    ]
+      .filter(Boolean)
+      .join('\r\n');
+
+    try {
+      const fileName = `getwell-appointment-${dtStart}.ics`;
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1000);
+    } catch (error) {
+      console.error('Failed to create calendar file', error);
+    }
   };
 
   const handleBuildRoute = () => {
