@@ -1,4 +1,4 @@
-﻿import { CheckOutlined, CloseOutlined, DownOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Button, Checkbox, message, Radio, Spin } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -822,7 +822,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Имя'
                   value={firstName}
-                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  /> }}
                   onChange={(e) => setFirstName(e.target.value)}
                   status={firstNameHasValidationError ? 'error' : undefined}
                   required
@@ -889,7 +889,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                         selectPet(value);
                       }
                     }}
-                    suffixIcon={<DownOutlined />}
                     options={pets.map((pet) => ({
                       value: pet.id,
                       label: pet.name,
@@ -959,7 +958,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                       value: type.id,
                       label: type.name,
                     }))}
-                    suffixIcon={<DownOutlined />}
                     allowClear={{ clearIcon: <CloseOutlined /> }}
                     disabled={patientTypes.length === 0}
                   />
@@ -988,7 +986,6 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     setSelectedBreedId(undefined);
                     setPetBreed('');
                   }}
-                  suffixIcon={<DownOutlined />}
                   allowClear={{ clearIcon: <CloseOutlined /> }}
                   options={availableBreeds.map((breed) => ({
                     value: breed.id,
