@@ -170,7 +170,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
       onCancel={handleClose}
       footer={null}
       className='add-pet-modal'
-      closeIcon={<CloseOutlined className='add-pet-modal-close' />}
+      closeIcon={<CloseOutlined style={{ color: '#777777' }} className='add-pet-modal-close' />}
       getContainer={false}
       style={{ top: 'auto', bottom: 0, paddingBottom: 0 }}
       wrapClassName='add-pet-modal-wrap'>
@@ -181,7 +181,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             text='Кличка'
             required
             value={name}
-            allowClear={{ clearIcon: <CloseOutlined /> }}
+            allowClear={{ clearIcon: <CloseOutlined style={{ color: '#777777' }} /> }}
             onChange={(e) => {
               setName(e.target.value);
               if (errors.name) {
@@ -211,7 +211,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
               }
             }}
             options={speciesOptions}
-            allowClear={{ clearIcon: <CloseOutlined /> }}
+            allowClear={{ clearIcon: <CloseOutlined style={{ color: '#777777' }} /> }}
           />
           {errors.species && <div className='add-pet-modal-error'>{errors.species}</div>}
         </div>
@@ -235,7 +235,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             }}
             options={breedOptions}
             disabled={!species}
-            allowClear={{ clearIcon: <CloseOutlined /> }}
+            allowClear={{ clearIcon: <CloseOutlined style={{ color: '#777777' }} /> }}
           />
           {errors.breed && <div className='add-pet-modal-error'>{errors.breed}</div>}
         </div>
@@ -265,7 +265,7 @@ export const AddPetModal: React.FC<AddPetModalProps> = ({ open, onClose, onSave 
             format='DD.MM.YYYY'
             style={{ width: '100%' }}
             variant='outlined'
-            allowClear={{ clearIcon: <CloseOutlined /> }}
+            allowClear={{ clearIcon: <CloseOutlined style={{ color: '#777777' }} /> }}
             suffixIcon={
               <IconWrapper
                 src={CalendarIcon}

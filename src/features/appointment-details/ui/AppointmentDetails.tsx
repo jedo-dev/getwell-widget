@@ -822,7 +822,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Имя'
                   value={firstName}
-                  allowClear={{ clearIcon: <CloseOutlined  /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}}  /> }}
                   onChange={(e) => setFirstName(e.target.value)}
                   status={firstNameHasValidationError ? 'error' : undefined}
                   required
@@ -835,7 +835,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Фамилия'
                   value={lastName}
-                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}} /> }}
                   onChange={(e) => setLastName(e.target.value)}
                   status={lastNameHasValidationError ? 'error' : undefined}
                   required
@@ -848,7 +848,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Отчество'
                   value={patronymic}
-                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}} /> }}
                   onChange={(e) => setPatronymic(e.target.value)}
                   status={patronymicHasValidationError ? 'error' : undefined}
                   required
@@ -922,7 +922,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                 <CustomInput
                   text='Кличка'
                   value={petName}
-                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}} /> }}
                   onChange={(e) => setPetName(e.target.value)}
                   status={petNameHasValidationError ? 'error' : undefined}
                   required
@@ -958,7 +958,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                       value: type.id,
                       label: type.name,
                     }))}
-                    allowClear={{ clearIcon: <CloseOutlined /> }}
+                    allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}} /> }}
                     disabled={patientTypes.length === 0}
                   />
                 )}
@@ -986,7 +986,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                     setSelectedBreedId(undefined);
                     setPetBreed('');
                   }}
-                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}} /> }}
                   options={availableBreeds.map((breed) => ({
                     value: breed.id,
                     label: breed.name,
@@ -1013,7 +1013,7 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
                   text='Дата рождения'
                   value={petBirthDate}
                   status={petBirthDateHasValidationError ? 'error' : undefined}
-                  allowClear={{ clearIcon: <CloseOutlined /> }}
+                  allowClear={{ clearIcon: <CloseOutlined  style={{color:"#777777"}} /> }}
                   suffixIcon={
                     <IconWrapper
                       src={CalendarIconNon}
