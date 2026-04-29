@@ -122,6 +122,9 @@ function mapApiResponseToWidgetConfig(
   initialConfig: WidgetConfig,
 ): WidgetConfig {
   const { data } = apiResponse;
+  const legalDocumentType = data.legal_documents?.type?.trim().toLowerCase();
+  const legalDocumentValue = data.legal_documents?.value?.trim();
+  const isExternalPolicyLink = legalDocumentType === 'link' && Boolean(legalDocumentValue);
 
   const resolvedStickyButtonTheme = resolveTheme({
     primaryColor:
@@ -183,9 +186,9 @@ function mapApiResponseToWidgetConfig(
     yandexMapFrameCode: data.yandex_map_frame || undefined,
 
     // Политика конфиденциальности
-    textPolicy: data.legal_documents?.value || undefined,
-    linkToExternalPolicy: undefined,
-    isExternalLinkPolicy: false,
+    textPolicy: isExternalPolicyLink ? undefined : legalDocumentValue || undefined,
+    linkToExternalPolicy: isExternalPolicyLink ? legalDocumentValue : undefined,
+    isExternalLinkPolicy: isExternalPolicyLink,
 
     // Кнопка онлайн-записи
     stickyBtnEnable: data.online_appointment_button?.display_on_site || false,

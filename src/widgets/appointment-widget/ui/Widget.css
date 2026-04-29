@@ -76,6 +76,9 @@
   padding: 0 !important;
   border-bottom: unset !important;
 }
+.image-header .drawer-title {
+  line-height: 0 !important;
+}
 .collapsed-header {
   background: transparent !important;
   border: 0 !important;
