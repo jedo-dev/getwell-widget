@@ -1,5 +1,4 @@
-import { AvailableDoctorsData, NearestAvailableTimeslot, ScheduleItem } from '../api/schedules';
-import { isToday } from './date-formatting';
+import { AvailableDoctorsData, NearestAvailableTimeslot } from '../api/schedules';
 import { formatLocalMidnight } from './datetime';
 
 const MONTHS_GENITIVE = [
@@ -28,6 +27,15 @@ function parseDateTime(dateTimeStr: string): Date {
 }
 
 /**
+ * Парсит backend-дату в UTC.
+ * Backend присылает "YYYY-MM-DD HH:mm:ss" как UTC без suffix.
+ */
+function parseUtcDateTime(dateTimeStr: string): Date {
+  const [datePart, timePart] = dateTimeStr.split(' ');
+  return new Date(`${datePart}T${timePart}Z`);
+}
+
+/**
  * Находит ближайший доступный timeslot из items
  */
 export function findNearestTimeslot(
@@ -38,20 +46,22 @@ export function findNearestTimeslot(
   }
 
   const now = new Date();
-  let nearest: ScheduleItem | null = null;
+  let nearest: NearestAvailableTimeslot | null = null;
   let nearestDate: Date | null = null;
 
   for (const item of doctorData.items) {
-    const itemDate = parseDateTime(item.from);
+    const nearestTimeslot = item.nearest_available_timeslot;
+    if (!nearestTimeslot?.from) continue;
+    const itemDate = parseUtcDateTime(nearestTimeslot.from);
     if (itemDate < now) continue;
 
     if (!nearest || itemDate < nearestDate!) {
-      nearest = item;
+      nearest = nearestTimeslot;
       nearestDate = itemDate;
     }
   }
 
-  return nearest?.nearest_available_timeslot || null;
+  return nearest;
 }
 
 /**
@@ -80,26 +90,25 @@ export function formatNearestAppointmentDate(
   }
 
   const date = parseDateTime(dateTimeStr);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const [targetUtcDate] = dateTimeStr.split(' ');
 
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const targetDate = new Date(date);
-  targetDate.setHours(0, 0, 0, 0);
+  const now = new Date();
+  const todayUtcDate = now.toISOString().slice(0, 10);
+  const tomorrowUtcDate = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
 
   // Форматируем дату для запроса (полночь выбранной даты)
   const dateForRequest = formatLocalMidnight(date);
 
-  if (isToday(date)) {
+  if (targetUtcDate === todayUtcDate) {
     return {
       text: 'сегодня',
       date: dateForRequest,
     };
   }
 
-  if (targetDate.getTime() === tomorrow.getTime()) {
+  if (targetUtcDate === tomorrowUtcDate) {
     return {
       text: 'завтра',
       date: dateForRequest,
