@@ -180,6 +180,7 @@ export const schedulesApi = {
     departmentId?: number;
     employeeId?: number;
     search?: string;
+    signal?: AbortSignal;
   }): Promise<AvailableDoctorsData[]> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
     const endpoint = `${base}/widgets/online-appointment/schedules/employees-and-schedules`;
@@ -193,7 +194,9 @@ export const schedulesApi = {
       ...(params.search ? { 'filter[search]': params.search } : {}),
     };
 
-    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query);
+    const res = await apiClient.get<ExternalApiResponse<AvailableDoctorsData[]>>(endpoint, query, {
+      signal: params.signal,
+    });
     if (res.status !== 'ok') {
       throw new Error(res.reason || 'Failed to fetch schedules by period');
     }
@@ -212,6 +215,7 @@ export const schedulesApi = {
     date: string; // YYYY-MM-DD HH:mm:ss
     doctorId?: number;
     departmentId?: number;
+    signal?: AbortSignal;
   }): Promise<AvailableTimechip[]> {
     const base = normalizeExternalBaseUrl(params.apiUrl);
     const endpoint = `${base}/widgets/online-appointment/schedules/available-timechips`;
@@ -224,7 +228,9 @@ export const schedulesApi = {
       ...(params.departmentId ? { 'filter[department_id]': params.departmentId } : {}),
     };
 
-    const res = await apiClient.get<ExternalApiResponse<AvailableTimechip[]>>(endpoint, query);
+    const res = await apiClient.get<ExternalApiResponse<AvailableTimechip[]>>(endpoint, query, {
+      signal: params.signal,
+    });
     if (res.status !== 'ok') {
       throw new Error(res.reason || 'Failed to fetch timechips');
     }

@@ -1,6 +1,6 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Spin } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   getWidgetState,
   goToPhoneInput,
@@ -114,6 +114,10 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   const [availableDateKeys, setAvailableDateKeys] = useState<Set<string>>(new Set());
   const [hasAvailabilityData, setHasAvailabilityData] = useState<boolean>(false);
   const [notification, setNotification] = useState<{ message: string } | null>(null);
+  const timechipsAbortControllerRef = useRef<AbortController | null>(null);
+  const availabilityAbortControllerRef = useRef<AbortController | null>(null);
+  const timechipsRequestIdRef = useRef(0);
+  const availabilityRequestIdRef = useRef(0);
 
   const formatDateKey = (date: Date): string => {
     const year = date.getFullYear();
@@ -150,6 +154,8 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   };
 
   const handleDateSelect = (date: Date) => {
+    // Мгновенно отменяем прошлую загрузку слотов ещё до следующего рендера
+    timechipsAbortControllerRef.current?.abort();
     setSelectedDate(date);
     setSelectedTime(null);
     setSelectedTimeTo(null);
@@ -274,6 +280,11 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 
   useEffect(() => {
     const loadAvailableDates = async () => {
+      availabilityAbortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      availabilityAbortControllerRef.current = abortController;
+      const requestId = ++availabilityRequestIdRef.current;
+
       if (widgetState.config?.offlineMode) {
         setAvailableDateKeys(new Set());
         setHasAvailabilityData(false);
@@ -307,7 +318,12 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           to,
           departmentId: widgetState.selectedDepartmentId || undefined,
           employeeId: selectedEmployee?.id || undefined,
+          signal: abortController.signal,
         });
+
+        if (abortController.signal.aborted || requestId !== availabilityRequestIdRef.current) {
+          return;
+        }
 
         const nextAvailableDateKeys = new Set<string>();
         schedules.forEach((doctor) => {
@@ -326,16 +342,27 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
 
         setAvailableDateKeys(nextAvailableDateKeys);
         setHasAvailabilityData(true);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.code === 'ABORTED') {
+          return;
+        }
         console.error('Ошибка загрузки доступных дат календаря:', error);
         setAvailableDateKeys(new Set());
         setHasAvailabilityData(false);
       } finally {
-        setLoadingAvailableDates(false);
+        if (!abortController.signal.aborted && requestId === availabilityRequestIdRef.current) {
+          setLoadingAvailableDates(false);
+        }
+        if (availabilityAbortControllerRef.current === abortController) {
+          availabilityAbortControllerRef.current = null;
+        }
       }
     };
 
     loadAvailableDates();
+    return () => {
+      availabilityAbortControllerRef.current?.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentMonth,
@@ -423,6 +450,11 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   // Загружаем слоты из API
   useEffect(() => {
     const load = async () => {
+      timechipsAbortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      timechipsAbortControllerRef.current = abortController;
+      const requestId = ++timechipsRequestIdRef.current;
+
       // Офлайн режим: здесь можно будет брать слоты из конфига,
       // но в текущей задаче подключаем только новые ендпоинты.
       if (widgetState.config?.offlineMode) {
@@ -453,9 +485,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
           date,
           doctorId: selectedEmployee?.id || undefined,
           departmentId: widgetState.selectedDepartmentId || undefined,
+          signal: abortController.signal,
         });
 
-      const slots: TimeSlot[] = (timechips || [])
+        if (abortController.signal.aborted || requestId !== timechipsRequestIdRef.current) {
+          return;
+        }
+
+        const slots: TimeSlot[] = (timechips || [])
           .filter((t) => !t.is_limited)
           .map((t) => {
             // from: "YYYY-MM-DD HH:mm:ss"
@@ -481,15 +518,26 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
         // Сортировка по исходному времени слота
         slots.sort((a, b) => a.fromRaw.localeCompare(b.fromRaw));
         setApiSlots(slots);
-      } catch (e) {
+      } catch (e: any) {
+        if (e?.code === 'ABORTED') {
+          return;
+        }
         console.error('Ошибка загрузки слотов времени:', e);
         setApiSlots([]);
       } finally {
-        setLoadingSlots(false);
+        if (!abortController.signal.aborted && requestId === timechipsRequestIdRef.current) {
+          setLoadingSlots(false);
+        }
+        if (timechipsAbortControllerRef.current === abortController) {
+          timechipsAbortControllerRef.current = null;
+        }
       }
     };
 
     load();
+    return () => {
+      timechipsAbortControllerRef.current?.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedDate,

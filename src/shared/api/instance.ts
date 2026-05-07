@@ -153,6 +153,16 @@ class ApiClient {
   private async fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const externalSignal = options.signal;
+
+    const abortByExternalSignal = () => controller.abort();
+    if (externalSignal) {
+      if (externalSignal.aborted) {
+        controller.abort();
+      } else {
+        externalSignal.addEventListener('abort', abortByExternalSignal, { once: true });
+      }
+    }
 
     try {
       const calltouchSessionId = getCalltouchSessionId();
@@ -166,10 +176,22 @@ class ApiClient {
         },
       });
       clearTimeout(timeoutId);
+      if (externalSignal) {
+        externalSignal.removeEventListener('abort', abortByExternalSignal);
+      }
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
+      if (externalSignal) {
+        externalSignal.removeEventListener('abort', abortByExternalSignal);
+      }
       if (error instanceof Error && error.name === 'AbortError') {
+        if (externalSignal?.aborted) {
+          throw {
+            message: 'Request canceled',
+            code: 'ABORTED',
+          } as ApiError;
+        }
         throw {
           message: 'Request timeout',
           code: 'TIMEOUT',
