@@ -26,7 +26,6 @@ import UserIcon from '../../../img/confirmation-icon/doctor.svg';
 import mobileIcon from '../../../img/confirmation-icon/mobile.svg';
 import pawIcon from '../../../img/confirmation-icon/pet.svg';
 import watchIcon from '../../../img/confirmation-icon/watch.svg';
-import errorIcon from '../../../img/error.svg';
 
 export interface AppointmentConfirmationProps {
   selectedBranch: Branch | null;
@@ -523,14 +522,13 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
       {isFailureState ? (
         <>
           <div
-            className={`appointment-confirmation-info-container${
+            className={`appointment-confirmation-info-container appointment-confirmation-info-container--failure${
               hasHeaderImage ? ' appointment-confirmation-info-container--with-image' : ''
             }`}>
-            <div className='appointment-confirmation-failure-icon'>
-              <img src={errorIcon} alt='Ошибка' className='appointment-confirmation-failure-image' />
-            </div>
-            <h2 className='appointment-confirmation-title'>Не удалось записаться на приём</h2>
-            <div className='appointment-confirmation-time-container'>
+            <h2 className='appointment-confirmation-title appointment-confirmation-title--failure'>
+              Не удалось записаться на приём
+            </h2>
+            <div className='appointment-confirmation-time-container appointment-confirmation-time-container--failure'>
               {appointmentSubmissionError?.message ||
                 'Время бронирования слота истекло. Пожалуйста, выберите другое время'}
             </div>
