@@ -8,6 +8,7 @@ import {
   getWidgetState,
   goBack,
   goToAppointmentConfirmation,
+  goToAppointmentFailure,
   goToPrivacyPolicy,
   saveAppointmentDetailsDraft,
   selectBreed,
@@ -518,6 +519,23 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
     const toRaw = state.selectedTimeSlotToRaw;
     const departmentId = state.selectedDepartmentId;
 
+    const extractRecordErrorReason = (error: unknown): string => {
+      if (error && typeof error === 'object') {
+        const e = error as { reason?: unknown; message?: unknown; details?: unknown };
+        if (typeof e.reason === 'string') return e.reason;
+        if (
+          e.details &&
+          typeof e.details === 'object' &&
+          'reason' in e.details &&
+          typeof (e.details as { reason?: unknown }).reason === 'string'
+        ) {
+          return (e.details as { reason: string }).reason;
+        }
+        if (typeof e.message === 'string') return e.message;
+      }
+      return '';
+    };
+
     if (
       !state.config?.offlineMode &&
       apiUrl &&
@@ -620,8 +638,23 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
           payload,
         });
       } catch (e) {
-        // Не блокируем UX: показываем подтверждение даже если запись не сохранилась.
         console.error('Ошибка создания записи:', e);
+        const reason = extractRecordErrorReason(e);
+        const isTimeslotExpired =
+          reason.includes('business_invariant:no_matching_schedule_found_to_create_record');
+
+        if (isTimeslotExpired) {
+          goToAppointmentFailure({
+            type: 'timeslot_expired',
+            reason,
+            message: 'Время бронирования слота истекло. Пожалуйста, выберите другое время',
+            draft: buildAppointmentDetailsDraft(),
+          });
+          return;
+        }
+
+        message.error('Не удалось записаться на приём. Попробуйте снова');
+        return;
       }
     }
 

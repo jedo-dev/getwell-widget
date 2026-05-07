@@ -250,6 +250,11 @@ export interface WidgetState {
     consentPersonalData?: boolean;
     consentMarketing?: boolean;
   };
+  appointmentSubmissionError?: {
+    reason?: string;
+    message: string;
+    type?: 'timeslot_expired' | 'generic';
+  } | null;
 }
 
 // Экспортируем enum'ы для удобства

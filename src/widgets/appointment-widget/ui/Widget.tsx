@@ -18,6 +18,7 @@ import { SelectionMode, WidgetStep } from '../../../shared/constants';
 import { formatEmployeeFullName } from '../../../shared/lib';
 import { Branch, Department, Employee, WidgetState } from '../../../types';
 import finishIcon from '../../../img/finish.svg';
+import errorIcon from '../../../img/error.svg';
 import './Widget.css';
 
 export interface WidgetProps {
@@ -73,6 +74,7 @@ export const Widget: React.FC<WidgetProps> = ({
   const confirmationHeaderImage = isMobileViewport
     ? widgetState.config?.mobileImageUrl || widgetState.config?.desktopImageUrl
     : widgetState.config?.desktopImageUrl || widgetState.config?.mobileImageUrl;
+  const isAppointmentFailure = Boolean(widgetState.appointmentSubmissionError);
 
   const isOffline =
     widgetState.config?.offlineMode === true ||
@@ -388,7 +390,11 @@ export const Widget: React.FC<WidgetProps> = ({
             ) : null}
 
             <div className='appointment-confirmation-success-icon'>
-              <img src={finishIcon} alt='Успешно' className='appointment-confirmation-success-image' />
+              <img
+                src={isAppointmentFailure ? errorIcon : finishIcon}
+                alt={isAppointmentFailure ? 'Ошибка' : 'Успешно'}
+                className='appointment-confirmation-success-image'
+              />
             </div>
           </div>
         );

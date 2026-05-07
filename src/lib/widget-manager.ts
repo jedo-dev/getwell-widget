@@ -23,6 +23,7 @@ let widgetState: WidgetState = {
   selectedBreedId: undefined,
   reservedTimeslotHash: null,
   appointmentDetailsDraft: undefined,
+  appointmentSubmissionError: null,
 };
 
 // let widgetState: WidgetState = {
@@ -249,6 +250,7 @@ export function openGetWellWidget(): void {
     selectedBreedId: undefined,
     reservedTimeslotHash: null,
     appointmentDetailsDraft: undefined,
+    appointmentSubmissionError: null,
   };
 
   notifyStateChange();
@@ -290,6 +292,7 @@ export function resetGetWellWidget(): void {
     selectedBreedId: undefined,
     reservedTimeslotHash: null,
     appointmentDetailsDraft: undefined,
+    appointmentSubmissionError: null,
   };
 
   notifyStateChange();
@@ -504,6 +507,7 @@ export function goToAppointmentConfirmation(
     ...widgetState,
     currentStep: WidgetStep.APPOINTMENT_CONFIRMATION,
     appointmentDetailsDraft: draft ?? widgetState.appointmentDetailsDraft,
+    appointmentSubmissionError: null,
   };
 
   notifyStateChange();
@@ -548,6 +552,27 @@ export function saveAppointmentDetailsDraft(
     ...widgetState,
     appointmentDetailsDraft: draft,
   };
+}
+
+export function goToAppointmentFailure(params: {
+  message: string;
+  reason?: string;
+  type?: 'timeslot_expired' | 'generic';
+  draft?: WidgetState['appointmentDetailsDraft'];
+}): void {
+  if (widgetState.config?.render?.lockStep) return;
+  widgetState = {
+    ...widgetState,
+    currentStep: WidgetStep.APPOINTMENT_CONFIRMATION,
+    appointmentDetailsDraft: params.draft ?? widgetState.appointmentDetailsDraft,
+    appointmentSubmissionError: {
+      message: params.message,
+      reason: params.reason,
+      type: params.type ?? 'generic',
+    },
+  };
+
+  notifyStateChange();
 }
 
 /**
@@ -721,6 +746,7 @@ export function applyConfig(
       selectedBreedId: undefined,
       reservedTimeslotHash: null,
       appointmentDetailsDraft: undefined,
+      appointmentSubmissionError: null,
     };
   }
 

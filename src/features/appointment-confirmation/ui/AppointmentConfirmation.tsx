@@ -1,6 +1,11 @@
 import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { getWidgetState, goToDoctorInfo, openGetWellWidget } from '../../../lib/widget-manager';
+import {
+  getWidgetState,
+  goToDateTimeSelection,
+  goToDoctorInfo,
+  openGetWellWidget,
+} from '../../../lib/widget-manager';
 import { branchesApi } from '../../../shared/api';
 import { petsApi } from '../../../shared/api/pets';
 import { WidgetStep } from '../../../shared/constants';
@@ -21,6 +26,7 @@ import UserIcon from '../../../img/confirmation-icon/doctor.svg';
 import mobileIcon from '../../../img/confirmation-icon/mobile.svg';
 import pawIcon from '../../../img/confirmation-icon/pet.svg';
 import watchIcon from '../../../img/confirmation-icon/watch.svg';
+import errorIcon from '../../../img/error.svg';
 
 export interface AppointmentConfirmationProps {
   selectedBranch: Branch | null;
@@ -144,6 +150,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
   hasHeaderImage = false,
 }) => {
   const widgetState = getWidgetState();
+  const appointmentSubmissionError = widgetState.appointmentSubmissionError;
+  const isFailureState = Boolean(appointmentSubmissionError);
   const showDoctorInfo = widgetState.config?.showDoctorInfo ?? true;
   const appointmentDraft = widgetState.appointmentDetailsDraft;
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
@@ -311,6 +319,10 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 
   const handleBookAgain = () => {
     openGetWellWidget();
+  };
+
+  const handleChooseAnotherTime = () => {
+    goToDateTimeSelection();
   };
 
   const handleDoctorInfo = () => {
@@ -508,6 +520,34 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
 
   return (
     <div className='appointment-confirmation'>
+      {isFailureState ? (
+        <>
+          <div
+            className={`appointment-confirmation-info-container${
+              hasHeaderImage ? ' appointment-confirmation-info-container--with-image' : ''
+            }`}>
+            <div className='appointment-confirmation-failure-icon'>
+              <img src={errorIcon} alt='Ошибка' className='appointment-confirmation-failure-image' />
+            </div>
+            <h2 className='appointment-confirmation-title'>Не удалось записаться на приём</h2>
+            <div className='appointment-confirmation-time-container'>
+              {appointmentSubmissionError?.message ||
+                'Время бронирования слота истекло. Пожалуйста, выберите другое время'}
+            </div>
+          </div>
+
+          <div className='gw-action-footer specialist-selection-footer appointment-confirmation-footer'>
+            <Button
+              type='primary'
+              className='gw-action-footer-btn gw-action-footer-btn--primary appointment-confirmation-book-again-btn gw-primary-btn'
+              onClick={handleChooseAnotherTime}
+              size='large'>
+              Выбрать другое время
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
       {/* Main Image Container */}
 
       {/* Appointment Info Container */}
@@ -578,6 +618,8 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
           Записаться ещё
         </Button>
       </div>
+        </>
+      )}
     </div>
   );
 };
