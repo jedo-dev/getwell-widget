@@ -1,8 +1,10 @@
 .appointment-details {
+  --appointment-details-footer-height: 88px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  height: -webkit-fill-available;
+  height: 100%;
+  max-height: 100%;
   min-height: 0;
   gap: 2px;
   background: linear-gradient(#f498ad00 25%, #2e9aff00 25% 50%, #ffffff 75%);
@@ -57,13 +59,17 @@
 }
 
 .appointment-details-content {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 2px;
   border-radius: 16px 16px 0 0;
+  /* Reserve exact space for sticky footer + iOS/macOS safe area */
+  /* padding-bottom: calc(
+    var(--appointment-details-footer-height) + env(safe-area-inset-bottom, 0px)
+  ); */
 }
 
 /* Appointment Details Container */
@@ -439,11 +445,14 @@
   --gw-action-footer-padding: 20px;
   --gw-action-footer-gap: 12px;
   --gw-action-footer-primary-flex: 1;
+  position: sticky !important;
+  bottom: env(safe-area-inset-bottom, 0px) !important;
   background: #ffffff;
   border-radius: 0 0 16px 16px;
   margin-top: 0;
+  flex-shrink: 0;
+  min-height: var(--appointment-details-footer-height);
   z-index: 6;
-  bottom: 0;
 }
 
 .appointment-details-submit-btn {
