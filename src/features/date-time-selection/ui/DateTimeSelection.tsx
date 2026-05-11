@@ -46,6 +46,13 @@ interface TimeSlot {
   departmentId?: number;
 }
 
+const parseServerLocalDateTime = (dt: string): Date => {
+  const [datePart, timePart] = dt.split(' ');
+  const [y, m, d] = datePart.split('-').map(Number);
+  const [hh, mm, ss] = timePart.split(':').map(Number);
+  return new Date(y, m - 1, d, hh, mm, ss || 0, 0);
+};
+
 export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   selectedEmployee,
   selectedEmployeeData,
@@ -59,6 +66,7 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
     selectedBranchTimezone?.code || ''
   }`;
   const showEmployeePosition = widgetState.config?.showEmployeePosition ?? true;
+  const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
   const initialSelectedDate = useMemo(() => {
     if (widgetState.selectedTimeSlot) {
       const restoredDate = new Date(widgetState.selectedTimeSlot);
@@ -67,8 +75,15 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
       }
     }
 
+    if (nearestTimeslot?.from) {
+      const nearestDate = parseServerLocalDateTime(nearestTimeslot.from);
+      if (!Number.isNaN(nearestDate.getTime())) {
+        return nearestDate;
+      }
+    }
+
     return new Date();
-  }, [widgetState.selectedTimeSlot]);
+  }, [widgetState.selectedTimeSlot, nearestTimeslot?.from]);
   const currentRealMonth = useMemo(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
@@ -190,13 +205,6 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
     setSelectedTimeTo(null);
     setSelectedSlotKey(null);
     selectDateTime(null, null);
-  };
-
-  const parseLocalDateTime = (dt: string): Date => {
-    const [datePart, timePart] = dt.split(' ');
-    const [y, m, d] = datePart.split('-').map(Number);
-    const [hh, mm, ss] = timePart.split(':').map(Number);
-    return new Date(y, m - 1, d, hh, mm, ss || 0, 0);
   };
 
   const handleTimeSelect = async (slot: TimeSlot) => {
@@ -568,8 +576,9 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
   }, [timeSlots]);
 
   const fullName = formatEmployeeFullName(selectedEmployee);
-  const nearestTimeslot = findNearestTimeslot(selectedEmployeeData);
-  const nearestAvailableDate = nearestTimeslot ? parseLocalDateTime(nearestTimeslot.from) : null;
+  const nearestAvailableDate = nearestTimeslot
+    ? parseServerLocalDateTime(nearestTimeslot.from)
+    : null;
   const nearestAvailableDateLabel = nearestAvailableDate ? formatDate(nearestAvailableDate) : null;
   const hasAvailableSlots = timeSlots.length > 0;
   const showEmptySlotsState = !loadingSlots && !hasAvailableSlots;
