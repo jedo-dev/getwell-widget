@@ -3,20 +3,6 @@ import { schedulesApi, AvailableTimechip } from '../api/schedules';
 import { formatLocalMidnight } from '../lib';
 import { getWidgetState } from '../../lib/widget-manager';
 
-interface TimechipCacheKey {
-  filialId: number;
-  doctorId?: number;
-  departmentId?: number;
-  date: string;
-}
-
-// Session-level cache
-const timechipCache = new Map<string, AvailableTimechip[]>();
-
-function getCacheKey(key: TimechipCacheKey): string {
-  return `${key.filialId}_${key.doctorId ?? 'null'}_${key.departmentId ?? 'null'}_${key.date}`;
-}
-
 interface UseTimechipsResult {
   timechips: AvailableTimechip[];
   loading: boolean;
@@ -28,7 +14,8 @@ interface UseTimechipsOptions {
 }
 
 /**
- * Hook for loading timechips with caching.
+ * Hook for loading timechips.
+ * Always requests fresh data to avoid showing outdated near-time slots.
  */
 export function useTimechips(
   doctorId: number | null,
@@ -65,22 +52,6 @@ export function useTimechips(
     // Use provided date or today's midnight in local time
     const requestDate = date || formatLocalMidnight(new Date());
 
-    // Read cache
-    const cacheKey: TimechipCacheKey = {
-      filialId,
-      doctorId,
-      departmentId,
-      date: requestDate,
-    };
-    const key = getCacheKey(cacheKey);
-    const cached = timechipCache.get(key);
-
-    if (cached) {
-      setTimechips(cached);
-      setError(null);
-      return;
-    }
-
     // Load data
     setLoading(true);
     setError(null);
@@ -95,8 +66,6 @@ export function useTimechips(
         departmentId,
       })
       .then((data) => {
-        // Save to cache
-        timechipCache.set(key, data);
         setTimechips(data);
         setError(null);
       })
