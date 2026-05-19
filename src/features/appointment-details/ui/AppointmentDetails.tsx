@@ -642,6 +642,14 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         const reason = extractRecordErrorReason(e);
         const isTimeslotExpired =
           reason.includes('business_invariant:no_matching_schedule_found_to_create_record');
+        const isTimeslotAlreadyStarted = reason.includes(
+          'business_invariant:timeslot_has_already_started',
+        );
+
+        if (isTimeslotAlreadyStarted) {
+          message.error('Время уже занято. Пожалуйста, выберите другое время.');
+          return;
+        }
 
         if (isTimeslotExpired) {
           goToAppointmentFailure({

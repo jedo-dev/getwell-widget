@@ -137,6 +137,10 @@ export const DepartmentSpecialistsSelection: React.FC<DepartmentSpecialistsSelec
           setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
           return;
         }
+        if (error.code === 'TIMESLOT_HAS_ALREADY_STARTED') {
+          setNotification({ message: 'Не удалось записаться на приём. Попробуйте снова' });
+          return;
+        }
         return;
       }
     }

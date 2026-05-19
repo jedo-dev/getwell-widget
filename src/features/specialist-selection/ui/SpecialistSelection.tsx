@@ -188,6 +188,10 @@ export const SpecialistSelection: React.FC<SpecialistSelectionProps> = ({
           setNotification({ message: 'Время уже занято. Пожалуйста, выберите другое время.' });
           return;
         }
+        if (error.code === 'TIMESLOT_HAS_ALREADY_STARTED') {
+          setNotification({ message: 'Не удалось записаться на приём. Попробуйте снова' });
+          return;
+        }
         return;
       }
     }

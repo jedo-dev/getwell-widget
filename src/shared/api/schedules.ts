@@ -295,10 +295,17 @@ export const schedulesApi = {
       const isDuplicateEntryReason =
         res.reason === 'duplicate_entry' ||
         res.reason === 'business_invariant:timeslot_is_already_in_database';
+      const isTimeslotAlreadyStartedReason =
+        res.reason === 'business_invariant:timeslot_has_already_started';
 
       if (isDuplicateEntryReason) {
         const error = new Error(res.reason || 'Time slot is already reserved');
         (error as any).code = 'DUPLICATE_ENTRY';
+        throw error;
+      }
+      if (isTimeslotAlreadyStartedReason) {
+        const error = new Error(res.reason || 'Time slot has already started');
+        (error as any).code = 'TIMESLOT_HAS_ALREADY_STARTED';
         throw error;
       }
       throw new Error(res.reason || 'Failed to reserve timeslot');

@@ -258,6 +258,14 @@ export const DateTimeSelection: React.FC<DateTimeSelectionProps> = ({
             selectDateTime(null, null);
             return;
           }
+          if (error.code === 'TIMESLOT_HAS_ALREADY_STARTED') {
+            setNotification({ message: 'Не удалось записаться на приём. Попробуйте снова' });
+            setSelectedTime(null);
+            setSelectedTimeTo(null);
+            setSelectedSlotKey(null);
+            selectDateTime(null, null);
+            return;
+          }
           // Продолжаем выполнение даже при другой ошибке резервирования
           return;
         }
