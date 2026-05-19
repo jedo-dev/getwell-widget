@@ -11,7 +11,7 @@
 }
 
 .gw-screen-layout__content {
-  flex: 1 1 auto;
+  height: -webkit-fill-available;
   min-height: 0;
   display: flex;
   flex-direction: column;
