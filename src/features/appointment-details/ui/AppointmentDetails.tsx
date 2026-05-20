@@ -647,7 +647,12 @@ export const AppointmentDetails: React.FC<AppointmentDetailsProps> = ({
         );
 
         if (isTimeslotAlreadyStarted) {
-          message.error('Время уже занято. Пожалуйста, выберите другое время.');
+          goToAppointmentFailure({
+            type: 'timeslot_expired',
+            reason,
+            message: 'Время уже занято. Пожалуйста, выберите другое время.',
+            draft: buildAppointmentDetailsDraft(),
+          });
           return;
         }
 
