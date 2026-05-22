@@ -1,4 +1,4 @@
-import { Button, Spin } from 'antd';
+﻿import { Button, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
   getWidgetState,
@@ -38,6 +38,7 @@ export interface AppointmentConfirmationProps {
 
 const DEFAULT_EVENT_DURATION_MINUTES = 30;
 const OFFSET_RE = /([+-])\s*(\d{1,2})(?::?(\d{2}))?/;
+const FAILURE_DESCRIPTION = 'Время бронирования слота истекло. Пожалуйста, выберите другое время';
 
 type CalendarParts = {
   year: string;
@@ -529,8 +530,7 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
               Не удалось записаться на приём
             </h2>
             <div className='appointment-confirmation-time-container appointment-confirmation-time-container--failure'>
-              {appointmentSubmissionError?.message ||
-                'Время бронирования слота истекло. Пожалуйста, выберите другое время'}
+              {FAILURE_DESCRIPTION}
             </div>
           </div>
 
@@ -621,3 +621,4 @@ export const AppointmentConfirmation: React.FC<AppointmentConfirmationProps> = (
     </div>
   );
 };
+
